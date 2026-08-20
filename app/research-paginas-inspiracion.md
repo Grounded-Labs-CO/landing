@@ -4,7 +4,7 @@ Fecha: 2026-08-20 · Actualizado con `cooked-ideas/filosofia-y-posicionamiento-g
 Objetivo: inspirar el diseño de la **página corporativa de GROUNDED Labs** (marca madre) que explica quiénes somos y apunta a la **landing del workshop** (finanzas). No construir todavía, solo dejar el aprendizaje.
 
 Fuente de verdad de filosofía: `cooked-ideas/filosofia-y-posicionamiento-grounded-labs.md` + `marca/filosofia-y-posicionamiento-grounded-labs.md`.
-Resumen: propósito = maximizar valor que profesionales entregan vía IA estratégica (no “enseñar herramienta”); público = profesionales que dependen de su conocimiento, con mucho documento/dato, poco tiempo, capacidad de inversión y ya ven valor en IA; problema = ruido + humo + no saber por dónde empezar; filosofía = cero humo, no vender por vender, no masivos genéricos, criterio experto + curaduría; método = “ves valor + 2-3 cosas aplicables mañana + quieres más”; crecimiento = workshops pequeños → verticales por profesión → avanzados → consultoría/proyectos empresa → productos solo si hay problema repetido; límites = nada de magia, resultados automáticos, solución universal, verdad absoluta, activos/contactos Globant, alianzas vendehumo; personalidad = útil, cercana, real/aplicable, valiosa, entretenida.
+Resumen: propósito = maximizar valor que profesionales entregan vía IA estratégica (no “enseñar herramienta”); público = profesionales que dependen de su conocimiento, con mucho documento/dato, poco tiempo, capacidad de inversión y ya ven valor en IA; problema = ruido + humo + no saber por dónde empezar; filosofía = cero humo, no vender por vender, no masivos genéricos, criterio experto + curaduría; método = “ves valor + 2-3 cosas aplicables mañana + quieres más”; crecimiento = workshops pequeños → verticales por profesión → avanzados → consultoría/proyectos empresa → productos solo si hay problema repetido; límites = nada de magia, resultados automáticos, solución universal, verdad absoluta, activos/contactos de terceros, alianzas vendehumo; personalidad = útil, cercana, real/aplicable, valiosa, entretenida.
 
 ---
 
@@ -86,7 +86,7 @@ GROUNDED Labs hoy tiene solo la segunda. Necesita la primera para no parecer “
 
 ## 4. Qué NO copiar para GROUNDED Labs (límites de filosofía)
 
-Filosofía dice: cero humo, no vender por vender, no masivos, criterio experto + curaduría; límites: nada de soluciones mágicas, resultados automáticos sin revisión, “sirve para todos”, verdad absoluta, uso de Globant, ni alianzas vendehumo o profesores de baja calidad. Eso descarta:
+Filosofía dice: cero humo, no vender por vender, no masivos, criterio experto + curaduría; límites: nada de soluciones mágicas, resultados automáticos sin revisión, “sirve para todos”, verdad absoluta, uso de marcas de terceros, ni alianzas vendehumo o profesores de baja calidad. Eso descarta:
 
 - Hype (“cambia tu vida”, “sé un experto en 4h”, “IA que hace todo”, “asesor 24/7”, “para siempre”).
 - Catálogo infinito. GROUNDED es curaduría, no marketplace.
@@ -126,10 +126,10 @@ Filosofía dice: cero humo, no vender por vender, no masivos, criterio experto +
    - Límites: no vender “solución para todos” ni “asesor 24/7 para siempre”.
 
 5. **Para empresas (segundo funnel, sin vender por vender)**
-   - Bloque corto alineado a growth: workshops como puerta de entrada y laboratorio; empresas como extensión cuando hay casos. CTA `Llevar el método a tu equipo` → WhatsApp/Calendly + captura de lead B2B (“¿Lo recomendarías a tu empresa?”). No prometer consultoría mágica. Mencionar que todo fuera de horario, recursos propios, sin usar clientes Globant.
+   - Bloque corto alineado a growth: workshops como puerta de entrada y laboratorio; empresas como extensión cuando hay casos. CTA `Llevar el método a tu equipo` → WhatsApp/Calendly + captura de lead B2B (“¿Lo recomendarías a tu empresa?”). No prometer consultoría mágica. Iniciativa independiente, con recursos propios.
 
 6. **Quiénes somos (confianza + límites)**
-   - Framing: “Quienes filtran y enseñan” — no “gurus”. Reusar perfiles ya pulidos sin humo: Francisco (20 años software, lidera adopción IA en equipos técnicos y de negocio, BVC) y Eduardo (Salesforce, Claude Certified Architect, Agentforce, 20 años, finca raíz/cripto/acciones). Mencionar que trabajan fuera de horario, con recursos propios, sin hablar en nombre de Globant — coherente con riesgo laboral.
+   - Framing: “Quienes filtran y enseñan” — no “gurus”. Reusar perfiles ya pulidos sin humo: Francisco (20 años software, lidera adopción IA en equipos) y Eduardo (Salesforce, Claude Certified Architect, Agentforce, 20 años). Iniciativa independiente.
 
 7. **Prueba social honesta (estado actual)**
    - Sin inventos (filosofía + AGENTS.md): “Workshop piloto · 12 cupos · Validación con pago real (meta 10-15)” + por qué presencial en Medellín importa. Dejar hueco para NPS, “¿lo recomendarías a tu empresa?” y solicitudes de verticales después del piloto.
@@ -165,7 +165,7 @@ Esta separación evita que la landing pierda conversión por volverse institucio
 1. **Mover landing actual** de `/` a `/workshops/finanzas-personales-ia` (mantener redirección).
 2. **Crear corporativa en `/`** con el esqueleto arriba (8 secciones, sin backend nuevo).
 3. **Añadir captura de lead** (email) en corporativa + en cards “próximamente” → `Convex leads`.
-4. **Preparar kit de prensa mínimo:** 1 frase de posicionamiento + fotos de profesores + logos de donde han trabajado (sin usar marca Globant).
+4. **Preparar kit de prensa mínimo:** 1 frase de posicionamiento + fotos de profesores + logos de donde han trabajado.
 
 ---
 

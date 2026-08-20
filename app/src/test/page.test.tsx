@@ -8,11 +8,11 @@ describe("Corporate", () => {
     render(<Home />);
     expect(screen.getAllByText("GROUNDED Labs").length).toBeGreaterThan(0);
     expect(screen.getAllByText(/No hype/).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/Workshops prácticos de IA aplicada/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Workshops prácticos de inteligencia artificial aplicada/).length).toBeGreaterThan(0);
   });
   it("shows workshop destacado", () => {
     render(<Home />);
-    expect(screen.getByText(/Asistente Financiero con IA/)).toBeInTheDocument();
+    expect(screen.getByText(/Asistente Financiero/)).toBeInTheDocument();
     expect(screen.getAllByText(/\$400k/).length).toBeGreaterThan(0);
   });
 });

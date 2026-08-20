@@ -8,7 +8,7 @@ export default function FinanzasPage() {
         <div className="mx-auto max-w-[1120px]">
           <div className="mb-8 text-[13px] font-bold tracking-[0.08em] text-[#236b4b]">GROUNDED Labs</div>
           <p className="mb-8 -mt-[18px] text-[18px] font-bold text-[#17251f]">
-            <span className="text-[#c86f3d]">No hype.</span> Solo IA que entiende tu mundo.
+            <span className="text-[#c86f3d] italic">No hype.</span> Solo inteligencia artificial que entiende tu mundo.
           </p>
           <h1
             className="max-w-[760px] text-[clamp(42px,6vw,76px)] font-semibold leading-[1.02] tracking-[-0.025em] text-[#17251f]"
@@ -19,7 +19,7 @@ export default function FinanzasPage() {
             con Inteligencia Artificial
           </h1>
           <p className="mt-6 max-w-[680px] text-[clamp(17px,2vw,22px)] font-medium leading-[1.45] text-[#4e5b53]">
-            Una sesión práctica para aprender a trabajar con información financiera y explorar formas concretas de usar IA en tu día a día.
+            Una sesión práctica para aprender a trabajar con información financiera y explorar formas concretas de usar inteligencia artificial en tu día a día.
           </p>
           <p className="mt-5 max-w-[680px] text-[16px] text-[#6f7d74]">No es una clase magistral. No es teoría. Es manos a la obra.</p>
           <div className="mt-6 font-sans text-[15px] tracking-[0.02em] text-[#6f7d74]">
@@ -115,7 +115,7 @@ export default function FinanzasPage() {
                 Tú decides y revisas
               </h3>
               <p className="text-[16px] leading-6 text-[#4e5b53]">
-                La IA puede ayudarte a organizar y analizar información, pero la interpretación y las decisiones siguen bajo tu responsabilidad.
+                La inteligencia artificial puede ayudarte a organizar y analizar información, pero la interpretación y las decisiones siguen bajo tu responsabilidad.
               </p>
             </div>
           </div>
@@ -141,10 +141,10 @@ export default function FinanzasPage() {
             {[
               {
                 n: "01",
-                title: "IA sin humo",
+                title: "Inteligencia artificial sin humo",
                 time: "~30 min",
-                p: "Solo lo que necesitas entender: cómo funciona la IA de verdad y por qué puede leer tus documentos financieros. En español claro, sin tecnicismos.",
-                hito: "Entiendes qué puede y qué no puede hacer la IA con tu plata",
+                p: "Solo lo que necesitas entender: cómo funciona la inteligencia artificial de verdad y por qué puede leer tus documentos financieros. En español claro, sin tecnicismos.",
+                hito: "Entiendes qué puede y qué no puede hacer la inteligencia artificial con tu plata",
               },
               {
                 n: "02",
@@ -227,7 +227,7 @@ export default function FinanzasPage() {
             <span className="text-[#c86f3d]">05</span> Más que finanzas
           </div>
           <h2 className="text-[clamp(34px,4.5vw,52px)] font-semibold leading-[1.08] tracking-[-0.025em]" style={{ fontFamily: "var(--font-fraunces)" }}>
-            No solo aprendes de tu plata: aprendes a trabajar con IA
+            No solo aprendes de tu plata: aprendes a trabajar con inteligencia artificial
           </h2>
           <p className="mb-8 mt-4 max-w-[760px] text-[18px] text-[#4e5b53]">
             Las finanzas son el ejemplo perfecto para aprender, pero el método que te llevas te sirve en cualquier trabajo donde tu conocimiento sea tu valor. Lo aplicable
@@ -240,7 +240,7 @@ export default function FinanzasPage() {
                 Un método, mil usos
               </h3>
               <p className="text-[16px] text-[#4e5b53]">
-                Aprendes a enseñarle a una IA tu información, organizarla y preguntarle sobre ella. Ese mismo método se aplica a expedientes, clientes, investigación o
+                Aprendes a enseñarle a una inteligencia artificial tu información, organizarla y preguntarle sobre ella. Ese mismo método se aplica a expedientes, clientes, investigación o
                 proyectos — no solo a números.
               </p>
             </div>
@@ -250,7 +250,7 @@ export default function FinanzasPage() {
                 Médicos, abogados, docentes, gerentes
               </h3>
               <p className="text-[16px] text-[#4e5b53]">
-                Si tu trabajo depende de consultar conocimiento propio — historias, casos, papers, datos — te llevas la manera de hacer que la IA lo tenga a la mano. Las finanzas son la
+                Si tu trabajo depende de consultar conocimiento propio — historias, casos, papers, datos — te llevas la manera de hacer que la inteligencia artificial lo tenga a la mano. Las finanzas son la
                 puerta de entrada.
               </p>
             </div>
@@ -273,7 +273,7 @@ export default function FinanzasPage() {
           <div className="mb-3 text-[13px] font-bold tracking-[0.02em] text-[#236b4b]">
             <span className="text-[#c86f3d]">06</span> Quiénes somos
           </div>
-          <p className="-mt-3 mb-8 max-w-[760px] text-[18px] text-[#4e5b53]">Workshops prácticos de IA aplicada para profesionales que dependen de su conocimiento.</p>
+          <p className="-mt-3 mb-8 max-w-[760px] text-[18px] text-[#4e5b53]">Workshops prácticos de inteligencia artificial aplicada para profesionales que dependen de su conocimiento.</p>
           <h2 className="mb-8 text-[clamp(34px,4.5vw,52px)] font-semibold leading-[1.08] tracking-[-0.025em]" style={{ fontFamily: "var(--font-fraunces)" }}>
             Experiencia real para aprender sin perder tiempo
           </h2>
@@ -285,10 +285,10 @@ export default function FinanzasPage() {
               <h3 className="mb-1 text-[22px] font-semibold" style={{ fontFamily: "var(--font-fraunces)" }}>
                 Francisco Martínez
               </h3>
-              <div className="mb-3.5 text-[14px] font-bold text-[#236b4b]">Technical Manager + IA aplicada</div>
+              <div className="mb-3.5 text-[14px] font-bold text-[#236b4b]">Technical Manager + Inteligencia Artificial aplicada</div>
               <ul className="list-disc pl-5 text-[15px] text-[#4e5b53]">
                 <li className="mb-1.5">Más de 20 años de experiencia en la industria del software</li>
-                <li className="mb-1.5">Lidera la adopción de IA en equipos técnicos y de negocio</li>
+                <li className="mb-1.5">Lidera la adopción de inteligencia artificial en equipos técnicos y de negocio</li>
                 <li>Inversionista en la Bolsa de Valores de Colombia, con experiencia en mercados internacionales</li>
               </ul>
             </div>
@@ -299,7 +299,7 @@ export default function FinanzasPage() {
               <h3 className="mb-1 text-[22px] font-semibold" style={{ fontFamily: "var(--font-fraunces)" }}>
                 Eduardo Castillo
               </h3>
-              <div className="mb-3.5 text-[14px] font-bold text-[#236b4b]">Salesforce, Claude e IA aplicada</div>
+              <div className="mb-3.5 text-[14px] font-bold text-[#236b4b]">Salesforce, Claude e Inteligencia Artificial aplicada</div>
               <ul className="list-disc pl-5 text-[15px] text-[#4e5b53]">
                 <li className="mb-1.5">Experto en Salesforce y soluciones empresariales</li>
                 <li className="mb-1.5">Claude Certified Architect y Salesforce Agentforce Specialist</li>
@@ -337,7 +337,7 @@ export default function FinanzasPage() {
                 <span className="font-extrabold text-[#236b4b]">✓</span> Kit de trabajo: plantilla, skills y guía de análisis
               </div>
               <div className="flex items-start gap-3 rounded-xl border border-[#bcd8b9] bg-[#e6f2e4] px-4 py-[13px] text-[15px] font-semibold text-[#17251f]">
-                <span className="font-extrabold text-[#236b4b]">✓</span> Una metodología para seguir explorando IA aplicada
+                <span className="font-extrabold text-[#236b4b]">✓</span> Una metodología para seguir explorando inteligencia artificial aplicada
               </div>
             </div>
             <Link href="#" className="mt-8 inline-block rounded-full bg-[#236b4b] px-8 py-[17px] text-[18px] font-bold text-[#fffdf8] hover:bg-[#174e36]">
@@ -360,7 +360,7 @@ export default function FinanzasPage() {
             {[
               {
                 q: "¿Necesito saber programar?",
-                a: "No. El workshop está diseñado para profesionales no-técnicos. La IA hace el trabajo pesado; tú decides y revisas. Solo necesitas saber usar tu computador.",
+                a: "No. El workshop está diseñado para profesionales no-técnicos. La inteligencia artificial hace el trabajo pesado; tú decides y revisas. Solo necesitas saber usar tu computador.",
               },
               {
                 q: "¿Necesito algo extra para usar la herramienta?",
