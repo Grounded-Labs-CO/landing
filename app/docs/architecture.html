@@ -1,0 +1,24 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Arquitectura — GROUNDED Labs</title><style>body{font-family:system-ui;padding:40px;max-width:900px;margin:0 auto;line-height:1.6}pre{background:#f6f2ea;padding:16px;border-radius:8px;overflow:auto}</style></head><body>
+<h1>Arquitectura</h1>
+<p>Stack: Next.js 16 (App Router, React 19) + Convex + Tailwind v4 + shadcn/ui base-nova neutral + next-themes + lucide-react.</p>
+<h2>Convex</h2>
+<pre>convex/schema.ts – user_roles, leads, workshop_registrations
+convex/auth.ts – @convex-dev/auth Password + afterUserCreatedOrUpdated (pending)
+convex/queries.ts – getUserRole, listLeads (admin-only)
+convex/mutations.ts – createLead
+convex/admin.ts – approveUser
+</pre>
+<h2>Frontend</h2>
+<ul>
+<li>ConvexClientProvider (ConvexAuthProvider + NEXT_PUBLIC_CONVEX_URL)</li>
+<li>AuthGuard → /signin</li>
+<li>useRole() → {role, isAdmin, isPending, isLoading}</li>
+<li>Layout: DM Sans + Fraunces, ThemeProvider (light), Header sticky</li>
+<li>Alias @/* → src/*</li>
+</ul>
+<h2>Variables</h2>
+<pre>CONVEX_DEPLOYMENT=local:local-{team}-{project}
+NEXT_PUBLIC_CONVEX_URL=http://127.0.0.1:3210
+NEXT_PUBLIC_CONVEX_SITE_URL=http://127.0.0.1:3211
+</pre>
+</body></html>
