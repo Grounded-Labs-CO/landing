@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function CorporatePage() {
   return (
@@ -65,7 +66,7 @@ export default function CorporatePage() {
           <h2 className="text-[clamp(32px,4.5vw,48px)] font-semibold leading-[1.08] tracking-[-0.025em]" style={{ fontFamily: "var(--font-fraunces)" }}>
             Próximos eventos
           </h2>
-          <p className="mt-4 max-w-[760px] text-[16px] text-[#4e5b53]">Talleres prácticos, presenciales y con cupos limitados. Cada card es un evento hands-on.</p>
+          <p className="mt-4 max-w-[760px] text-[16px] text-[#4e5b53]">Talleres prácticos, presenciales y con cupos limitados.</p>
           <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             <Link href="/workshops/finanzas-personales-ia" className="rounded-[18px] border-2 border-[#236b4b] bg-white p-7 shadow-[0_12px_30px_rgba(35,107,75,0.12)] hover:shadow-[0_16px_36px_rgba(35,107,75,0.18)] transition-shadow block">
               <div className="text-[12px] font-bold tracking-[0.08em] text-[#236b4b]">WORKSHOP · 26 SEP · MEDELLÍN</div>
@@ -87,7 +88,7 @@ export default function CorporatePage() {
           <p className="mt-3 max-w-[760px] text-[14px] text-[#6f7d74]">No gurus. Dos profesionales con 20+ años en software que traducen inteligencia artificial real a trabajo real — fuera de horario, con recursos propios, sin humo.</p>
           <div className="mt-8 grid gap-7 md:grid-cols-2">
             <div className="rounded-[18px] border border-[#dce3da] bg-[#fffdf8] p-8">
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#dfece0] font-bold text-[#236b4b]">FM</div>
+              <Image src="/assets/Francisco.jpeg" alt="Francisco Martínez" width={64} height={64} className="mb-4 h-16 w-16 rounded-full object-cover border-2 border-[#dfece0] shadow-sm" />
               <h3 className="text-[18px] font-semibold">Francisco Martínez</h3>
               <div className="text-[13px] font-bold text-[#236b4b]">Technical Manager + Inteligencia Artificial aplicada</div>
               <ul className="mt-3 list-disc pl-5 text-[14px] text-[#4e5b53]">
@@ -97,7 +98,7 @@ export default function CorporatePage() {
               </ul>
             </div>
             <div className="rounded-[18px] border border-[#dce3da] bg-[#fffdf8] p-8">
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#dfece0] font-bold text-[#236b4b]">EC</div>
+              <Image src="/assets/Carlos.jpeg" alt="Eduardo Castillo" width={64} height={64} className="mb-4 h-16 w-16 rounded-full object-cover border-2 border-[#dfece0] shadow-sm" />
               <h3 className="text-[18px] font-semibold">Eduardo Castillo</h3>
               <div className="text-[13px] font-bold text-[#236b4b]">Salesforce, Claude e Inteligencia Artificial aplicada</div>
               <ul className="mt-3 list-disc pl-5 text-[14px] text-[#4e5b53]">

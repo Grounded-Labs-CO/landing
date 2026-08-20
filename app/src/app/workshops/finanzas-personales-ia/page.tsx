@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export default function FinanzasPage() {
   return (
@@ -279,9 +280,7 @@ export default function FinanzasPage() {
           </h2>
           <div className="grid gap-7 md:grid-cols-2">
             <div className="rounded-[18px] border border-[#dce3da] bg-[#fffdf8] p-8 shadow-[0_8px_24px_rgba(36,60,45,0.045)]">
-              <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-[#dfece0] font-semibold text-[#236b4b] text-[26px]" style={{ fontFamily: "var(--font-fraunces)" }}>
-                FM
-              </div>
+              <Image src="/assets/Francisco.jpeg" alt="Francisco Martínez" width={64} height={64} className="mb-5 h-16 w-16 rounded-full object-cover border-2 border-[#dfece0] shadow-sm" />
               <h3 className="mb-1 text-[22px] font-semibold" style={{ fontFamily: "var(--font-fraunces)" }}>
                 Francisco Martínez
               </h3>
@@ -293,9 +292,7 @@ export default function FinanzasPage() {
               </ul>
             </div>
             <div className="rounded-[18px] border border-[#dce3da] bg-[#fffdf8] p-8 shadow-[0_8px_24px_rgba(36,60,45,0.045)]">
-              <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-[#dfece0] font-semibold text-[#236b4b] text-[26px]" style={{ fontFamily: "var(--font-fraunces)" }}>
-                EC
-              </div>
+              <Image src="/assets/Carlos.jpeg" alt="Eduardo Castillo" width={64} height={64} className="mb-5 h-16 w-16 rounded-full object-cover border-2 border-[#dfece0] shadow-sm" />
               <h3 className="mb-1 text-[22px] font-semibold" style={{ fontFamily: "var(--font-fraunces)" }}>
                 Eduardo Castillo
               </h3>

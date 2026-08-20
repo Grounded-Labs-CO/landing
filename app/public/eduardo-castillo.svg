@@ -1,0 +1,15 @@
+<svg width="400" height="400" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title">
+  <title>Eduardo Castillo — GROUNDED Labs</title>
+  <defs>
+    <linearGradient id="bgGradEC" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fffdf8"/>
+      <stop offset="100%" stop-color="#e7efe5"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" rx="200" fill="url(#bgGradEC)" stroke="#dce3da" stroke-width="8"/>
+  <circle cx="200" cy="155" r="52" fill="#fffdf8" stroke="#356b72" stroke-width="3"/>
+  <circle cx="200" cy="135" r="28" fill="#ede7d8" stroke="#356b72" stroke-width="2.5"/>
+  <text x="200" y="255" font-family="Fraunces, Georgia, serif" font-size="42" font-weight="700" fill="#356b72" text-anchor="middle" letter-spacing="0.08em">EC</text>
+  <text x="200" y="285" font-family="DM Sans, system-ui, sans-serif" font-size="13" font-weight="700" fill="#c86f3d" text-anchor="middle" letter-spacing="0.14em">EDUARDO</text>
+  <text x="200" y="303" font-family="DM Sans, system-ui, sans-serif" font-size="11" font-weight="600" fill="#6f7d74" text-anchor="middle" letter-spacing="0.08em">Salesforce · Claude</text>
+</svg>
