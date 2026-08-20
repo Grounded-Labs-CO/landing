@@ -58,37 +58,10 @@ export default function CorporatePage() {
         </div>
       </section>
 
-      {/* MÉTODO */}
-      <section className="bg-[#edf3eb] px-6 py-[88px]">
-        <div className="mx-auto max-w-[1120px]">
-          <div className="mb-3 text-[13px] font-bold tracking-[0.02em] text-[#236b4b]"><span className="text-[#c86f3d]">02</span> Método</div>
-          <h2 className="text-[clamp(32px,4.5vw,48px)] font-semibold leading-[1.08] tracking-[-0.025em]" style={{ fontFamily: "var(--font-fraunces)" }}>
-            Útil, cercano y entretenido. <span className="text-[#6f7d74]">No clase magistral.</span>
-          </h2>
-          <div className="mt-10 grid gap-6 md:grid-cols-3">
-            <div className="rounded-[18px] border border-[#dce3da] border-l-4 border-l-[#236b4b] bg-[#fffdf8] p-7 shadow-[0_8px_24px_rgba(36,60,45,0.045)]">
-              <div className="text-[12px] font-bold tracking-[0.08em] text-[#236b4b]">CERO HUMO + CURADURÍA</div>
-              <h3 className="mt-2 text-[18px] font-semibold">Filtramos qué sirve</h3>
-              <p className="mt-2 text-[14px] text-[#4e5b53]">Criterio experto. Traducimos mejores prácticas de inteligencia artificial en software a tu profesión. Sin vender por vender, sin masivos genéricos.</p>
-            </div>
-            <div className="rounded-[18px] border border-[#dce3da] border-l-4 border-l-[#356b72] bg-[#fffdf8] p-7 shadow-[0_8px_24px_rgba(36,60,45,0.045)]">
-              <div className="text-[12px] font-bold tracking-[0.08em] text-[#356b72]">80% PRÁCTICA</div>
-              <h3 className="mt-2 text-[18px] font-semibold">Con tus archivos, checkpoints por hito</h3>
-              <p className="mt-2 text-[14px] text-[#4e5b53]">12 máx, 1 facilitador cada 6, guía previa. Avanzas a tu ritmo y nunca te quedas atrás.</p>
-            </div>
-            <div className="rounded-[18px] border border-[#dce3da] border-l-4 border-l-[#c86f3d] bg-[#fffdf8] p-7 shadow-[0_8px_24px_rgba(36,60,45,0.045)]">
-              <div className="text-[12px] font-bold tracking-[0.08em] text-[#c86f3d]">VALIÓ LA PENA</div>
-              <h3 className="mt-2 text-[18px] font-semibold">Sales con 2–3 cosas para mañana</h3>
-              <p className="mt-2 text-[14px] text-[#4e5b53]">Valor real en tu profesión. Tan bueno que quieres más y nos recomiendas.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* PRÓXIMOS EVENTOS */}
       <section id="workshops" className="bg-[#f6f2ea] px-6 py-[88px]">
         <div className="mx-auto max-w-[1120px]">
-          <div className="mb-3 text-[13px] font-bold tracking-[0.02em] text-[#236b4b]"><span className="text-[#c86f3d]">03</span> Próximos eventos</div>
+          <div className="mb-3 text-[13px] font-bold tracking-[0.02em] text-[#236b4b]"><span className="text-[#c86f3d]">02</span> Próximos eventos</div>
           <h2 className="text-[clamp(32px,4.5vw,48px)] font-semibold leading-[1.08] tracking-[-0.025em]" style={{ fontFamily: "var(--font-fraunces)" }}>
             Próximos eventos
           </h2>
@@ -108,7 +81,7 @@ export default function CorporatePage() {
       {/* QUIÉNES SOMOS */}
       <section className="bg-[#edf3eb] px-6 py-[88px]">
         <div className="mx-auto max-w-[1120px]">
-          <div className="mb-3 text-[13px] font-bold tracking-[0.02em] text-[#236b4b]"><span className="text-[#c86f3d]">04</span> Quiénes somos</div>
+          <div className="mb-3 text-[13px] font-bold tracking-[0.02em] text-[#236b4b]"><span className="text-[#c86f3d]">03</span> Quiénes somos</div>
           <p className="-mt-3 mb-2 max-w-[760px] text-[18px] text-[#4e5b53]">Workshops prácticos de inteligencia artificial aplicada para profesionales que dependen de su conocimiento.</p>
           <h2 className="text-[clamp(32px,4.5vw,48px)] font-semibold leading-[1.08] tracking-[-0.025em]" style={{ fontFamily: "var(--font-fraunces)" }}>Quienes filtran y enseñan.</h2>
           <p className="mt-3 max-w-[760px] text-[14px] text-[#6f7d74]">No gurus. Dos profesionales con 20+ años en software que traducen inteligencia artificial real a trabajo real — fuera de horario, con recursos propios, sin humo.</p>
@@ -139,32 +112,7 @@ export default function CorporatePage() {
 
 
 
-      {/* LEAD MAGNET */}
-      <section id="lista-espera" className="bg-[#f6f2ea] px-6 py-[88px]">
-        <div className="mx-auto max-w-[1120px] rounded-[22px] border border-[#dce3da] bg-[#fffdf8] p-8 md:p-10">
-          <div className="grid gap-8 md:grid-cols-2 items-center">
-            <div>
-              <div className="text-[12px] font-bold tracking-[0.14em] text-[#6f7d74]">RECURSO GRATUITO</div>
-              <h2 className="mt-2 text-[28px] font-semibold leading-[1.1]" style={{ fontFamily: "var(--font-fraunces)" }}>¿Cuánto conoces tu plata?</h2>
-              <p className="mt-3 text-[15px] text-[#4e5b53]">Guía de 5 números para diagnosticar tu salud financiera antes del workshop. Te la enviamos por email — y quedas en lista de espera segmentada por profesión.</p>
-            </div>
-            <form className="rounded-[18px] border border-[#dce3da] bg-[#f6f2ea] p-6" onSubmit={(e)=>e.preventDefault()}>
-              <label className="text-[12px] font-bold tracking-[0.08em] text-[#6f7d74]">EMAIL</label>
-              <input placeholder="tu@email.com" className="mt-2 w-full rounded-xl border border-[#dce3da] bg-white px-4 py-3 text-[14px] outline-none focus:border-[#236b4b]" />
-              <div className="mt-3 grid grid-cols-2 gap-3">
-                <select className="rounded-xl border border-[#dce3da] bg-white px-3 py-3 text-[13px] text-[#4e5b53]">
-                  <option>Profesión</option><option>Finanzas</option><option>Médico</option><option>Abogado</option><option>Otro</option>
-                </select>
-                <select className="rounded-xl border border-[#dce3da] bg-white px-3 py-3 text-[13px] text-[#4e5b53]">
-                  <option>Dolor</option><option>Tiempo</option><option>Datos dispersos</option><option>Decisiones</option>
-                </select>
-              </div>
-              <button className="mt-4 w-full rounded-full bg-[#236b4b] py-3 text-sm font-bold text-white hover:bg-[#174e36]">Enviar guía →</button>
-              <p className="mt-2 text-center text-[11px] text-[#6f7d74]">Guardamos tu lead en Convex (`leads`). No spam. No regalamos el workshop.</p>
-            </form>
-          </div>
-        </div>
-      </section>
+      {/* LEAD MAGNET - oculto por ahora */}
 
       {/* FOOTER */}
       <footer className="border-t border-[#dce3da] bg-[#fffdf8] px-6 py-10">
