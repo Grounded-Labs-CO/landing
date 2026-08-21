@@ -12,7 +12,7 @@ export default function AdminPage() {
         </p>
         <div className="mt-6 border border-[#262E31] bg-[#1C2427] p-6">
           <div className="h-[1.5px] w-8 bg-[#B4552B]"></div>
-          <p className="mt-3 font-mono text-[11px] tracking-[0.08em] text-[#6C7573]">// panel protegido — verifica rol en Convex</p>
+          <p className="mt-3 font-mono text-[11px] tracking-[0.08em] text-[#6C7573]">{"// panel protegido — verifica rol en Convex"}</p>
         </div>
       </div>
     </AuthGuard>

@@ -4,426 +4,234 @@ import Image from "next/image";
 export default function FinanzasPage() {
   return (
     <div className="bg-[#0E1214] text-[#F1F3F2]">
-      {/* HERO */}
-      <section className="border-b border-[#262E31] px-6 py-[88px] max-[820px]:py-[64px]">
-        <div className="mx-auto max-w-[1120px]">
-          <span className="font-mono text-[11px] tracking-[0.18em] uppercase text-[#B4552B]">Workshop · 26 Sep · Medellín</span>
-          <div className="mt-4 font-mono text-[11px] tracking-[0.12em] uppercase text-[#9AA3A1]">
-            <span className="text-[#B4552B]">No hype.</span> Solo inteligencia artificial que entiende tu mundo.
+      {/* HERO — 2A */}
+      <section id="top" className="mx-auto max-w-[1240px] px-12 max-[900px]:px-6 py-[108px] max-[900px]:py-[72px] grid grid-cols-[1.25fr_1fr] max-[900px]:grid-cols-1 gap-[72px] items-start">
+        <div className="flex flex-col gap-[30px]">
+          <span className="font-mono text-[11px] tracking-[0.16em] uppercase text-[#B4552B]">[workshop · 26 sep · medellín · 12 cupos]</span>
+          <div className="font-mono text-[11px] tracking-[0.12em] uppercase text-[#9AA3A1]">
+            <span className="text-[#B4552B] italic">No hype.</span> Solo inteligencia artificial que entiende tu mundo.
           </div>
-          <h1 className="mt-6 max-w-[760px] font-sans text-[clamp(42px,6vw,64px)] font-extralight leading-[0.98] tracking-[-0.035em] text-[#F1F3F2]">
-            Tu <span className="font-light text-[#B4552B]">Asistente Financiero</span>
-            <br />
-            con Inteligencia Artificial
+          <h1 className="m-0 max-w-[760px] text-[76px] max-[900px]:text-[48px] font-extralight leading-[0.98] tracking-[-0.04em] text-[#F1F3F2] text-balance" style={{ fontFamily: "var(--font-sans)" }}>
+            Tu <span className="text-[#F1F3F2]">Asistente Financiero</span> con Inteligencia Artificial
           </h1>
-          <p className="mt-6 max-w-[680px] font-sans text-[18px] leading-[1.6] text-[#DDE2E0]">
-            Una sesión práctica para aprender a trabajar con información financiera y explorar formas concretas de usar inteligencia artificial en tu día a
-            día.
-          </p>
-          <p className="mt-3 max-w-[680px] font-mono text-[13px] leading-[1.7] text-[#9AA3A1]">// No es una clase magistral. No es teoría. Es manos a la obra.</p>
-          <div className="mt-6 font-mono text-[11px] tracking-[0.08em] uppercase text-[#9AA3A1]">
-            <span className="font-medium text-[#DDE2E0]">Presencial en Medellín</span> &nbsp;·&nbsp; Sábado 26 de septiembre &nbsp;·&nbsp; No necesitas saber
-            programar
+          <p className="m-0 max-w-[52ch] text-[20px] leading-[1.6] text-[#DDE2E0]">Una sesión práctica para aprender a trabajar con información financiera y explorar formas concretas de usar inteligencia artificial en tu día a día.</p>
+          <p className="max-w-[52ch] text-[16px] leading-[1.6] text-[#9AA3A1]">No es una clase magistral. No es teoría. Es manos a la obra.</p>
+          <div className="font-mono text-[12px] tracking-[0.08em] uppercase text-[#6C7573]">
+            <span className="text-[#DDE2E0] normal-case tracking-normal font-sans text-[14px] font-medium">Presencial en Medellín</span> · Sábado 26 de septiembre · No necesitas saber programar
           </div>
-          <Link
-            href="#precio"
-            className="mt-8 inline-flex items-center bg-[#B4552B] px-8 py-[14px] font-mono text-[11px] font-medium tracking-[0.12em] uppercase text-[#0E1214] hover:bg-[#9A4A24] transition-colors"
-          >
-            Reservar mi cupo →
-          </Link>
-          <div className="mt-6 flex items-center gap-2 font-mono text-[11px] tracking-[0.12em] uppercase text-[#6C7573]">
-            <span className="h-[1.5px] w-8 bg-[#B4552B]"></span> 4h · 12 cupos · Presencial · 2 facilitadores en sala
+          <div className="flex gap-[14px] flex-wrap pt-[6px]">
+            <Link href="#precio" className="bg-[#B4552B] text-[#0E1214] px-[30px] py-[16px] font-mono text-[12px] font-medium tracking-[0.12em] uppercase hover:bg-[#9A4A24] transition-colors">
+              reservar mi cupo →
+            </Link>
+            <Link href="#agenda" className="border border-[#2F3A3D] text-[#9AA3A1] px-[30px] py-[16px] font-mono text-[12px] tracking-[0.12em] uppercase hover:text-[#F1F3F2] hover:border-[#9AA3A1] transition-colors">
+              ver agenda
+            </Link>
+          </div>
+          <div className="flex gap-10 pt-[26px] border-t border-[#262E31] mt-2">
+            <div className="flex flex-col gap-[6px]"><span className="text-[34px] font-extralight tracking-[-0.02em] text-[#F1F3F2]">4h</span><span className="font-mono text-[10px] leading-[1.6] tracking-[0.1em] uppercase text-[#6C7573]">de 0 a sistema</span></div>
+            <div className="flex flex-col gap-[6px]"><span className="text-[34px] font-extralight tracking-[-0.02em] text-[#F1F3F2]">12</span><span className="font-mono text-[10px] leading-[1.6] tracking-[0.1em] uppercase text-[#6C7573]">cupos máx</span></div>
+            <div className="flex flex-col gap-[6px]"><span className="text-[34px] font-extralight tracking-[-0.02em] text-[#F1F3F2]">1:6</span><span className="font-mono text-[10px] leading-[1.6] tracking-[0.1em] uppercase text-[#6C7573]">soporte 1 a 1</span></div>
+          </div>
+        </div>
+        <div className="flex flex-col gap-[14px]">
+          <div className="aspect-[4/5] border border-[#262E31] bg-[repeating-linear-gradient(135deg,#1C2427_0_10px,#131A1C_10px_20px)] grid place-items-center">
+            <span className="font-mono text-[11px] tracking-[0.12em] uppercase text-[#6C7573]">[foto] tu asistente 4:5</span>
+          </div>
+          <span className="font-mono text-[10px] leading-[1.7] text-[#565F62]">{"// nómina + extractos + tu marco de análisis — todo en un lugar"}</span>
+        </div>
+      </section>
+
+      {/* BANDA PROBLEMA */}
+      <section className="border-y border-[#262E31] bg-[#1C2427]">
+        <div className="mx-auto max-w-[1240px] px-12 max-[900px]:px-6 py-[76px] grid grid-cols-2 max-[900px]:grid-cols-1 gap-16">
+          <div className="flex flex-col gap-[18px]">
+            <span className="font-mono text-[11px] tracking-[0.16em] uppercase text-[#6C7573]">[el_problema]</span>
+            <span className="text-[38px] font-extralight leading-[1.16] tracking-[-0.025em] text-[#F1F3F2]">Ganas bien… y no sabes a dónde se va tu plata</span>
+          </div>
+          <div className="flex flex-col gap-6 justify-center">
+            <ul className="flex flex-col gap-3 font-mono text-[13px] leading-[1.7] text-[#DDE2E0]">
+              <li><span className="text-[#B4552B]">—</span> Tu información financiera está regada: nómina en PDF, extractos en el correo, inversiones en apps distintas.</li>
+              <li><span className="text-[#B4552B]">—</span> No sabes si estás mejor que el año pasado. Cada decisión la tomas con el estómago, no con datos.</li>
+              <li><span className="text-[#B4552B]">—</span> El banco tiene un perfil tuyo. Tú no tienes ninguno propio.</li>
+              <li className="text-[#F1F3F2]"><span className="text-[#B4552B]">—</span> Imagina preguntarle a tu plata: “¿puedo pagar esta deuda más rápido?” — y que te responda con tus números.</li>
+            </ul>
+            <p className="font-mono text-[12px] leading-[1.7] text-[#9AA3A1]">{"// cada banco te califica — aquí aprendes a calificarte tú, con tus datos"}</p>
           </div>
         </div>
       </section>
 
-      {/* PROBLEMA */}
-      <section className="border-b border-[#262E31] bg-[#0E1214] px-6 py-[88px]">
-        <div className="mx-auto max-w-[1120px]">
-          <span className="font-mono text-[11px] tracking-[0.18em] uppercase text-[#B4552B]">01 — El problema</span>
-          <h2 className="mt-4 max-w-[720px] font-sans text-[clamp(32px,4.5vw,44px)] font-light leading-[1.08] tracking-[-0.025em] text-[#F1F3F2]">
-            Ganas bien… y no sabes a dónde se va tu plata
-          </h2>
-          <div className="mt-8 flex flex-col gap-4 border-l border-[#262E31] pl-6">
-            <div className="flex gap-3 font-sans text-[17px] leading-[1.6] text-[#9AA3A1]">
-              <span className="font-mono text-[#B4552B]">—</span>
-              Tu información financiera está regada: nómina en PDF, extractos en el correo, inversiones en apps distintas.
-            </div>
-            <div className="flex gap-3 font-sans text-[17px] leading-[1.6] text-[#9AA3A1]">
-              <span className="font-mono text-[#B4552B]">—</span>
-              No sabes si estás mejor que el año pasado. Cada decisión de plata la tomas con el estómago, no con datos.
-            </div>
-            <div className="flex gap-3 font-sans text-[17px] leading-[1.6] text-[#9AA3A1]">
-              <span className="font-mono text-[#B4552B]">—</span>
-              El banco, las tarjetas y datacredito tienen un perfil tuyo. Tú no tienes ninguno propio.
-            </div>
-            <div className="flex gap-3 border border-[#B4552B] bg-[#1C2427] px-4 py-3 font-sans text-[17px] font-medium leading-[1.6] text-[#F1F3F2]">
-              <span className="font-mono text-[#B4552B]">→</span>
-              Imagina preguntarle a tu plata: &quot;¿puedo pagar esta deuda más rápido?&quot; — y que te responda con TUS números.
-            </div>
-          </div>
+      {/* LO QUE TE LLEVAS — método 4 cols */}
+      <section id="llevas" className="mx-auto max-w-[1240px] px-12 max-[900px]:px-6 py-24 flex flex-col gap-11">
+        <div className="flex flex-col gap-4">
+          <span className="font-mono text-[11px] tracking-[0.16em] uppercase text-[#B4552B]">[lo_que_te_llevas]</span>
+          <h2 className="m-0 text-[46px] font-extralight tracking-[-0.03em] text-[#F1F3F2]">Te vas con tu asistente andando, no con apuntes</h2>
+        </div>
+        <div className="grid grid-cols-4 max-[900px]:grid-cols-1 gap-[1px] bg-[#262E31] border border-[#262E31]">
+          <div className="bg-[#0E1214] p-[34px_30px] flex flex-col gap-4 min-h-[240px]"><span className="font-mono text-[11px] tracking-[0.14em] text-[#B4552B]">01</span><span className="text-[22px] font-light text-[#F1F3F2]">Tu presupuesto real</span><span className="text-[15px] leading-[1.7] text-[#9AA3A1]">A dónde va cada peso. Con ejemplos de ingresos y gastos para hacer mejores preguntas.</span></div>
+          <div className="bg-[#0E1214] p-[34px_30px] flex flex-col gap-4 min-h-[240px]"><span className="font-mono text-[11px] tracking-[0.14em] text-[#B4552B]">02</span><span className="text-[22px] font-light text-[#F1F3F2]">Tus deudas e inversiones</span><span className="text-[15px] leading-[1.7] text-[#9AA3A1]">Cómo analizar deudas e inversiones con información organizada y preguntas específicas.</span></div>
+          <div className="bg-[#0E1214] p-[34px_30px] flex flex-col gap-4 min-h-[240px]"><span className="font-mono text-[11px] tracking-[0.14em] text-[#B4552B]">03</span><span className="text-[22px] font-light text-[#F1F3F2]">Un marco para analizar</span><span className="text-[15px] leading-[1.7] text-[#9AA3A1]">Entiende tus números y detecta preguntas importantes sobre tu salud financiera.</span></div>
+          <div className="bg-[#0E1214] p-[34px_30px] flex flex-col gap-4 min-h-[240px]"><span className="font-mono text-[11px] tracking-[0.14em] text-[#B4552B]">04</span><span className="text-[22px] font-light text-[#F1F3F2]">Pregúntale a tu plata</span><span className="text-[15px] leading-[1.7] text-[#9AA3A1]">“¿cómo va mi ahorro?” — practicas y revisas respuestas con criterio.</span></div>
+        </div>
+        <div className="grid grid-cols-1 gap-[1px] bg-[#262E31] border border-[#262E31]">
+          <div className="bg-[#1C2427] p-6 flex gap-4 items-center"><span className="h-[1.5px] w-8 bg-[#B4552B]"></span><span className="font-mono text-[12px] leading-[1.7] text-[#DDE2E0]">Tú decides y revisas — la inteligencia artificial organiza, tú interpretas. Sin humo: no prometemos hacerte rico ni damos recomendaciones de inversión.</span></div>
         </div>
       </section>
 
-      {/* SOLUCION — LO QUE TE LLEVAS */}
-      <section className="border-b border-[#262E31] bg-[#1C2427] px-6 py-[88px]">
-        <div className="mx-auto max-w-[1120px]">
-          <span className="font-mono text-[11px] tracking-[0.18em] uppercase text-[#B4552B]">02 — Lo que te llevas</span>
-          <h2 className="mt-4 max-w-[720px] font-sans text-[clamp(32px,4.5vw,44px)] font-light leading-[1.08] tracking-[-0.025em] text-[#F1F3F2]">
-            Te vas con tu asistente financiero andando, no con apuntes
-          </h2>
-          <div className="mt-8 grid gap-px border border-[#262E31] bg-[#262E31] md:grid-cols-3">
-            <div className="bg-[#0E1214] p-7">
-              <div className="font-mono text-[10px] tracking-[0.16em] uppercase text-[#B4552B]">Tu presupuesto real</div>
-              <h3 className="mt-3 font-sans text-[18px] font-light text-[#F1F3F2]">A dónde va cada peso</h3>
-              <p className="mt-3 font-sans text-[14px] leading-[1.65] text-[#9AA3A1]">
-                Trabajas con ejemplos de ingresos y gastos para aprender a organizar información financiera y hacer mejores preguntas.
-              </p>
-            </div>
-            <div className="bg-[#0E1214] p-7">
-              <div className="font-mono text-[10px] tracking-[0.16em] uppercase text-[#9AA3A1]">Tus deudas e inversiones</div>
-              <h3 className="mt-3 font-sans text-[18px] font-light text-[#F1F3F2]">Deuda, bolsa y CDTs</h3>
-              <p className="mt-3 font-sans text-[14px] leading-[1.65] text-[#9AA3A1]">
-                Exploras cómo analizar deudas e inversiones con información organizada y preguntas específicas.
-              </p>
-            </div>
-            <div className="bg-[#0E1214] p-7">
-              <div className="font-mono text-[10px] tracking-[0.16em] uppercase text-[#6C7573]">Un marco para analizar</div>
-              <h3 className="mt-3 font-sans text-[18px] font-light text-[#F1F3F2]">Entiende tus números</h3>
-              <p className="mt-3 font-sans text-[14px] leading-[1.65] text-[#9AA3A1]">
-                Conoces un marco de análisis para revisar tu situación financiera y detectar preguntas importantes.
-              </p>
-            </div>
+      {/* AGENDA — 4 pasos */}
+      <section id="agenda" className="border-t border-[#262E31] bg-[#1C2427]">
+        <div className="mx-auto max-w-[1240px] px-12 max-[900px]:px-6 py-24 flex flex-col gap-11">
+          <div className="flex flex-col gap-4">
+            <span className="font-mono text-[11px] tracking-[0.16em] uppercase text-[#B4552B]">[agenda]</span>
+            <h2 className="m-0 text-[46px] font-extralight tracking-[-0.03em] text-[#F1F3F2]">4 horas, 4 pasos. Nadie se queda atrás.</h2>
           </div>
-          <div className="mt-px grid gap-px border border-t-0 border-[#262E31] bg-[#262E31] md:grid-cols-2">
-            <div className="bg-[#0E1214] p-7">
-              <div className="font-mono text-[10px] tracking-[0.16em] uppercase text-[#B4552B]">Preguntas concretas</div>
-              <h3 className="mt-3 font-sans text-[18px] font-light text-[#F1F3F2]">Pregúntale a tu plata</h3>
-              <p className="mt-3 font-sans text-[14px] leading-[1.65] text-[#9AA3A1]">
-                Practicas preguntas como &quot;¿cómo va mi ahorro?&quot; o &quot;¿qué información necesito para comparar mis deudas?&quot; y revisas las
-                respuestas con criterio.
-              </p>
-            </div>
-            <div className="bg-[#0E1214] p-7">
-              <div className="font-mono text-[10px] tracking-[0.16em] uppercase text-[#B4552B]">Criterio profesional</div>
-              <h3 className="mt-3 font-sans text-[18px] font-light text-[#F1F3F2]">Tú decides y revisas</h3>
-              <p className="mt-3 font-sans text-[14px] leading-[1.65] text-[#9AA3A1]">
-                La inteligencia artificial puede ayudarte a organizar y analizar información, pero la interpretación y las decisiones siguen bajo tu
-                responsabilidad.
-              </p>
-            </div>
-          </div>
-          <div className="mt-6 border border-[#262E31] border-l-2 border-l-[#B4552B] bg-[#0E1214] px-6 py-4">
-            <p className="text-center font-mono text-[11px] leading-[1.7] tracking-[0.02em] text-[#9AA3A1]">
-              <span className="text-[#B4552B] font-medium">Sin humo:</span> no prometemos hacerte rico ni damos recomendaciones de inversión. Te damos un
-              sistema para ver tu plata con claridad y decidir mejor. Las decisiones siempre son tuyas.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* AGENDA */}
-      <section className="border-b border-[#262E31] bg-[#0E1214] px-6 py-[88px]">
-        <div className="mx-auto max-w-[1120px]">
-          <span className="font-mono text-[11px] tracking-[0.18em] uppercase text-[#B4552B]">03 — Cómo es el workshop</span>
-          <h2 className="mt-4 font-sans text-[clamp(32px,4.5vw,44px)] font-light leading-[1.08] tracking-[-0.025em] text-[#F1F3F2]">
-            4 horas, 4 pasos. Nadie se queda atrás.
-          </h2>
-          <div className="mt-8 flex flex-col gap-px border border-[#262E31] bg-[#262E31]">
+          <div className="grid grid-cols-4 max-[900px]:grid-cols-1 gap-[1px] bg-[#262E31] border border-[#262E31]">
             {[
-              {
-                n: "01",
-                title: "Inteligencia artificial sin humo",
-                time: "~30 min",
-                p: "Solo lo que necesitas entender: cómo funciona la inteligencia artificial de verdad y por qué puede leer tus documentos financieros. En español claro, sin tecnicismos.",
-                hito: "Entiendes qué puede y qué no puede hacer la inteligencia artificial con tu plata",
-              },
-              {
-                n: "02",
-                title: "Tu asistente, instalado y listo",
-                time: "~60 min",
-                p: "Lo configuramos juntos en tu computador, paso a paso. Si te atascas, un facilitador te ayuda en el momento. Tú no vienes a ver: vienes a hacer.",
-                hito: "Tu asistente responde su primera pregunta",
-              },
-              {
-                n: "03",
-                title: "Procesas tu nómina y tus extractos",
-                time: "~75 min",
-                p: "Le das de comer TU desprendible de nómina y TUS extractos. El asistente arma tu presupuesto, analiza tus deudas y organiza tus inversiones.",
-                hito: "Tu vida financiera, por fin en un solo lugar",
-              },
-              {
-                n: "04",
-                title: "Tu calificación financiera",
-                time: "~45 min",
-                p: "Conoces un marco de calificación financiera y practicas cómo formular preguntas sobre tu información.",
-                hito: "Exploras un flujo para analizar tu información financiera",
-              },
+              { n: "01", title: "Inteligencia artificial sin humo", time: "30 min", p: "Solo lo que necesitas entender: cómo funciona la inteligencia artificial de verdad y por qué puede leer tus documentos financieros. En español claro, sin tecnicismos.", hito: "→ Entiendes qué puede y qué no puede hacer" },
+              { n: "02", title: "Tu asistente, instalado y listo", time: "60 min", p: "Lo configuramos juntos en tu computador, paso a paso. Si te atascas, un facilitador te ayuda en el momento.", hito: "→ Tu asistente responde su primera pregunta" },
+              { n: "03", title: "Procesas tu nómina y tus extractos", time: "75 min", p: "Le das de comer tu desprendible y tus extractos. El asistente arma tu presupuesto, analiza tus deudas y organiza tus inversiones.", hito: "→ Tu vida financiera, por fin en un solo lugar" },
+              { n: "04", title: "Tu calificación financiera", time: "45 min", p: "Conoces un marco de calificación y practicas cómo formular preguntas sobre tu información.", hito: "→ Exploras un flujo para analizar tu información" },
             ].map((item) => (
-              <div key={item.n} className="flex gap-6 bg-[#1C2427] px-7 py-6">
-                <div className="min-w-[48px] font-mono text-[32px] font-light leading-none text-[#B4552B]">{item.n}</div>
-                <div className="flex-1">
-                  <h3 className="font-sans text-[18px] font-light text-[#F1F3F2]">
-                    {item.title} <span className="font-mono text-[11px] font-normal tracking-[0.08em] text-[#9AA3A1]">· {item.time}</span>
-                  </h3>
-                  <p className="mt-2 font-sans text-[14px] leading-[1.6] text-[#9AA3A1]">{item.p}</p>
-                  <div className="mt-3 flex items-center gap-2 font-mono text-[11px] tracking-[0.08em] uppercase text-[#B4552B]">
-                    <span className="h-[1.5px] w-6 bg-[#B4552B]"></span> {item.hito}
-                  </div>
-                </div>
+              <div key={item.n} className="bg-[#0E1214] p-[34px_30px] flex flex-col gap-4 min-h-[260px]">
+                <div className="flex items-baseline justify-between"><span className="font-mono text-[11px] tracking-[0.14em] text-[#B4552B]">{item.n}</span><span className="font-mono text-[11px] tracking-[0.08em] text-[#565F62]">{item.time}</span></div>
+                <span className="text-[20px] font-light leading-[1.2] text-[#F1F3F2]">{item.title}</span>
+                <span className="text-[15px] leading-[1.7] text-[#9AA3A1]">{item.p}</span>
+                <span className="font-mono text-[11px] tracking-[0.08em] text-[#B4552B] mt-auto">{item.hito}</span>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* PARA QUIEN */}
-      <section className="border-b border-[#262E31] bg-[#1C2427] px-6 py-[88px]">
-        <div className="mx-auto max-w-[1120px]">
-          <span className="font-mono text-[11px] tracking-[0.18em] uppercase text-[#B4552B]">04 — ¿Es para ti?</span>
-          <h2 className="mt-4 max-w-[720px] font-sans text-[clamp(32px,4.5vw,44px)] font-light leading-[1.08] tracking-[-0.025em] text-[#F1F3F2]">
-            Si ganas plata y no sabes exactamente a dónde va, es para ti
-          </h2>
-          <div className="mt-8 grid gap-px border border-[#262E31] bg-[#262E31] md:grid-cols-3">
-            <div className="bg-[#0E1214] p-7">
-              <div className="font-mono text-[10px] tracking-[0.16em] uppercase text-[#B4552B]">Profesionales</div>
-              <h3 className="mt-3 font-sans text-[18px] font-light text-[#F1F3F2]">Con ingresos y poco tiempo</h3>
-              <p className="mt-3 font-sans text-[14px] leading-[1.65] text-[#9AA3A1]">
-                Ganas bien pero tu plata vive dispersa. Quieres claridad sin volverte experto en Excel ni pagar un asesor mensual.
-              </p>
-            </div>
-            <div className="bg-[#0E1214] p-7">
-              <div className="font-mono text-[10px] tracking-[0.16em] uppercase text-[#9AA3A1]">Emprendedores</div>
-              <h3 className="mt-3 font-sans text-[18px] font-light text-[#F1F3F2]">Finanzas personales y de negocio mezcladas</h3>
-              <p className="mt-3 font-sans text-[14px] leading-[1.65] text-[#9AA3A1]">
-                Necesitas separar, ordenar y entender tus números para tomar decisiones con datos, no con corazonadas.
-              </p>
-            </div>
-            <div className="bg-[#0E1214] p-7">
-              <div className="font-mono text-[10px] tracking-[0.16em] uppercase text-[#6C7573]">No es para ti si…</div>
-              <h3 className="mt-3 font-sans text-[18px] font-light text-[#F1F3F2]">Buscas tips de inversión mágicos</h3>
-              <p className="mt-3 font-sans text-[14px] leading-[1.65] text-[#9AA3A1]">
-                No damos recomendaciones de bolsa ni promesas de rentabilidad. Te damos claridad sobre tu plata; las decisiones son tuyas.
-              </p>
-            </div>
+      {/* PARA QUIEN — 3 cols */}
+      <section className="mx-auto max-w-[1240px] px-12 max-[900px]:px-6 py-24 flex flex-col gap-11 border-t border-[#262E31]">
+        <div className="flex flex-col gap-4">
+          <span className="font-mono text-[11px] tracking-[0.16em] uppercase text-[#B4552B]">[para_quién]</span>
+          <h2 className="m-0 text-[46px] font-extralight tracking-[-0.03em] text-[#F1F3F2]">Si ganas plata y no sabes exactamente a dónde va, es para ti</h2>
+        </div>
+        <div className="grid grid-cols-3 max-[900px]:grid-cols-1 gap-[22px]">
+          <div className="border border-[#262E31] bg-[#0E1214] p-[38px_34px] flex flex-col gap-4 min-h-[300px]"><span className="font-mono text-[10px] tracking-[0.16em] uppercase text-[#B4552B]">profesionales</span><span className="text-[24px] font-light leading-[1.2] text-[#F1F3F2]">Con ingresos y poco tiempo</span><span className="text-[15px] leading-[1.7] text-[#9AA3A1]">Ganas bien pero tu plata vive dispersa. Quieres claridad sin volverte experto en Excel ni pagar un asesor mensual.</span></div>
+          <div className="border border-[#262E31] bg-[#1C2427] p-[38px_34px] flex flex-col gap-4 min-h-[300px]"><span className="font-mono text-[10px] tracking-[0.16em] uppercase text-[#B4552B]">emprendedores</span><span className="text-[24px] font-light leading-[1.2] text-[#F1F3F2]">Finanzas personales y de negocio mezcladas</span><span className="text-[15px] leading-[1.7] text-[#9AA3A1]">Necesitas separar, ordenar y entender tus números para tomar decisiones con datos, no con corazonadas.</span></div>
+          <div className="border border-[#262E31] bg-[#0E1214] p-[38px_34px] flex flex-col gap-4 min-h-[300px]"><span className="font-mono text-[10px] tracking-[0.16em] uppercase text-[#B4552B]">no es para ti si…</span><span className="text-[24px] font-light leading-[1.2] text-[#F1F3F2]">Buscas tips mágicos</span><span className="text-[15px] leading-[1.7] text-[#9AA3A1]">No damos recomendaciones de bolsa ni promesas de rentabilidad. Te damos claridad; las decisiones son tuyas.</span></div>
+        </div>
+      </section>
+
+      {/* MÁS QUE FINANZAS — banda */}
+      <section className="border-y border-[#262E31] bg-[#1C2427]">
+        <div className="mx-auto max-w-[1240px] px-12 max-[900px]:px-6 py-24 flex flex-col gap-11">
+          <div className="flex flex-col gap-4">
+            <span className="font-mono text-[11px] tracking-[0.16em] uppercase text-[#B4552B]">[más_que_finanzas]</span>
+            <h2 className="m-0 text-[46px] font-extralight tracking-[-0.03em] text-[#F1F3F2]">No solo aprendes de tu plata: aprendes a trabajar con inteligencia artificial</h2>
+            <p className="max-w-[52ch] text-[16px] leading-[1.7] text-[#9AA3A1]">Las finanzas son el ejemplo perfecto para aprender, pero el método que te llevas te sirve en cualquier trabajo donde tu conocimiento sea tu valor.</p>
+          </div>
+          <div className="grid grid-cols-3 max-[900px]:grid-cols-1 gap-[22px]">
+            <div className="border border-[#262E31] bg-[#0E1214] p-8 flex flex-col gap-4"><span className="font-mono text-[10px] tracking-[0.16em] uppercase text-[#B4552B]">la habilidad</span><span className="text-[22px] font-light text-[#F1F3F2]">Un método, mil usos</span><span className="text-[15px] leading-[1.7] text-[#9AA3A1]">Aprendes a enseñarle a una inteligencia artificial tu información, organizarla y preguntarle sobre ella.</span></div>
+            <div className="border border-[#262E31] bg-[#0E1214] p-8 flex flex-col gap-4"><span className="font-mono text-[10px] tracking-[0.16em] uppercase text-[#B4552B]">para cualquier profesional</span><span className="text-[22px] font-light text-[#F1F3F2]">Médicos, abogados, docentes</span><span className="text-[15px] leading-[1.7] text-[#9AA3A1]">Si tu trabajo depende de consultar conocimiento propio — historias, casos, papers — te llevas la manera de hacer que la inteligencia artificial lo tenga a la mano.</span></div>
+            <div className="border border-[#262E31] bg-[#0E1214] p-8 flex flex-col gap-4"><span className="font-mono text-[10px] tracking-[0.16em] uppercase text-[#B4552B]">tu calificación</span><span className="text-[22px] font-light text-[#F1F3F2]">¿AAA… o B+?</span><span className="text-[15px] leading-[1.7] text-[#9AA3A1]">Los bancos te califican a ti. En este taller conoces un marco para revisar tu salud financiera.</span></div>
           </div>
         </div>
       </section>
 
-      {/* MAS QUE FINANZAS */}
-      <section className="border-b border-[#262E31] bg-[#0E1214] px-6 py-[88px]">
-        <div className="mx-auto max-w-[1120px]">
-          <span className="font-mono text-[11px] tracking-[0.18em] uppercase text-[#B4552B]">05 — Más que finanzas</span>
-          <h2 className="mt-4 max-w-[760px] font-sans text-[clamp(32px,4.5vw,44px)] font-light leading-[1.08] tracking-[-0.025em] text-[#F1F3F2]">
-            No solo aprendes de tu plata: aprendes a trabajar con inteligencia artificial
-          </h2>
-          <p className="mt-4 max-w-[760px] font-sans text-[16px] leading-[1.65] text-[#9AA3A1]">
-            Las finanzas son el ejemplo perfecto para aprender, pero el método que te llevas te sirve en cualquier trabajo donde tu conocimiento sea tu
-            valor. Lo aplicable es la forma de trabajar, no solo el tema.
-          </p>
-          <div className="mt-8 grid gap-px border border-[#262E31] bg-[#262E31] md:grid-cols-3">
-            <div className="bg-[#1C2427] p-7">
-              <div className="font-mono text-[10px] tracking-[0.16em] uppercase text-[#B4552B]">La habilidad que te llevas</div>
-              <h3 className="mt-3 font-sans text-[18px] font-light text-[#F1F3F2]">Un método, mil usos</h3>
-              <p className="mt-3 font-sans text-[14px] leading-[1.65] text-[#9AA3A1]">
-                Aprendes a enseñarle a una inteligencia artificial tu información, organizarla y preguntarle sobre ella. Ese mismo método se aplica a
-                expedientes, clientes, investigación o proyectos — no solo a números.
-              </p>
+      {/* PROFESORES — perfiles */}
+      <section className="mx-auto max-w-[1240px] px-12 max-[900px]:px-6 py-24 flex flex-col gap-11">
+        <div className="flex flex-col gap-4">
+          <span className="font-mono text-[11px] tracking-[0.16em] uppercase text-[#B4552B]">[quienes_somos]</span>
+          <h2 className="m-0 text-[46px] font-extralight tracking-[-0.03em] text-[#F1F3F2]">Experiencia real para aprender sin perder tiempo</h2>
+          <p className="max-w-[52ch] text-[16px] leading-[1.7] text-[#9AA3A1]">Workshops prácticos de inteligencia artificial aplicada para profesionales que dependen de su conocimiento.</p>
+        </div>
+        <div className="grid grid-cols-2 max-[900px]:grid-cols-1 gap-[1px] bg-[#2F3A3D] border border-[#2F3A3D]">
+          <div className="bg-[#0E1214] p-8 flex flex-col gap-[18px]">
+            <Image src="/assets/Francisco.jpeg" alt="Francisco Martínez" width={64} height={64} className="h-16 w-16 object-cover border border-[#262E31]" />
+            <div className="flex flex-col gap-2">
+              <span className="font-mono text-[14px] font-medium text-[#F1F3F2]">Francisco Martínez</span>
+              <span className="font-mono text-[11px] tracking-[0.12em] uppercase text-[#B4552B]">Technical Manager + Inteligencia Artificial aplicada</span>
             </div>
-            <div className="bg-[#1C2427] p-7">
-              <div className="font-mono text-[10px] tracking-[0.16em] uppercase text-[#9AA3A1]">Para cualquier profesional</div>
-              <h3 className="mt-3 font-sans text-[18px] font-light text-[#F1F3F2]">Médicos, abogados, docentes, gerentes</h3>
-              <p className="mt-3 font-sans text-[14px] leading-[1.65] text-[#9AA3A1]">
-                Si tu trabajo depende de consultar conocimiento propio — historias, casos, papers, datos — te llevas la manera de hacer que la inteligencia
-                artificial lo tenga a la mano. Las finanzas son la puerta de entrada.
-              </p>
+            <ul className="flex flex-col gap-2 font-mono text-[12px] leading-[1.7] text-[#9AA3A1] list-none p-0 m-0">
+              <li>— Más de 20 años de experiencia en la industria del software</li>
+              <li>— Lidera la adopción de inteligencia artificial en equipos técnicos y de negocio</li>
+              <li>— Inversionista en la Bolsa de Valores de Colombia, con experiencia en mercados internacionales</li>
+            </ul>
+          </div>
+          <div className="bg-[#0E1214] p-8 flex flex-col gap-[18px]">
+            <Image src="/assets/Carlos.jpeg" alt="Eduardo Castillo" width={64} height={64} className="h-16 w-16 object-cover border border-[#262E31]" />
+            <div className="flex flex-col gap-2">
+              <span className="font-mono text-[14px] font-medium text-[#F1F3F2]">Eduardo Castillo</span>
+              <span className="font-mono text-[11px] tracking-[0.12em] uppercase text-[#B4552B]">Salesforce, Claude e Inteligencia Artificial aplicada</span>
             </div>
-            <div className="bg-[#1C2427] p-7">
-              <div className="font-mono text-[10px] tracking-[0.16em] uppercase text-[#6C7573]">Tu calificación financiera</div>
-              <h3 className="mt-3 font-sans text-[18px] font-light text-[#F1F3F2]">¿AAA… o B+?</h3>
-              <p className="mt-3 font-sans text-[14px] leading-[1.65] text-[#9AA3A1]">
-                Los bancos te califican a ti. En este taller conoces un marco para revisar tu salud financiera y hacer mejores preguntas sobre tus números.
-              </p>
-            </div>
+            <ul className="flex flex-col gap-2 font-mono text-[12px] leading-[1.7] text-[#9AA3A1] list-none p-0 m-0">
+              <li>— Experto en Salesforce y soluciones empresariales</li>
+              <li>— Claude Certified Architect y Salesforce Agentforce Specialist</li>
+              <li>— Más de 20 años diseñando soluciones para empresas</li>
+              <li>— Experiencia construyendo y gestionando inversiones en finca raíz, cripto y acciones</li>
+            </ul>
           </div>
         </div>
       </section>
 
-      {/* PROFESORES */}
-      <section className="border-b border-[#262E31] bg-[#1C2427] px-6 py-[88px]">
-        <div className="mx-auto max-w-[1120px]">
-          <span className="font-mono text-[11px] tracking-[0.18em] uppercase text-[#B4552B]">06 — Quiénes somos</span>
-          <p className="mt-4 max-w-[760px] font-mono text-[12px] leading-[1.7] text-[#9AA3A1]">
-            // Workshops prácticos de inteligencia artificial aplicada para profesionales que dependen de su conocimiento.
-          </p>
-          <h2 className="mt-3 font-sans text-[clamp(32px,4.5vw,44px)] font-light leading-[1.08] tracking-[-0.025em] text-[#F1F3F2]">
-            Experiencia real para aprender sin perder tiempo
-          </h2>
-          <div className="mt-8 grid gap-px border border-[#262E31] bg-[#262E31] md:grid-cols-2">
-            <div className="bg-[#0E1214] p-8">
-              <div className="flex items-start gap-4">
-                <Image
-                  src="/assets/Francisco.jpeg"
-                  alt="Francisco Martínez"
-                  width={56}
-                  height={56}
-                  className="h-14 w-14 object-cover border border-[#262E31]"
-                />
-                <div>
-                  <h3 className="font-sans text-[18px] font-light text-[#F1F3F2]">Francisco Martínez</h3>
-                  <div className="font-mono text-[10px] tracking-[0.12em] uppercase text-[#B4552B]">Technical Manager + IA aplicada</div>
-                </div>
-              </div>
-              <ul className="mt-5 flex flex-col gap-1.5 font-sans text-[14px] leading-[1.6] text-[#9AA3A1]">
-                <li className="flex gap-2">
-                  <span className="text-[#B4552B]">—</span> Más de 20 años de experiencia en la industria del software
-                </li>
-                <li className="flex gap-2">
-                  <span className="text-[#B4552B]">—</span> Lidera la adopción de inteligencia artificial en equipos técnicos y de negocio
-                </li>
-                <li className="flex gap-2">
-                  <span className="text-[#B4552B]">—</span> Inversionista en la Bolsa de Valores de Colombia, con experiencia en mercados internacionales
-                </li>
-              </ul>
+      {/* PRECIO — caso */}
+      <section id="precio" className="border-y border-[#262E31] bg-[#1C2427]">
+        <div className="mx-auto max-w-[1240px] px-12 max-[900px]:px-6 py-24 grid grid-cols-[1fr_1.1fr] max-[900px]:grid-cols-1 gap-16 items-center">
+          <div className="border border-[#262E31] bg-[#0E1214] p-12 flex flex-col gap-6">
+            <span className="font-mono text-[11px] tracking-[0.16em] uppercase text-[#B4552B]">[inversión]</span>
+            <div className="flex flex-col gap-2">
+              <span className="font-mono text-[11px] tracking-[0.14em] uppercase text-[#6C7573]">workshop presencial · sábado 26 sep · 4 horas · 12 cupos</span>
+              <span className="text-[72px] font-extralight leading-none tracking-[-0.04em] text-[#F1F3F2]">$400k</span>
+              <span className="font-mono text-[12px] tracking-[0.12em] uppercase text-[#B4552B]">Precio de lanzamiento</span>
             </div>
-            <div className="bg-[#0E1214] p-8">
-              <div className="flex items-start gap-4">
-                <Image
-                  src="/assets/Carlos.jpeg"
-                  alt="Eduardo Castillo"
-                  width={56}
-                  height={56}
-                  className="h-14 w-14 object-cover border border-[#262E31]"
-                />
-                <div>
-                  <h3 className="font-sans text-[18px] font-light text-[#F1F3F2]">Eduardo Castillo</h3>
-                  <div className="font-mono text-[10px] tracking-[0.12em] uppercase text-[#B4552B]">Salesforce · Claude · IA aplicada</div>
-                </div>
-              </div>
-              <ul className="mt-5 flex flex-col gap-1.5 font-sans text-[14px] leading-[1.6] text-[#9AA3A1]">
-                <li className="flex gap-2">
-                  <span className="text-[#B4552B]">—</span> Experto en Salesforce y soluciones empresariales
-                </li>
-                <li className="flex gap-2">
-                  <span className="text-[#B4552B]">—</span> Claude Certified Architect y Salesforce Agentforce Specialist
-                </li>
-                <li className="flex gap-2">
-                  <span className="text-[#B4552B]">—</span> Más de 20 años diseñando soluciones para empresas
-                </li>
-                <li className="flex gap-2">
-                  <span className="text-[#B4552B]">—</span> Experiencia construyendo y gestionando inversiones en finca raíz, cripto y acciones
-                </li>
-              </ul>
+            <div className="flex flex-col gap-3">
+              <span className="font-mono text-[12px] leading-[1.7] text-[#DDE2E0]">— 4 horas de workshop 100% práctico</span>
+              <span className="font-mono text-[12px] leading-[1.7] text-[#DDE2E0]">— Guía de preparación previa</span>
+              <span className="font-mono text-[12px] leading-[1.7] text-[#DDE2E0]">— Ayuda uno-a-uno en sala</span>
+              <span className="font-mono text-[12px] leading-[1.7] text-[#DDE2E0]">— Kit: plantilla, skills y guía de análisis</span>
+              <span className="font-mono text-[12px] leading-[1.7] text-[#F1F3F2]">— Una metodología para seguir explorando inteligencia artificial aplicada</span>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* PRECIO */}
-      <section id="precio" className="border-b border-[#262E31] bg-[#0E1214] px-6 py-[88px]">
-        <div className="mx-auto max-w-[1120px]">
-          <div className="text-center font-mono text-[11px] tracking-[0.18em] uppercase text-[#B4552B]">07 — Inversión</div>
-          <div className="mx-auto mt-8 max-w-[560px] border-2 border-[#B4552B] bg-[#1C2427] px-8 py-10 text-center">
-            <div className="font-mono text-[10px] tracking-[0.14em] uppercase text-[#9AA3A1]">Workshop presencial · Sábado 26 sep · 4 horas · Solo 12 cupos</div>
-            <div className="mt-4 font-sans text-[72px] font-extralight leading-none tracking-[-0.03em] text-[#F1F3F2]">$400k</div>
-            <div className="font-mono text-[11px] tracking-[0.12em] uppercase text-[#B4552B]">Precio de lanzamiento</div>
-            <div className="mx-auto mt-2 font-mono text-[11px] tracking-[0.08em] text-[#9AA3A1]">
-              precio referencia $800k · pago seguro con Wompi · guía + café incluidos
-            </div>
-            <div className="mx-auto mt-6 flex max-w-[380px] flex-col gap-px border border-[#262E31] bg-[#262E31] text-left">
-              <div className="flex items-start gap-3 bg-[#0E1214] px-4 py-3 font-sans text-[14px] text-[#9AA3A1]">
-                <span className="font-mono font-bold text-[#B4552B]">✓</span> 4 horas de workshop 100% práctico
-              </div>
-              <div className="flex items-start gap-3 bg-[#0E1214] px-4 py-3 font-sans text-[14px] text-[#9AA3A1]">
-                <span className="font-mono font-bold text-[#B4552B]">✓</span> Guía de preparación previa
-              </div>
-              <div className="flex items-start gap-3 bg-[#0E1214] px-4 py-3 font-sans text-[14px] text-[#9AA3A1]">
-                <span className="font-mono font-bold text-[#B4552B]">✓</span> Ayuda uno-a-uno en sala
-              </div>
-              <div className="flex items-start gap-3 bg-[#0E1214] px-4 py-3 font-sans text-[14px] text-[#9AA3A1]">
-                <span className="font-mono font-bold text-[#B4552B]">✓</span> Kit de trabajo: plantillas y guía de análisis
-              </div>
-              <div className="flex items-start gap-3 bg-[#1C2427] px-4 py-3 font-sans text-[14px] font-medium text-[#F1F3F2]">
-                <span className="font-mono font-bold text-[#B4552B]">✓</span> Una metodología para seguir explorando inteligencia artificial aplicada
-              </div>
-            </div>
-            <Link
-              href="#"
-              className="mt-8 inline-flex items-center bg-[#B4552B] px-8 py-[14px] font-mono text-[11px] font-medium tracking-[0.12em] uppercase text-[#0E1214] hover:bg-[#9A4A24] transition-colors"
-            >
-              Reservar mi cupo →
+            <Link href="#" className="mt-2 bg-[#B4552B] text-[#0E1214] px-8 py-[16px] font-mono text-[12px] font-medium tracking-[0.12em] uppercase text-center hover:bg-[#9A4A24] transition-colors">
+              reservar mi cupo →
             </Link>
-            <div className="mt-4 flex justify-center">
-              <div className="flex h-[32px] w-full max-w-[320px] border border-[#262E31]">
-                <div className="flex-[85] bg-[#0E1214] grid place-items-center font-mono text-[8px] tracking-[0.08em] uppercase text-[#565F62]">85% tinta+panel</div>
-                <div className="flex-[10] bg-[#F1F3F2] grid place-items-center font-mono text-[8px] text-[#0E1214]">10%</div>
-                <div className="flex-[5] bg-[#B4552B]"></div>
-              </div>
-            </div>
-            <div className="mt-2 font-mono text-[11px] tracking-[0.08em] text-[#6C7573]">12 cupos · 2 facilitadores en sala · Medellín</div>
+          </div>
+          <div className="flex flex-col gap-6">
+            <span className="text-[30px] font-extralight leading-[1.2] tracking-[-0.02em] text-[#F1F3F2]">Sales con tu asistente andando, no con apuntes.</span>
+            <span className="font-mono text-[14px] leading-[1.7] text-[#9AA3A1]">Citas obligatorias, permisos y versión. Sin prometer hacerte rico ni dar recomendaciones de inversión — solo claridad para decidir mejor.</span>
+            <div className="h-[1px] bg-[#262E31]"></div>
+            <span className="font-mono text-[11px] tracking-[0.08em] text-[#565F62]">{"// las decisiones siempre son tuyas"}</span>
           </div>
         </div>
       </section>
 
       {/* FAQ */}
-      <section className="border-b border-[#262E31] bg-[#1C2427] px-6 py-[88px]">
-        <div className="mx-auto max-w-[1120px]">
-          <span className="font-mono text-[11px] tracking-[0.18em] uppercase text-[#B4552B]">08 — Preguntas frecuentes</span>
-          <h2 className="mt-4 font-sans text-[clamp(32px,4.5vw,44px)] font-light leading-[1.08] tracking-[-0.025em] text-[#F1F3F2]">Lo que debes saber</h2>
-          <div className="mt-8 flex flex-col gap-px border border-[#262E31] bg-[#262E31]">
-            {[
-              {
-                q: "¿Necesito saber programar?",
-                a: "No. El workshop está diseñado para profesionales no-técnicos. La inteligencia artificial hace el trabajo pesado; tú decides y revisas. Solo necesitas saber usar tu computador.",
-              },
-              {
-                q: "¿Necesito algo extra para usar la herramienta?",
-                a: "Sí. La herramienta que usamos requiere una cuenta de pago. Te explicamos cómo crearla y qué debes tener listo en la guía previa.",
-              },
-              {
-                q: "¿Qué necesito llevar?",
-                a: "Tu laptop y, si quieres, tu desprendible de nómina y tus extractos bancarios (PDF o descargados de tu banco). Si no los traes o no te sientes cómodo compartiéndolos, te damos unos datos de ejemplo para que sigas el workshop paso a paso igual. Una semana antes te enviamos la guía.",
-              },
-              {
-                q: "¿Mis datos financieros están seguros?",
-                a: "No necesitas traer información financiera sensible. Puedes trabajar con datos de ejemplo y te explicaremos las recomendaciones de manejo responsable de información durante el workshop.",
-              },
-              {
-                q: "¿Esto es asesoría financiera o de inversión?",
-                a: "No. Te damos un sistema para organizar y entender tu plata, y herramientas para analizarla. No damos recomendaciones de inversión; las decisiones siempre son tuyas.",
-              },
-              {
-                q: "¿Cuánta gente hay por sesión?",
-                a: "Máximo 12 personas, con facilitadores en sala, para que nadie se quede atrás y todos salgan con su asistente andando.",
-              },
-            ].map((item) => (
-              <div key={item.q} className="bg-[#0E1214] px-6 py-5">
-                <h3 className="font-sans text-[16px] font-normal text-[#F1F3F2]">{item.q}</h3>
-                <p className="mt-2 font-sans text-[14px] leading-[1.6] text-[#9AA3A1]">{item.a}</p>
-              </div>
-            ))}
-          </div>
+      <section className="mx-auto max-w-[1240px] px-12 max-[900px]:px-6 py-24 grid grid-cols-[0.8fr_1.2fr] max-[900px]:grid-cols-1 gap-16 items-start">
+        <div className="flex flex-col gap-4">
+          <span className="font-mono text-[11px] tracking-[0.16em] uppercase text-[#B4552B]">[faq]</span>
+          <h2 className="m-0 text-[40px] font-extralight tracking-[-0.03em] leading-[1.1] text-[#F1F3F2]">Lo que debes saber</h2>
+        </div>
+        <div className="flex flex-col">
+          {[
+            { q: "¿Necesito saber programar?", a: "No. El workshop está diseñado para profesionales no-técnicos. La inteligencia artificial hace el trabajo pesado; tú decides y revisas." },
+            { q: "¿Necesito algo extra para usar la herramienta?", a: "Sí. La herramienta que usamos requiere una cuenta de pago. Te explicamos cómo crearla en la guía previa." },
+            { q: "¿Qué necesito llevar?", a: "Tu laptop y, si quieres, tu desprendible y extractos (PDF). Si no los traes, te damos datos de ejemplo para que sigas el workshop igual." },
+            { q: "¿Mis datos financieros están seguros?", a: "No necesitas traer información sensible. Puedes trabajar con datos de ejemplo y te explicamos manejo responsable." },
+            { q: "¿Esto es asesoría financiera?", a: "No. Te damos un sistema para organizar y entender tu plata; las decisiones siempre son tuyas." },
+            { q: "¿Cuánta gente hay por sesión?", a: "Máximo 12 personas, con facilitadores en sala, para que nadie se quede atrás." },
+          ].map((item) => (
+            <div key={item.q} className="border-t border-[#262E31] py-[26px] flex flex-col gap-2.5">
+              <span className="text-[20px] font-light text-[#F1F3F2]">{item.q}</span>
+              <span className="text-[16px] leading-[1.7] text-[#9AA3A1]">{item.a}</span>
+            </div>
+          ))}
         </div>
       </section>
 
-      {/* FINAL CTA */}
-      <section id="reservar" className="bg-[#0E1214] px-6 py-[88px] text-center">
-        <div className="mx-auto max-w-[1120px]">
-          <span className="font-mono text-[11px] tracking-[0.18em] uppercase text-[#B4552B]">Reserva</span>
-          <h2 className="mx-auto mt-4 max-w-[720px] font-sans text-[clamp(32px,5vw,52px)] font-extralight leading-[1.08] tracking-[-0.035em] text-[#F1F3F2]">
-            Aprende a mirar tu información financiera
-            <br />
-            <span className="font-light text-[#9AA3A1]">con más claridad</span>
-          </h2>
-          <p className="mx-auto mt-4 font-mono text-[12px] tracking-[0.12em] uppercase text-[#B4552B]">Solo 12 cupos · Sábado 26 sep · Precio de lanzamiento</p>
-          <Link
-            href="#"
-            className="mt-8 inline-flex items-center bg-[#B4552B] px-10 py-4 font-mono text-[11px] font-medium tracking-[0.12em] uppercase text-[#0E1214] hover:bg-[#9A4A24] transition-colors"
-          >
-            Reservar mi cupo — $400k
-          </Link>
-          <div className="mt-8 font-mono text-[11px] tracking-[0.12em] uppercase text-[#6C7573]">
-            Workshop presencial · Medellín, Colombia · Sábado 26 de septiembre · Cupos limitados
+      {/* CTA FINAL */}
+      <section id="reservar" className="border-t border-[#262E31] bg-[#B4552B] text-[#0E1214]">
+        <div className="mx-auto max-w-[1240px] px-12 max-[900px]:px-6 py-24 flex items-end justify-between gap-14 flex-wrap">
+          <div className="flex flex-col gap-5 max-w-[24ch]">
+            <span className="font-mono text-[11px] tracking-[0.16em] uppercase text-[#3A1C0C]">[12 cupos · sábado 26 sep · medellín]</span>
+            <span className="text-[56px] font-extralight leading-[1.02] tracking-[-0.035em]">Aprende a mirar tu información con más claridad</span>
+          </div>
+          <div className="flex flex-col gap-[18px]">
+            <span className="font-mono text-[13px] leading-[1.8] text-[#3A1C0C] max-w-[42ch]">{"// 4 horas · Presencial · Solo 12 cupos · Precio de lanzamiento $400k"}</span>
+            <Link href="#" className="bg-[#0E1214] text-[#F1F3F2] px-[34px] py-[18px] font-mono text-[12px] font-medium tracking-[0.12em] uppercase self-start hover:bg-[#1C2427] transition-colors">
+              reservar mi cupo — $400k
+            </Link>
           </div>
         </div>
       </section>
