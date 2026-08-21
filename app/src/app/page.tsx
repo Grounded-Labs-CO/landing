@@ -90,7 +90,7 @@ export default function CorporatePage() {
       {/* BANDA PROBLEMA — 2 col #1C2427 */}
       <section id="problema" className="border-y border-[#262E31] bg-[#1C2427]">
         <div className="mx-auto max-w-[1240px] px-12 max-[900px]:px-6 py-[76px] grid grid-cols-2 max-[900px]:grid-cols-1 gap-16">
-          <div className="flex flex-col gap-[18px]">
+          <div className="flex flex-col gap-4 items-start">
             <span className="font-mono text-[11px] tracking-[0.16em] uppercase text-[#6C7573]">
               [el_problema]
             </span>
@@ -292,22 +292,24 @@ export default function CorporatePage() {
 
       {/* CTA FINAL — terracota */}
       <section id="agendar" className="border-t border-[#262E31] bg-[#B4552B] text-[#0E1214]">
-        <div className="mx-auto max-w-[1240px] px-12 max-[900px]:px-6 py-24 flex items-end justify-between gap-14 flex-wrap">
-          <div className="flex flex-col gap-5 max-w-[24ch]">
+        <div className="mx-auto max-w-[1240px] px-12 max-[900px]:px-6 py-16 flex items-center justify-between gap-12 flex-wrap">
+          <div className="flex flex-col gap-4 max-w-[22ch]">
             <span className="font-mono text-[11px] tracking-[0.16em] uppercase text-[#3A1C0C]">
               [cupos · 12 máx · Medellín]
             </span>
-            <span className="text-[56px] font-extralight leading-[1.02] tracking-[-0.035em]">
-              ¿Listo para ver tu plata con claridad?
+            <span className="text-[42px] md:text-[46px] font-extralight leading-[1.05] tracking-[-0.03em]">
+              Finanzas personales con IA.
+              <br />
+              Con tus datos. En 4 horas.
             </span>
           </div>
-          <div className="flex flex-col gap-[18px]">
-            <span className="font-mono text-[13px] leading-[1.8] text-[#3A1C0C] max-w-[42ch]">
+          <div className="flex flex-col gap-4 items-start">
+            <span className="font-mono text-[12px] leading-[1.7] text-[#3A1C0C]/80 max-w-[32ch]">
               {"// 4 horas · Presencial · Sales con 2–3 cosas aplicables mañana"}
             </span>
             <Link
               href="/workshops/finanzas-personales-ia"
-              className="bg-[#0E1214] text-[#F1F3F2] px-[34px] py-[18px] font-mono text-[12px] font-medium tracking-[0.12em] uppercase self-start hover:bg-[#1C2427] transition-colors"
+              className="bg-[#0E1214] text-[#F1F3F2] px-[30px] py-[16px] font-mono text-[12px] font-medium tracking-[0.12em] uppercase self-start hover:bg-[#1C2427] transition-colors"
             >
               reservar cupo — $400k
             </Link>
