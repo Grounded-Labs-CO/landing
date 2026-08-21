@@ -10,17 +10,19 @@ export function Header() {
       <div className="mx-auto flex h-[64px] max-w-[1120px] items-center justify-between px-6">
         <Link href="/" className="flex items-center gap-3">
           <div className="grid h-10 w-10 place-items-center bg-[#B4552B]">
-            <span className="font-mono text-[22px] font-semibold leading-none text-[#0E1214]">g</span>
+            <span className="font-mono text-[22px] font-semibold leading-none text-[#0E1214]">
+              g
+            </span>
           </div>
           <span className="font-mono text-[15px] font-medium tracking-[0.02em] text-[#F1F3F2]">
             grounded<span className="text-[#6C7573]">_</span>labs
           </span>
-          <span className="hidden lg:inline font-mono text-[10px] tracking-[0.14em] uppercase text-[#565F62] border-l border-[#262E31] pl-3 ml-1">
-            No hype · Solo IA que entiende tu mundo
-          </span>
         </Link>
         <nav className="flex items-center gap-3">
-          <Link href="/workshops/finanzas-personales-ia" className="hidden md:inline font-mono text-[11px] tracking-[0.12em] uppercase text-[#9AA3A1] hover:text-[#F1F3F2]">
+          <Link
+            href="/workshops/finanzas-personales-ia"
+            className="hidden md:inline font-mono text-[11px] tracking-[0.12em] uppercase text-[#9AA3A1] hover:text-[#F1F3F2]"
+          >
             Workshops
           </Link>
           <Link
