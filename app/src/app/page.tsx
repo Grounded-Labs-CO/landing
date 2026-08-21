@@ -331,7 +331,7 @@ export default function CorporatePage() {
               linkedin
             </a>
             <a
-              href="https://www.instagram.com/groundedlabsco"
+              href="https://www.instagram.com/groundedlabs.ai"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-[#F1F3F2] transition-colors"
