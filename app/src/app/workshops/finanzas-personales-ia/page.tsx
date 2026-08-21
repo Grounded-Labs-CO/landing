@@ -54,7 +54,7 @@ export default function FinanzasPage() {
       <section className="border-y border-[#262E31] bg-[#1C2427]">
         <div className="mx-auto max-w-[1240px] px-12 max-[900px]:px-6 py-[76px] grid grid-cols-2 max-[900px]:grid-cols-1 gap-16">
           <div className="flex flex-col gap-[18px]">
-            <span className="font-mono text-[11px] tracking-[0.16em] uppercase text-[#6C7573]">
+            <span className="font-mono text-[11px] tracking-[0.16em] uppercase text-[#B4552B]">
               [el_problema]
             </span>
             <span className="text-[38px] font-extralight leading-[1.16] tracking-[-0.025em] text-[#F1F3F2]">
