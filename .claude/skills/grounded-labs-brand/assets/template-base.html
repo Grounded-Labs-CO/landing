@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>grounded_labs — Título de la página</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@200;300;400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --tinta:#0E1214; --panel:#1C2427; --regla:#262E31; --regla-2:#2F3A3D;
+    --grafito:#9AA3A1; --papel:#F1F3F2; --terracota:#B4552B; --muted:#6C7573; --muted-2:#565F62;
+  }
+  html { scroll-behavior: smooth; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--tinta); color: var(--papel); font-family: 'IBM Plex Sans', Helvetica, sans-serif; }
+  a { color: var(--terracota); text-decoration: none; }
+  a:hover { color: var(--papel); }
+  ::selection { background: var(--terracota); color: var(--tinta); }
+  /* utilidades de marca */
+  .mono { font-family: 'IBM Plex Mono', monospace; }
+  .sans { font-family: 'IBM Plex Sans', sans-serif; }
+  /* ejemplo de header con logo — adapta o reemplaza según tu layout */
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand-mark { width: 40px; height: 40px; background: var(--terracota); display: grid; place-items: center; }
+  .brand-mark span { font-family: 'IBM Plex Mono', monospace; font-size: 22px; font-weight: 600; color: var(--tinta); line-height: 1; }
+  .brand-word { font-family: 'IBM Plex Mono', monospace; font-size: 16px; font-weight: 500; letter-spacing: 0.02em; }
+  .brand-word i { font-style: normal; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<!-- Header de ejemplo usando solo LOGO + TIPOGRAFÍA + COLOR. Reemplaza por tu layout. -->
+<header style="padding: 32px 40px; border-bottom: 1px solid var(--regla); display: flex; align-items: center; justify-content: space-between;">
+  <div class="brand">
+    <div class="brand-mark"><span>g</span></div>
+    <span class="brand-word">grounded<i>_</i>labs</span>
+  </div>
+  <span class="mono" style="font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted);">Título de la página</span>
+</header>
+
+<!-- Contenido libre — construye el layout que pida el brief. Ejemplo: -->
+<main style="max-width: 1100px; margin: 0 auto; padding: 80px 40px; display: flex; flex-direction: column; gap: 48px;">
+  <div style="display: flex; flex-direction: column; gap: 16px;">
+    <span class="mono" style="font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--terracota);">01 — Ejemplo</span>
+    <h1 class="sans" style="margin: 0; font-size: 64px; line-height: 0.98; font-weight: 200; letter-spacing: -0.03em;">Titular en Plex Sans 200.</h1>
+    <p class="mono" style="margin: 0; max-width: 60ch; font-size: 15px; line-height: 1.8; color: var(--grafito);">// subtítulo en mono, sin humo, con el dolor concreto del público</p>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1px; background: var(--regla); border: 1px solid var(--regla);">
+    <div style="background: var(--tinta); padding: 32px; display: flex; flex-direction: column; gap: 12px;">
+      <span class="mono" style="font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted);">[bloque_01]</span>
+      <p style="margin: 0; font-size: 18px; line-height: 1.65; color: #DDE2E0;">Contenido de ejemplo. Usa solo paleta, tipos, logo e iconos de 2A.</p>
+    </div>
+    <div style="background: var(--panel); padding: 32px; display: flex; flex-direction: column; gap: 12px;">
+      <span class="mono" style="font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted);">[bloque_02]</span>
+      <p style="margin: 0; font-size: 18px; line-height: 1.65; color: #DDE2E0;">Segundo bloque. Cambia este grid por lo que necesite tu página.</p>
+    </div>
+  </div>
+
+  <!-- CTAs con COLOR + TIPOGRAFÍA -->
+  <div style="display: flex; gap: 14px; flex-wrap: wrap;">
+    <span style="background: var(--terracota); color: var(--tinta); padding: 13px 26px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase;">acción principal</span>
+    <span style="border: 1px solid var(--regla-2); color: var(--grafito); padding: 13px 26px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;">acción secundaria</span>
+  </div>
+
+  <!-- Icono ejemplo (trazo 1.5, retícula 24) -->
+  <div style="display: flex; gap: 16px;">
+    <div style="width: 44px; height: 44px; border: 1.5px solid var(--papel); display: grid; place-items: center;"><div style="width: 12px; height: 12px; background: var(--terracota);"></div></div>
+    <span class="mono" style="font-size: 10px; letter-spacing: 0.08em; color: var(--muted); align-self: center;">icono 1.5px + punto terracota</span>
+  </div>
+</main>
+
+<footer style="border-top: 1px solid var(--regla); padding: 24px 40px; display: flex; justify-content: space-between; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted-2);">
+  <span>grounded_labs — brand book 2A</span><span>v1.0 · ago 2026</span>
+</footer>
+
+</body>
+</html>
