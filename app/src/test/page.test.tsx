@@ -6,7 +6,7 @@ import FinanzasPage from "../app/workshops/finanzas-personales-ia/page";
 describe("Corporate", () => {
   it("renders GROUNDED Labs brand and manifiesto", () => {
     render(<Home />);
-    expect(screen.getAllByText("GROUNDED Labs").length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/grounded.labs/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/No hype/).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Workshops prácticos de inteligencia artificial aplicada/).length).toBeGreaterThan(0);
   });

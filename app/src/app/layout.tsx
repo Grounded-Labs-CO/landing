@@ -1,19 +1,21 @@
 import type { Metadata } from "next";
-import { DM_Sans, Fraunces } from "next/font/google";
+import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "next-themes";
 import { ConvexClientProvider } from "@/components/ConvexClientProvider";
 import { Header } from "@/components/Header";
 
-const dmSans = DM_Sans({
+const plexSans = IBM_Plex_Sans({
   subsets: ["latin"],
+  weight: ["200", "300", "400", "500"],
   variable: "--font-sans",
   display: "swap",
 });
 
-const fraunces = Fraunces({
+const plexMono = IBM_Plex_Mono({
   subsets: ["latin"],
-  variable: "--font-fraunces",
+  weight: ["400", "500", "600"],
+  variable: "--font-mono",
   display: "swap",
 });
 
@@ -25,9 +27,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="es" suppressHydrationWarning className={`${dmSans.variable} ${fraunces.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-[#f6f2ea] text-[#17251f]" style={{ fontFamily: "var(--font-sans)" }}>
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} disableTransitionOnChange>
+    <html lang="es" suppressHydrationWarning className={`${plexSans.variable} ${plexMono.variable} h-full antialiased`}>
+      <body className="min-h-full flex flex-col bg-[#0E1214] text-[#F1F3F2]" style={{ fontFamily: "var(--font-sans)" }}>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange>
           <ConvexClientProvider>
             <Header />
             <main className="flex-1">{children}</main>
