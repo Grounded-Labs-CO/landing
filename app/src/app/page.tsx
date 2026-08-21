@@ -8,18 +8,24 @@ export default function CorporatePage() {
       {/* HERO — 1.25fr / 1fr */}
       <section
         id="top"
-        className="mx-auto max-w-[1240px] px-12 max-[900px]:px-6 py-[108px] max-[900px]:py-[72px] grid grid-cols-[1.25fr_1fr] max-[900px]:grid-cols-1 gap-[72px] items-start"
+        className="mx-auto max-w-[1240px] px-12 max-[900px]:px-6 py-[88px] max-[900px]:py-[64px] grid grid-cols-[1.25fr_1fr] max-[900px]:grid-cols-1 gap-[64px] items-start"
       >
-        <div className="flex flex-col gap-[30px]">
-          <span className="font-mono text-[11px] tracking-[0.16em] uppercase text-[#B4552B]">[workshop · presencial · Medellín]</span>
+        <div className="flex flex-col gap-[28px]">
+          <span className="font-mono text-[11px] tracking-[0.16em] uppercase text-[#B4552B]">
+            [workshop · presencial · Medellín]
+          </span>
           <div className="flex flex-col gap-4">
             <div className="font-mono text-[11px] tracking-[0.12em] uppercase text-[#9AA3A1]">
-              <span className="text-[#B4552B] italic">No hype.</span> Solo inteligencia artificial que entiende tu mundo.
+              <span className="text-[#B4552B] italic">No hype.</span> Solo inteligencia artificial
+              que entiende tu mundo.
             </div>
-            <p className="font-mono text-[11px] tracking-[0.08em] uppercase text-[#6C7573]">Workshops prácticos de inteligencia artificial aplicada para profesionales que dependen de su conocimiento.</p>
+            <p className="font-mono text-[11px] tracking-[0.08em] uppercase text-[#6C7573]">
+              Workshops prácticos de inteligencia artificial aplicada para profesionales que
+              dependen de su conocimiento.
+            </p>
           </div>
           <h1
-            className="m-0 max-w-[780px] text-[76px] max-[900px]:text-[48px] font-extralight leading-[0.98] tracking-[-0.04em] text-[#F1F3F2] text-balance"
+            className="m-0 max-w-[780px] text-[72px] max-[900px]:text-[48px] font-extralight leading-[0.98] tracking-[-0.04em] text-[#F1F3F2] text-balance"
             style={{ fontFamily: "var(--font-sans)" }}
           >
             Inteligencia Artificial para profesionales que dependen de su conocimiento.
@@ -42,7 +48,7 @@ export default function CorporatePage() {
               nuestro método
             </Link>
           </div>
-          <div className="flex gap-10 pt-[26px] border-t border-[#262E31] mt-3">
+          <div className="flex gap-10 pt-[20px] border-t border-[#262E31] mt-3">
             <div className="flex flex-col gap-[6px]">
               <span className="text-[34px] font-extralight tracking-[-0.02em] text-[#F1F3F2]">
                 12
@@ -180,7 +186,7 @@ export default function CorporatePage() {
               </span>
             </div>
           </Link>
-          <div className="border border-[#262E31] bg-[#0E1214] p-[38px_34px] flex flex-col gap-[22px] min-h-[420px] opacity-60">
+          <div className="hidden md:flex border border-[#262E31] bg-[#0E1214] p-[38px_34px] flex-col gap-[22px] min-h-[420px] opacity-60">
             <span className="font-mono text-[10px] tracking-[0.16em] uppercase text-[#6C7573]">
               [próximamente]
             </span>
@@ -198,7 +204,7 @@ export default function CorporatePage() {
               </span>
             </div>
           </div>
-          <div className="border border-[#262E31] bg-[#0E1214] p-[38px_34px] flex flex-col gap-[22px] min-h-[420px] opacity-60">
+          <div className="hidden md:flex border border-[#262E31] bg-[#0E1214] p-[38px_34px] flex-col gap-[22px] min-h-[420px] opacity-60">
             <span className="font-mono text-[10px] tracking-[0.16em] uppercase text-[#6C7573]">
               [lista_espera]
             </span>
@@ -221,7 +227,7 @@ export default function CorporatePage() {
         <div className="mx-auto max-w-[1240px] px-12 max-[900px]:px-6 py-24 flex flex-col gap-11">
           <div className="flex flex-col gap-4">
             <span className="font-mono text-[11px] tracking-[0.16em] uppercase text-[#B4552B]">
-              [quienes_somos]
+              [equipo]
             </span>
             <h2 className="m-0 text-[46px] font-extralight tracking-[-0.03em] text-[#F1F3F2]">
               Quienes filtran y enseñan
