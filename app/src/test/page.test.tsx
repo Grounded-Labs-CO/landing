@@ -8,7 +8,6 @@ describe("Corporate", () => {
     render(<Home />);
     expect(screen.getAllByText(/Inteligencia Artificial para profesionales/).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/No hype/).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/Workshops prácticos de inteligencia artificial aplicada/).length).toBeGreaterThan(0);
   });
   it("shows workshop destacado", () => {
     render(<Home />);

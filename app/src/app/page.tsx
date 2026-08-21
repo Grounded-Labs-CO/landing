@@ -11,18 +11,11 @@ export default function CorporatePage() {
         className="mx-auto max-w-[1240px] px-12 max-[900px]:px-6 py-[88px] max-[900px]:py-[64px] grid grid-cols-[1.25fr_1fr] max-[900px]:grid-cols-1 gap-[64px] items-start"
       >
         <div className="flex flex-col gap-[28px]">
-          <span className="font-mono text-[11px] tracking-[0.16em] uppercase text-[#B4552B]">
-            [workshop · presencial · Medellín]
-          </span>
           <div className="flex flex-col gap-4">
             <div className="font-mono text-[11px] tracking-[0.12em] uppercase text-[#9AA3A1]">
               <span className="text-[#B4552B] italic">No hype.</span> Solo inteligencia artificial
               que entiende tu mundo.
             </div>
-            <p className="font-mono text-[11px] tracking-[0.08em] uppercase text-[#6C7573]">
-              Workshops prácticos de inteligencia artificial aplicada para profesionales que
-              dependen de su conocimiento.
-            </p>
           </div>
           <h1
             className="m-0 max-w-[780px] text-[72px] max-[900px]:text-[48px] font-extralight leading-[0.98] tracking-[-0.04em] text-[#F1F3F2] text-balance"
