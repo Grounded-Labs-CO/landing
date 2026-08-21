@@ -293,14 +293,14 @@ export default function CorporatePage() {
       {/* CTA FINAL — terracota */}
       <section id="agendar" className="border-t border-[#262E31] bg-[#B4552B] text-[#0E1214]">
         <div className="mx-auto max-w-[1240px] px-12 max-[900px]:px-6 py-16 flex items-center justify-between gap-12 flex-wrap">
-          <div className="flex flex-col gap-4 max-w-[22ch]">
+          <div className="flex flex-col gap-4 max-w-[28ch]">
             <span className="font-mono text-[11px] tracking-[0.16em] uppercase text-[#3A1C0C]">
               [cupos · 12 máx · Medellín]
             </span>
-            <span className="text-[42px] md:text-[46px] font-extralight leading-[1.05] tracking-[-0.03em]">
+            <span className="text-[40px] md:text-[44px] font-extralight leading-[1.05] tracking-[-0.03em]">
               Finanzas personales con IA.
               <br />
-              Con tus datos. En 4 horas.
+              Con tus datos.
             </span>
           </div>
           <div className="flex flex-col gap-4 items-start">
