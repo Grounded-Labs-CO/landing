@@ -1,5 +1,6 @@
 // @ts-nocheck
-import { mutation, query } from "./_generated/server";
+import { action, mutation, query } from "./_generated/server";
+import { api } from "./_generated/api";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
 
@@ -242,30 +243,75 @@ export const listAllStudents = query({
   args: {},
   handler: async (ctx) => {
     if (!(await isActiveAdmin(ctx))) return [];
-    const roles = await ctx.db.query("user_roles").collect();
     const regs = await ctx.db.query("workshop_registrations").collect();
+    const roles = await ctx.db.query("user_roles").collect();
     const profiles = await ctx.db.query("user_profiles").collect();
-    const regByEmail = new Map(regs.map((r) => [r.email, r]));
     const profileByUserId = new Map(profiles.map((p) => [p.userId, p]));
-    return await Promise.all(
-      roles.map(async (r) => {
-        const user = await ctx.db.get(r.userId);
-        const email = (user?.email ?? "") as string;
-        const reg = regByEmail.get(email.toLowerCase());
-        const profile = profileByUserId.get(r.userId);
-        return {
-          userId: r.userId,
-          role: r.role,
-          status: r.status,
-          email: email || null,
-          name: (user as any)?.name ?? profile?.displayName ?? null,
-          phone: (profile as any)?.phone ?? null,
-          workshopSlug: reg?.workshopSlug ?? null,
-          workshopStatus: (reg?.status as string) ?? null,
-          createdAt: (r as any)._creationTime ?? 0,
-        };
-      }),
-    );
+
+    const rows = [];
+    const withUser = new Set();
+    for (const reg of regs) {
+      const email = reg.email;
+      const user = await ctx.db
+        .query("users")
+        .withIndex("email", (q) => q.eq("email", email))
+        .unique();
+      const role = user
+        ? await ctx.db
+            .query("user_roles")
+            .withIndex("by_userId", (q) => q.eq("userId", user._id))
+            .unique()
+        : null;
+      const profile = user ? profileByUserId.get(user._id) : null;
+      if (user) withUser.add(user._id);
+      rows.push({
+        userId: user?._id ?? null,
+        email,
+        role: role?.role ?? null,
+        status: role?.status ?? null,
+        name: (user as any)?.name ?? profile?.displayName ?? null,
+        phone: (profile as any)?.phone ?? null,
+        workshopSlug: reg.workshopSlug,
+        workshopStatus: reg.status ?? null,
+        createdAt: (reg as any)._creationTime ?? 0,
+      });
+    }
+    // Users con rol pero sin inscripción (ej. admins sin curso asignado)
+    for (const roleRow of roles) {
+      if (withUser.has(roleRow.userId)) continue;
+      const user = await ctx.db.get(roleRow.userId);
+      const profile = profileByUserId.get(roleRow.userId);
+      rows.push({
+        userId: roleRow.userId,
+        email: (user as any)?.email ?? null,
+        role: roleRow.role,
+        status: roleRow.status,
+        name: (user as any)?.name ?? profile?.displayName ?? null,
+        phone: (profile as any)?.phone ?? null,
+        workshopSlug: null,
+        workshopStatus: null,
+        createdAt: (roleRow as any)._creationTime ?? 0,
+      });
+    }
+    return rows.sort((a, b) => a.createdAt - b.createdAt);
+  },
+});
+
+// Quitar la invitación/inscripción de un email a un curso (sin borrar la cuenta).
+export const removeInvite = mutation({
+  args: { email: v.string(), workshopSlug: v.string() },
+  handler: async (ctx, args) => {
+    await requireActiveAdmin(ctx);
+    const email = args.email.toLowerCase().trim();
+    const regs = await ctx.db
+      .query("workshop_registrations")
+      .withIndex("by_email", (q) => q.eq("email", email))
+      .filter((q) => q.eq(q.field("workshopSlug"), args.workshopSlug))
+      .collect();
+    for (const reg of regs) {
+      await ctx.db.delete(reg._id);
+    }
+    return { removed: regs.length };
   },
 });
 
@@ -329,15 +375,38 @@ export const inviteStudent = mutation({
       .filter((q) => q.eq(q.field("workshopSlug"), args.workshopSlug))
       .unique();
     if (!existingReg) {
-      return await ctx.db.insert("workshop_registrations", {
+      await ctx.db.insert("workshop_registrations", {
         email,
         workshopSlug: args.workshopSlug,
         status,
         createdAt: Date.now(),
       });
+      return { created: true };
     }
     await ctx.db.patch(existingReg._id, { status });
-    return existingReg._id;
+    return { created: false };
+  },
+});
+
+// Envía el correo de bienvenida al invitar (solo cuando se crea la inscripción).
+export const sendInviteEmail = action({
+  args: { email: v.string(), workshopSlug: v.string() },
+  handler: async (ctx, args) => {
+    const callerId = await getAuthUserId(ctx);
+    if (!callerId) throw new Error("No autenticado");
+    const callerRole = await ctx.runQuery(api.queries.getUserRole);
+    if (!callerRole || callerRole.role !== "admin" || callerRole.status !== "active") {
+      throw new Error("No autorizado");
+    }
+    const to = args.email.toLowerCase().trim();
+    if (!to.includes("@")) throw new Error("Email inválido");
+    // Dispara el flujo de magic link de Resend: el correo llega con un link de un
+    // clic (template context-aware en convex/email.ts → bienvenida si hay curso).
+    await ctx.runAction(api.auth.signIn, {
+      provider: "resend",
+      params: { email: to, redirectTo: "/signin" },
+    });
+    return { sent: true };
   },
 });
 
@@ -350,5 +419,108 @@ export const listCoursesAdmin = query({
       ...c,
       status: (c as any).status ?? "active",
     }));
+  },
+});
+
+// Limpieza total de un email en TODAS las tablas (uso operativo con bootstrap secret).
+export const clearUserByEmail = mutation({
+  args: { email: v.string(), secret: v.string() },
+  handler: async (ctx, args) => {
+    const expected = process.env.ADMIN_BOOTSTRAP_SECRET;
+    if (!expected || args.secret !== expected) throw new Error("Secreto inválido");
+    const email = args.email.toLowerCase().trim();
+    if (!email.includes("@")) throw new Error("Email inválido");
+    let deleted = 0;
+
+    const users = await ctx.db
+      .query("users")
+      .withIndex("email", (q) => q.eq("email", email))
+      .collect();
+    for (const user of users) {
+      const accounts = await ctx.db
+        .query("authAccounts")
+        .withIndex("userIdAndProvider", (q) => q.eq("userId", user._id))
+        .collect();
+      for (const account of accounts) {
+        const codes = await ctx.db
+          .query("authVerificationCodes")
+          .withIndex("accountId", (q) => q.eq("accountId", account._id))
+          .collect();
+        for (const code of codes) {
+          await ctx.db.delete(code._id);
+          deleted++;
+        }
+        await ctx.db.delete(account._id);
+        deleted++;
+      }
+      const sessions = await ctx.db
+        .query("authSessions")
+        .withIndex("userId", (q) => q.eq("userId", user._id))
+        .collect();
+      const sessionIds = new Set(sessions.map((s) => s._id));
+      for (const session of sessions) {
+        const tokens = await ctx.db
+          .query("authRefreshTokens")
+          .withIndex("sessionId", (q) => q.eq("sessionId", session._id))
+          .collect();
+        for (const token of tokens) {
+          await ctx.db.delete(token._id);
+          deleted++;
+        }
+        await ctx.db.delete(session._id);
+        deleted++;
+      }
+      const verifiers = await ctx.db.query("authVerifiers").collect();
+      for (const verifier of verifiers) {
+        if (verifier.sessionId && sessionIds.has(verifier.sessionId)) {
+          await ctx.db.delete(verifier._id);
+          deleted++;
+        }
+      }
+      const role = await ctx.db
+        .query("user_roles")
+        .withIndex("by_userId", (q) => q.eq("userId", user._id))
+        .unique();
+      if (role) {
+        await ctx.db.delete(role._id);
+        deleted++;
+      }
+      const profile = await ctx.db
+        .query("user_profiles")
+        .withIndex("by_userId", (q) => q.eq("userId", user._id))
+        .unique();
+      if (profile) {
+        await ctx.db.delete(profile._id);
+        deleted++;
+      }
+      await ctx.db.delete(user._id);
+      deleted++;
+    }
+
+    const limits = await ctx.db
+      .query("authRateLimits")
+      .withIndex("identifier", (q) => q.eq("identifier", email))
+      .collect();
+    for (const limit of limits) {
+      await ctx.db.delete(limit._id);
+      deleted++;
+    }
+    const leads = await ctx.db
+      .query("leads")
+      .withIndex("by_email", (q) => q.eq("email", email))
+      .collect();
+    for (const lead of leads) {
+      await ctx.db.delete(lead._id);
+      deleted++;
+    }
+    const regs = await ctx.db
+      .query("workshop_registrations")
+      .withIndex("by_email", (q) => q.eq("email", email))
+      .collect();
+    for (const reg of regs) {
+      await ctx.db.delete(reg._id);
+      deleted++;
+    }
+    return { email, deleted };
   },
 });

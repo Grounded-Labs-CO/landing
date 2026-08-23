@@ -1,7 +1,7 @@
 "use client";
 import { AuthGuard } from "@/components/AuthGuard";
 import { useRole } from "@/hooks/useRole";
-import { useMutation, useQuery } from "convex/react";
+import { useAction, useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { useState } from "react";
 
@@ -15,6 +15,8 @@ function AdminPanel() {
   const markPaid = useMutation(api.admin.markRegistrationPaid);
   const inviteStudent = useMutation(api.admin.inviteStudent);
   const deleteUser = useMutation(api.admin.deleteUser);
+  const removeInvite = useMutation(api.admin.removeInvite);
+  const sendInviteEmail = useAction(api.admin.sendInviteEmail);
 
   // Cursos
   const courses = useQuery(api.admin.listCoursesAdmin);
@@ -134,7 +136,7 @@ function AdminPanel() {
                       {s.email ?? s.userId}
                     </span>
                     <span className="font-mono text-[11px] text-[#6C7573]">
-                      {s.name ?? "—"} {s.phone ? `· ${s.phone}` : ""} · {s.role} · cupo:{s.workshopStatus === "paid" ? "pagado" : s.workshopStatus === "pending" ? "pendiente" : "—"}
+                      {s.name ?? "—"} {s.phone ? `· ${s.phone}` : ""} · {s.role ?? (s.workshopSlug ? "invitado" : "usuario")} · cupo:{s.workshopStatus === "paid" ? "pagado" : s.workshopStatus === "pending" ? "pendiente" : "—"}
                     </span>
                   </div>
                   <div className="flex gap-2 shrink-0">
@@ -156,22 +158,28 @@ function AdminPanel() {
                     )}
                     <button
                       onClick={() => {
-                        if (
-                          !confirm(`¿Borrar permanentemente a ${s.email ?? s.userId}?`)
-                        )
-                          return;
-                        if (
-                          !confirm(
-                            "Esto NO se puede deshacer. Se eliminarán su cuenta, sesiones y todos sus registros. ¿Confirmás?",
+                        if (s.userId) {
+                          if (!confirm(`¿Borrar permanentemente a ${s.email ?? s.userId}?`)) return;
+                          if (
+                            !confirm(
+                              "Esto NO se puede deshacer. Se eliminarán su cuenta, sesiones y todos sus registros. ¿Confirmás?",
+                            )
                           )
-                        )
-                          return;
-                        void deleteUser({ userId: s.userId as any })
-                          .catch((e: any) => alert(e.message ?? "error"));
+                            return;
+                          void deleteUser({ userId: s.userId as any }).catch((e: any) =>
+                            alert(e.message ?? "error"),
+                          );
+                        } else {
+                          if (!confirm(`¿Quitar la invitación de ${s.email}?`)) return;
+                          void removeInvite({
+                            email: s.email!,
+                            workshopSlug: s.workshopSlug ?? "finanzas-personales-ia",
+                          }).catch((e: any) => alert(e.message ?? "error"));
+                        }
                       }}
                       className="border border-[#5D2F2F] px-3 py-1.5 font-mono text-[11px] tracking-[0.08em] uppercase text-[#E2A084] hover:bg-[#5D2F2F] hover:text-[#F1F3F2]"
                     >
-                      borrar
+                      {s.userId ? "borrar" : "quitar"}
                     </button>
                   </div>
                 </div>
@@ -401,13 +409,26 @@ function AdminPanel() {
             onClick={async () => {
               setInviteMsg(null);
               try {
-                await inviteStudent({
+                const res = await inviteStudent({
                   email: inviteEmail,
                   workshopSlug: inviteWorkshop,
                   asPaid: inviteAsPaid,
                 });
-                setInviteMsg(`✓ invitado ${inviteEmail} como ${inviteAsPaid ? "pagado" : "pendiente"}`);
                 setInviteEmail("");
+                if (res.created) {
+                  try {
+                    await sendInviteEmail({ email: inviteEmail, workshopSlug: inviteWorkshop });
+                    setInviteMsg(
+                      `✓ invitado ${inviteEmail} como ${inviteAsPaid ? "pagado" : "pendiente"} · correo enviado`,
+                    );
+                  } catch {
+                    setInviteMsg(`✓ invitado ${inviteEmail} · no se pudo enviar el correo`);
+                  }
+                } else {
+                  setInviteMsg(
+                    `✓ ${inviteEmail} ya estaba invitado · actualizado a ${inviteAsPaid ? "pagado" : "pendiente"}`,
+                  );
+                }
               } catch (e: any) {
                 setInviteMsg(`✗ ${e.message ?? "error"}`);
               }
