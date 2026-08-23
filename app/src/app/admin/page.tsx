@@ -144,8 +144,7 @@ function AdminPanel() {
                       {s.email ?? s.userId}
                     </span>
                     <span className="font-mono text-[11px] text-[#6C7573]">
-                      {s.name ?? "—"} {s.phone ? `· ${s.phone}` : ""} · {s.role} · cuenta:{s.status}{" "}
-                      · cupo:{s.workshopStatus ?? "—"}
+                      {s.name ?? "—"} {s.phone ? `· ${s.phone}` : ""} · {s.role} · cuenta:{s.status === "active" ? "activa" : "pendiente"} · cupo:{s.workshopStatus === "paid" ? "pagado" : s.workshopStatus === "pending" ? "pendiente" : "—"}
                     </span>
                   </div>
                   <div className="flex gap-2 shrink-0">
@@ -224,7 +223,7 @@ function AdminPanel() {
                   <span
                     className={`px-2 py-1 font-mono text-[11px] uppercase ${c.status === "archived" ? "bg-[#5D2F2F] text-[#E2A084]" : "bg-[#1C2427] text-[#7FC7A3] border border-[#262E31]"}`}
                   >
-                    {c.status}
+                    {c.status === "archived" ? "archivado" : "activo"}
                   </span>
                 </div>
                 {editCourseId === c._id ? (
@@ -364,12 +363,12 @@ function AdminPanel() {
       )}
 
       {tab === "invitar" && (
-        <div className="mt-6 max-w-[480px] border border-[#262E31] bg-[#111719] p-6 flex flex-col gap-4">
+        <div className="mt-6 border border-[#262E31] bg-[#111719] p-6 flex flex-col gap-4">
           <span className="font-mono text-[11px] tracking-[0.12em] uppercase text-[#B4552B]">
             invitar a curso
           </span>
           <p className="font-mono text-[11px] leading-[1.6] text-[#6C7573]">
-            Crea o activa la cuenta y la deja como <span className="text-[#E2C084]">paid</span> si
+            Crea o activa la cuenta y la deja como <span className="text-[#E2C084]">pagado</span> si
             marcas la casilla. Solo email.
           </p>
           <label className="flex flex-col gap-2">
@@ -422,7 +421,7 @@ function AdminPanel() {
                   workshopSlug: inviteWorkshop,
                   asPaid: inviteAsPaid,
                 });
-                setInviteMsg(`✓ invitado ${inviteEmail} como ${inviteAsPaid ? "paid" : "pending"}`);
+                setInviteMsg(`✓ invitado ${inviteEmail} como ${inviteAsPaid ? "pagado" : "pendiente"}`);
                 setInviteEmail("");
               } catch (e: any) {
                 setInviteMsg(`✗ ${e.message ?? "error"}`);
