@@ -35,7 +35,9 @@ export default defineSchema({
     schedule: v.string(),
     price: v.string(),
     eventInfo: v.array(v.object({ label: v.string(), value: v.string() })),
-    status: v.optional(v.union(v.literal("active"), v.literal("archived"))),
+    status: v.optional(
+      v.union(v.literal("active"), v.literal("full"), v.literal("completed"), v.literal("disabled")),
+    ),
   }).index("by_slug", ["slug"]),
 
   // Secciones del curso (los "sellos" 01..N)

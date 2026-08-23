@@ -11,6 +11,13 @@ export async function requireMaterialAccess(ctx, courseSlug) {
   const email = user?.email?.toLowerCase();
   if (!email) throw new Error("Usuario sin email");
 
+  const course = await ctx.db
+    .query("courses")
+    .withIndex("by_slug", (q) => q.eq("slug", courseSlug))
+    .unique();
+  if (!course) throw new Error("Curso no encontrado");
+  if ((course as any).status === "disabled") throw new Error("Curso no disponible");
+
   const registration = await ctx.db
     .query("workshop_registrations")
     .withIndex("by_email", (q) => q.eq("email", email))

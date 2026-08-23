@@ -30,7 +30,8 @@ export const listLeads = query({
   },
 });
 
-// Cursos del estudiante autenticado (por email de la cuenta).
+// Cursos del estudiante autenticado (por email de la cuenta), enriquecidos con
+// metadatos del curso (título, estado, horario) para pintar "mis cursos".
 export const myRegistrations = query({
   args: {},
   handler: async (ctx) => {
@@ -43,11 +44,22 @@ export const myRegistrations = query({
       .query("workshop_registrations")
       .withIndex("by_email", (q) => q.eq("email", email))
       .collect();
-    return registrations.map((r) => ({
-      workshopSlug: r.workshopSlug,
-      status: r.status,
-      createdAt: r.createdAt,
-    }));
+    return await Promise.all(
+      registrations.map(async (r) => {
+        const c = await ctx.db
+          .query("courses")
+          .withIndex("by_slug", (q) => q.eq("slug", r.workshopSlug))
+          .unique();
+        return {
+          workshopSlug: r.workshopSlug,
+          status: r.status,
+          createdAt: r.createdAt,
+          courseTitle: c?.title ?? r.workshopSlug,
+          courseSchedule: c?.schedule ?? "",
+          courseStatus: (c as any)?.status ?? "active",
+        };
+      }),
+    );
   },
 });
 

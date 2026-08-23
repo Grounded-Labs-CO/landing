@@ -1,7 +1,15 @@
+"use client";
 import Link from "next/link";
 import Image from "next/image";
+import { useQuery } from "convex/react";
+import { api } from "../../../../convex/_generated/api";
 
 export default function FinanzasPage() {
+  const course = useQuery(api.courses.getBySlug, { slug: "finanzas-personales-ia" });
+  const status = course?.status ?? "active";
+  const canReserve = status === "active";
+  const full = status === "full";
+  const closed = status === "completed" || status === "disabled";
   return (
     <div className="bg-[#0E1214] text-[#F1F3F2]">
       {/* HERO — 2A */}
@@ -11,7 +19,8 @@ export default function FinanzasPage() {
       >
         <div className="flex flex-col gap-[30px]">
           <span className="font-mono text-[11px] tracking-[0.16em] uppercase text-[#B4552B]">
-            [workshop · 26 sep · medellín · 12 cupos]
+            [workshop · 26 sep · medellín ·{" "}
+            {full ? "sin cupo" : closed ? "curso no disponible" : "12 cupos"}]
           </span>
 
           <h1
@@ -34,12 +43,22 @@ export default function FinanzasPage() {
             · Sábado 26 de septiembre · No necesitas saber programar
           </div>
           <div className="flex gap-[14px] flex-wrap pt-[6px]">
-            <Link
-              href="#precio"
-              className="bg-[#B4552B] text-[#0E1214] px-[30px] py-[16px] font-mono text-[12px] font-medium tracking-[0.12em] uppercase hover:bg-[#9A4A24] transition-colors"
-            >
-              reservar mi cupo →
-            </Link>
+            {closed ? (
+              <span className="border border-[#262E31] bg-[#1C2427] px-[30px] py-[16px] font-mono text-[12px] tracking-[0.12em] uppercase text-[#9AA3A1]">
+                {status === "completed" ? "curso ya dictado" : "curso no disponible"}
+              </span>
+            ) : full ? (
+              <span className="border border-[#5D4A2F] bg-[#1C2427] px-[30px] py-[16px] font-mono text-[12px] tracking-[0.12em] uppercase text-[#E2C084]">
+                sin cupo
+              </span>
+            ) : (
+              <Link
+                href="#precio"
+                className="bg-[#B4552B] text-[#0E1214] px-[30px] py-[16px] font-mono text-[12px] font-medium tracking-[0.12em] uppercase hover:bg-[#9A4A24] transition-colors"
+              >
+                reservar mi cupo →
+              </Link>
+            )}
             <Link
               href="#agenda"
               className="border border-[#2F3A3D] text-[#9AA3A1] px-[30px] py-[16px] font-mono text-[12px] tracking-[0.12em] uppercase hover:text-[#F1F3F2] hover:border-[#9AA3A1] transition-colors"
@@ -390,7 +409,8 @@ export default function FinanzasPage() {
             </span>
             <div className="flex flex-col gap-2">
               <span className="font-mono text-[11px] tracking-[0.14em] uppercase text-[#6C7573]">
-                workshop presencial · sábado 26 sep · 4 horas · 12 cupos
+                workshop presencial · sábado 26 sep · 4 horas ·{" "}
+                {full ? "cupos llenos" : closed ? "curso ya dictado" : "12 cupos"}
               </span>
               <span className="text-[72px] font-extralight leading-none tracking-[-0.04em] text-[#F1F3F2]">
                 $400k
@@ -416,12 +436,22 @@ export default function FinanzasPage() {
                 — Una metodología para seguir explorando inteligencia artificial aplicada
               </span>
             </div>
-            <Link
-              href="/signin?mode=signup"
-              className="mt-2 bg-[#B4552B] text-[#0E1214] px-8 py-[16px] font-mono text-[12px] font-medium tracking-[0.12em] uppercase text-center hover:bg-[#9A4A24] transition-colors"
-            >
-              reservar mi cupo →
-            </Link>
+            {canReserve ? (
+              <Link
+                href="/signin?mode=signup"
+                className="mt-2 bg-[#B4552B] text-[#0E1214] px-8 py-[16px] font-mono text-[12px] font-medium tracking-[0.12em] uppercase text-center hover:bg-[#9A4A24] transition-colors"
+              >
+                reservar mi cupo →
+              </Link>
+            ) : full ? (
+              <span className="mt-2 border border-[#5D4A2F] bg-[#0E1214] px-8 py-[16px] font-mono text-[12px] tracking-[0.12em] uppercase text-center text-[#E2C084]">
+                sin cupo
+              </span>
+            ) : (
+              <span className="mt-2 border border-[#262E31] bg-[#0E1214] px-8 py-[16px] font-mono text-[12px] tracking-[0.12em] uppercase text-center text-[#9AA3A1]">
+                {status === "completed" ? "curso ya dictado" : "curso no disponible"}
+              </span>
+            )}
           </div>
           <div className="flex flex-col gap-6">
             <span className="text-[30px] font-extralight leading-[1.2] tracking-[-0.02em] text-[#F1F3F2]">

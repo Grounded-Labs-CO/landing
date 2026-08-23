@@ -1,8 +1,11 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
+import { useQuery } from "convex/react";
+import { api } from "../../convex/_generated/api";
 
 export default function CorporatePage() {
+  const publicCourses = useQuery(api.courses.list);
   return (
     <div className="bg-[#0E1214] text-[#F1F3F2]">
       {/* HERO — 1.25fr / 1fr */}
@@ -29,7 +32,7 @@ export default function CorporatePage() {
           </p>
           <div className="flex gap-[14px] flex-wrap pt-[6px]">
             <Link
-              href="/workshops/finanzas-personales-ia"
+              href="#workshops"
               className="bg-[#B4552B] text-[#0E1214] px-[30px] py-[16px] font-mono text-[12px] font-medium tracking-[0.12em] uppercase hover:bg-[#9A4A24] transition-colors"
             >
               ver workshops →
@@ -156,29 +159,32 @@ export default function CorporatePage() {
           </p>
         </div>
         <div className="grid grid-cols-3 max-[900px]:grid-cols-1 gap-[22px]">
-          <Link
-            href="/workshops/finanzas-personales-ia"
-            className="border border-[#262E31] bg-[#1C2427] p-[38px_34px] flex flex-col gap-[22px] min-h-[420px] hover:border-[#B4552B] transition-colors group"
-          >
-            <span className="font-mono text-[10px] tracking-[0.16em] uppercase text-[#B4552B]">
-              workshop · 26 sep · medellín
-            </span>
-            <span className="text-[30px] font-light leading-[1.15] tracking-[-0.02em] text-[#F1F3F2] group-hover:text-white">
-              Asistente Financiero con Inteligencia Artificial
-            </span>
-            <span className="text-[16px] leading-[1.7] text-[#9AA3A1]">
-              Presupuesto, deudas, inversiones y tu marco de análisis — con tus datos.
-            </span>
-            <div className="flex flex-col gap-2.5 mt-auto">
-              <div className="h-[1px] bg-[#2F3A3D]"></div>
-              <span className="font-mono text-[12px] leading-[1.7] text-[#DDE2E0]">
-                — 4h · 12 cupos · $400k lanzamiento
+          {(publicCourses ?? []).map((c) => (
+            <Link
+              key={c.slug}
+              href={`/workshops/${c.slug}`}
+              className="border border-[#262E31] bg-[#1C2427] p-[38px_34px] flex flex-col gap-[22px] min-h-[420px] hover:border-[#B4552B] transition-colors group"
+            >
+              <span className="font-mono text-[10px] tracking-[0.16em] uppercase text-[#B4552B]">
+                workshop · {c.status === "full" ? "sin cupo" : "inscripción abierta"}
               </span>
-              <span className="font-mono text-[12px] leading-[1.7] text-[#B4552B] group-hover:text-[#F1F3F2]">
-                → ver detalles
+              <span className="text-[30px] font-light leading-[1.15] tracking-[-0.02em] text-[#F1F3F2] group-hover:text-white">
+                {c.title}
               </span>
-            </div>
-          </Link>
+              <span className="text-[16px] leading-[1.7] text-[#9AA3A1]">
+                {c.tagline}
+              </span>
+              <div className="flex flex-col gap-2.5 mt-auto">
+                <div className="h-[1px] bg-[#2F3A3D]"></div>
+                <span className="font-mono text-[12px] leading-[1.7] text-[#DDE2E0]">
+                  {c.schedule} · {c.price}
+                </span>
+                <span className="font-mono text-[12px] leading-[1.7] text-[#B4552B] group-hover:text-[#F1F3F2]">
+                  {c.status === "full" ? "sin cupo — avísame" : "→ ver detalles"}
+                </span>
+              </div>
+            </Link>
+          ))}
           <div className="hidden md:flex border border-[#262E31] bg-[#0E1214] p-[38px_34px] flex-col gap-[22px] min-h-[420px] opacity-60">
             <span className="font-mono text-[10px] tracking-[0.16em] uppercase text-[#6C7573]">
               [próximamente]
@@ -301,7 +307,7 @@ export default function CorporatePage() {
               {"// 4 horas · Presencial · Sales con 2–3 cosas aplicables mañana"}
             </span>
             <Link
-              href="/workshops/finanzas-personales-ia"
+              href="#workshops"
               className="bg-[#0E1214] text-[#F1F3F2] px-[30px] py-[16px] font-mono text-[12px] font-medium tracking-[0.12em] uppercase self-start hover:bg-[#1C2427] transition-colors"
             >
               reservar cupo — $400k

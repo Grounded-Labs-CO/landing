@@ -5,6 +5,13 @@ import { useAction, useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { useState } from "react";
 
+const STATUS_META: Record<string, { label: string; className: string }> = {
+  active: { label: "activo", className: "bg-[#1C2427] text-[#7FC7A3] border border-[#262E31]" },
+  full: { label: "lleno", className: "bg-[#5D4A2F] text-[#E2C084] border border-[#5D4A2F]" },
+  completed: { label: "dictado", className: "bg-[#2F3A3D] text-[#9AA3A1] border border-[#2F3A3D]" },
+  disabled: { label: "desactivado", className: "bg-[#5D2F2F] text-[#E2A084] border border-[#5D2F2F]" },
+};
+
 function AdminPanel() {
   const { isAdmin, isLoading } = useRole();
   const [tab, setTab] = useState<"estudiantes" | "cursos" | "invitar">("estudiantes");
@@ -21,7 +28,7 @@ function AdminPanel() {
   // Cursos
   const courses = useQuery(api.admin.listCoursesAdmin);
   const updateCourse = useMutation(api.admin.updateCourse);
-  const toggleCourseStatus = useMutation(api.admin.toggleCourseStatus);
+  const setCourseStatus = useMutation(api.admin.setCourseStatus);
   const [editCourseId, setEditCourseId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [editTagline, setEditTagline] = useState("");
@@ -214,9 +221,9 @@ function AdminPanel() {
                     </p>
                   </div>
                   <span
-                    className={`px-2 py-1 font-mono text-[11px] uppercase ${c.status === "archived" ? "bg-[#5D2F2F] text-[#E2A084]" : "bg-[#1C2427] text-[#7FC7A3] border border-[#262E31]"}`}
+                    className={`px-2 py-1 font-mono text-[11px] uppercase ${STATUS_META[(c as any).status ?? "active"]?.className ?? "bg-[#1C2427] text-[#7FC7A3] border border-[#262E31]"}`}
                   >
-                    {c.status === "archived" ? "archivado" : "activo"}
+                    {STATUS_META[(c as any).status ?? "active"]?.label ?? "activo"}
                   </span>
                 </div>
                 {editCourseId === c._id ? (
@@ -326,7 +333,7 @@ function AdminPanel() {
                     </div>
                   </div>
                 ) : (
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 items-center">
                     <button
                       onClick={() => {
                         setEditCourseId(c._id);
@@ -341,12 +348,16 @@ function AdminPanel() {
                     >
                       editar
                     </button>
-                    <button
-                      onClick={() => void toggleCourseStatus({ courseId: c._id })}
-                      className={`px-3 py-1.5 font-mono text-[11px] uppercase ${c.status === "archived" ? "bg-[#1C2427] text-[#7FC7A3] border border-[#262E31]" : "border border-[#5D2F2F] text-[#C77F7F] hover:bg-[#5D2F2F] hover:text-[#F1F3F2]"}`}
+                    <select
+                      value={(c as any).status ?? "active"}
+                      onChange={(e) => void setCourseStatus({ courseId: c._id, status: e.target.value as any })}
+                      className="border border-[#262E31] bg-[#0E1214] px-3 py-1.5 font-mono text-[11px] uppercase text-[#F1F3F2] outline-none focus:border-[#B4552B]"
                     >
-                      {c.status === "archived" ? "activar" : "archivar"}
-                    </button>
+                      <option value="active">activo</option>
+                      <option value="full">lleno</option>
+                      <option value="completed">dictado</option>
+                      <option value="disabled">desactivado</option>
+                    </select>
                   </div>
                 )}
               </div>

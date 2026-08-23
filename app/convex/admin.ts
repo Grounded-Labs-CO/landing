@@ -347,16 +347,22 @@ export const updateCourse = mutation({
   },
 });
 
-export const toggleCourseStatus = mutation({
-  args: { courseId: v.id("courses") },
+export const setCourseStatus = mutation({
+  args: {
+    courseId: v.id("courses"),
+    status: v.union(
+      v.literal("active"),
+      v.literal("full"),
+      v.literal("completed"),
+      v.literal("disabled"),
+    ),
+  },
   handler: async (ctx, args) => {
     await requireActiveAdmin(ctx);
     const course = await ctx.db.get(args.courseId);
     if (!course) throw new Error("Curso no encontrado");
-    const current = (course as any).status ?? "active";
-    const next = current === "active" ? "archived" : "active";
-    await ctx.db.patch(args.courseId, { status: next } as any);
-    return next;
+    await ctx.db.patch(args.courseId, { status: args.status });
+    return args.status;
   },
 });
 
