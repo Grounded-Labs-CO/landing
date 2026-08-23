@@ -417,7 +417,7 @@ export default function FinanzasPage() {
               </span>
             </div>
             <Link
-              href="#"
+              href="/signin?mode=signup"
               className="mt-2 bg-[#B4552B] text-[#0E1214] px-8 py-[16px] font-mono text-[12px] font-medium tracking-[0.12em] uppercase text-center hover:bg-[#9A4A24] transition-colors"
             >
               reservar mi cupo →

@@ -26,4 +26,62 @@ export default defineSchema({
     status: v.union(v.literal("pending"), v.literal("paid"), v.literal("cancelled")),
     createdAt: v.number(),
   }).index("by_email", ["email"]).index("by_workshop", ["workshopSlug"]),
+
+  // Catálogo de cursos y su contenido (zona de estudiantes)
+  courses: defineTable({
+    slug: v.string(),
+    title: v.string(),
+    tagline: v.string(),
+    schedule: v.string(),
+    price: v.string(),
+    eventInfo: v.array(v.object({ label: v.string(), value: v.string() })),
+  }).index("by_slug", ["slug"]),
+
+  // Secciones del curso (los "sellos" 01..N)
+  course_sections: defineTable({
+    courseId: v.id("courses"),
+    order: v.number(),
+    kind: v.union(
+      v.literal("info"),
+      v.literal("articles"),
+      v.literal("sample-data"),
+      v.literal("docs"),
+      v.literal("links"),
+    ),
+    title: v.string(),
+    hint: v.string(),
+  }).index("by_course", ["courseId"]),
+
+  // Ítems de una sección: artículos (antes de), docs (presentación) y links
+  course_items: defineTable({
+    sectionId: v.id("course_sections"),
+    order: v.number(),
+    title: v.string(),
+    description: v.optional(v.string()),
+    url: v.optional(v.string()),
+    note: v.optional(v.string()),
+    status: v.optional(v.union(v.literal("proximo"), v.literal("published"))),
+    storageId: v.optional(v.id("_storage")),
+  }).index("by_section", ["sectionId"]),
+
+  // Perfiles de sample data
+  sample_profiles: defineTable({
+    courseId: v.id("courses"),
+    order: v.number(),
+    slug: v.string(),
+    name: v.string(),
+    tagline: v.string(),
+    introStorageId: v.optional(v.id("_storage")),
+    introFileName: v.optional(v.string()),
+  }).index("by_course", ["courseId"]),
+
+  // Documentos de cada perfil (archivo vive en Convex storage)
+  sample_files: defineTable({
+    profileId: v.id("sample_profiles"),
+    category: v.string(),
+    order: v.number(),
+    label: v.string(),
+    fileName: v.string(),
+    storageId: v.id("_storage"),
+  }).index("by_profile", ["profileId"]),
 });

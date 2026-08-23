@@ -1,10 +1,9 @@
 "use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useConvexAuth } from "convex/react";
 
 export function Header() {
-  const pathname = usePathname();
-  const isWorkshop = pathname?.startsWith("/workshops");
+  const { isAuthenticated } = useConvexAuth();
   return (
     <header className="sticky top-0 z-40 w-full border-b border-[#262E31] bg-[#0E1214]/90 backdrop-blur">
       <div className="mx-auto flex h-[64px] max-w-[1120px] items-center justify-between px-6">
@@ -26,10 +25,10 @@ export function Header() {
             Workshops
           </Link>
           <Link
-            href={isWorkshop ? "#precio" : "/workshops/finanzas-personales-ia#precio"}
+            href="/estudiantes"
             className="inline-flex items-center bg-[#B4552B] px-5 py-2.5 font-mono text-[11px] font-medium tracking-[0.12em] uppercase text-[#0E1214] hover:bg-[#9A4A24] transition-colors"
           >
-            Reservar cupo →
+            {isAuthenticated ? "Perfil →" : "Estudiantes →"}
           </Link>
         </nav>
       </div>

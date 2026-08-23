@@ -4,6 +4,10 @@ import { Password } from "@convex-dev/auth/providers/Password";
 import { mutation } from "./_generated/server";
 import { v } from "convex/values";
 
+// Curso activo: toda cuenta nueva en la zona de estudiantes reserva cupo
+// en este workshop (pending) hasta que un admin marque el pago.
+const DEFAULT_WORKSHOP_SLUG = "finanzas-personales-ia";
+
 export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
   providers: [Password],
   callbacks: {
@@ -18,6 +22,24 @@ export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
           role: "viewer",
           status: "pending",
         });
+      }
+
+      const user = await ctx.db.get(args.userId);
+      const email = user?.email?.toLowerCase();
+      if (email) {
+        const registration = await ctx.db
+          .query("workshop_registrations")
+          .withIndex("by_email", (q) => q.eq("email", email))
+          .filter((q) => q.eq(q.field("workshopSlug"), DEFAULT_WORKSHOP_SLUG))
+          .unique();
+        if (!registration) {
+          await ctx.db.insert("workshop_registrations", {
+            email,
+            workshopSlug: DEFAULT_WORKSHOP_SLUG,
+            status: "pending",
+            createdAt: Date.now(),
+          });
+        }
       }
     },
   },

@@ -28,3 +28,24 @@ export const listLeads = query({
     return await ctx.db.query("leads").collect();
   },
 });
+
+// Cursos del estudiante autenticado (por email de la cuenta).
+export const myRegistrations = query({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) return [];
+    const user = await ctx.db.get(userId);
+    const email = user?.email?.toLowerCase();
+    if (!email) return [];
+    const registrations = await ctx.db
+      .query("workshop_registrations")
+      .withIndex("by_email", (q) => q.eq("email", email))
+      .collect();
+    return registrations.map((r) => ({
+      workshopSlug: r.workshopSlug,
+      status: r.status,
+      createdAt: r.createdAt,
+    }));
+  },
+});
