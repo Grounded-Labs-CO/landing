@@ -5,6 +5,7 @@ import { useAction, useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { useState } from "react";
 import { DropdownSelect } from "@/components/DropdownSelect";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 
 const STATUS_META: Record<string, { label: string; className: string }> = {
   active: { label: "activo", className: "bg-[#1C2427] text-[#7FC7A3] border border-[#262E31]" },
@@ -14,7 +15,8 @@ const STATUS_META: Record<string, { label: string; className: string }> = {
 };
 
 function AdminPanel() {
-  const { isAdmin, isLoading } = useRole();
+  const { isAdmin, isLoading, role } = useRole();
+  const meId = role?.userId;
   const [tab, setTab] = useState<"estudiantes" | "cursos" | "invitar">("estudiantes");
 
   // Estudiantes
@@ -50,6 +52,17 @@ function AdminPanel() {
   // Filtros estudiantes — por estado de pago del curso
   const [filter, setFilter] = useState<"todos" | "pagado" | "por_pagar">("todos");
   const [search, setSearch] = useState("");
+
+  // Acciones de borrado/quitar con confirmación + error inline
+  const [confirmTarget, setConfirmTarget] = useState<
+    | { type: "delete"; userId: any }
+    | { type: "remove"; email: string; workshopSlug: string }
+    | null
+  >(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [editError, setEditError] = useState<string | null>(null);
+
+  const isSelf = (userId: any) => userId != null && userId === meId;
 
   const filteredStudents = (allStudents ?? []).filter((s) => {
     const q = search.toLowerCase();
@@ -167,36 +180,36 @@ function AdminPanel() {
                     {s.workshopStatus === "paid" && (
                       <span className="px-2 py-1 font-mono text-[11px] text-[#7FC7A3]">✓ pagado</span>
                     )}
-                    <button
-                      onClick={() => {
-                        if (s.userId) {
-                          if (!confirm(`¿Borrar permanentemente a ${s.email ?? s.userId}?`)) return;
-                          if (
-                            !confirm(
-                              "Esto NO se puede deshacer. Se eliminarán su cuenta, sesiones y todos sus registros. ¿Confirmás?",
-                            )
-                          )
-                            return;
-                          void deleteUser({ userId: s.userId as any }).catch((e: any) =>
-                            alert(e.message ?? "error"),
-                          );
-                        } else {
-                          if (!confirm(`¿Quitar la invitación de ${s.email}?`)) return;
-                          void removeInvite({
-                            email: s.email!,
-                            workshopSlug: s.workshopSlug ?? "finanzas-personales-ia",
-                          }).catch((e: any) => alert(e.message ?? "error"));
-                        }
-                      }}
-                      className="border border-[#5D2F2F] px-3 py-1.5 font-mono text-[11px] tracking-[0.08em] uppercase text-[#E2A084] hover:bg-[#5D2F2F] hover:text-[#F1F3F2]"
-                    >
-                      {s.userId ? "borrar" : "quitar"}
-                    </button>
+                    {isSelf(s.userId) ? null : (
+                      <button
+                        onClick={() => {
+                          setActionError(null);
+                          if (s.userId) {
+                            setConfirmTarget({ type: "delete", userId: s.userId });
+                          } else {
+                            setConfirmTarget({
+                              type: "remove",
+                              email: s.email!,
+                              workshopSlug: s.workshopSlug ?? "finanzas-personales-ia",
+                            });
+                          }
+                        }}
+                        className="border border-[#5D2F2F] px-3 py-1.5 font-mono text-[11px] tracking-[0.08em] uppercase text-[#E2A084] hover:bg-[#5D2F2F] hover:text-[#F1F3F2]"
+                      >
+                        {s.userId ? "borrar" : "quitar"}
+                      </button>
+                    )}
                   </div>
                 </div>
               ))
             )}
           </div>
+
+          {actionError && (
+            <p className="mt-3 border border-[#3A1C0C] bg-[#1C2427] px-4 py-3 font-mono text-[12px] text-[#E2A084]">
+              {actionError}
+            </p>
+          )}
         </>
       )}
 
@@ -271,12 +284,10 @@ function AdminPanel() {
                     <label className="flex flex-col gap-1">
                       <span className="font-mono text-[10px] tracking-[0.08em] uppercase text-[#6C7573]">precio (COP) *</span>
                       <input
-                        type="number"
+                        type="text"
                         inputMode="numeric"
-                        min={0}
-                        step={1000}
-                        value={editPrice}
-                        onChange={(e) => setEditPrice(e.target.value)}
+                        value={editPrice ? Number(editPrice).toLocaleString("es-CO") : ""}
+                        onChange={(e) => setEditPrice(e.target.value.replace(/\D/g, ""))}
                         placeholder="400000"
                         className="border border-[#262E31] bg-[#0E1214] px-3 py-2 font-mono text-[12px] text-[#F1F3F2] outline-none focus:border-[#B4552B]"
                       />
@@ -300,8 +311,9 @@ function AdminPanel() {
                           if (editEventInfo.trim()) {
                             try {
                               eventInfo = JSON.parse(editEventInfo);
+                              setEditError(null);
                             } catch {
-                              alert("eventInfo no es JSON válido");
+                              setEditError("// eventInfo no es JSON válido");
                               return;
                             }
                           }
@@ -335,12 +347,18 @@ function AdminPanel() {
                         cancelar
                       </button>
                     </div>
+                    {editError && (
+                      <p className="border border-[#3A1C0C] bg-[#1C2427] px-3 py-2 font-mono text-[11px] text-[#E2A084]">
+                        {editError}
+                      </p>
+                    )}
                   </div>
                 ) : (
                   <div className="flex gap-2 items-center">
                     <button
                       onClick={() => {
                         setEditCourseId(c._id);
+                        setEditError(null);
                         setEditTitle(c.title);
                         setEditTagline((c as any).tagline ?? "");
                         setEditSlug(c.slug);
@@ -454,6 +472,38 @@ function AdminPanel() {
           {inviteMsg && <p className="font-mono text-[11px] text-[#DDE2E0]">{inviteMsg}</p>}
         </div>
       )}
+
+      <ConfirmDialog
+        open={confirmTarget !== null}
+        onClose={() => setConfirmTarget(null)}
+        onConfirm={async () => {
+          const t = confirmTarget;
+          if (!t) return;
+          setActionError(null);
+          try {
+            if (t.type === "delete") {
+              await deleteUser({ userId: t.userId });
+            } else {
+              await removeInvite({ email: t.email, workshopSlug: t.workshopSlug });
+            }
+          } catch (e: any) {
+            setActionError(e.message ?? "error");
+          }
+          setConfirmTarget(null);
+        }}
+        danger
+        title={
+          confirmTarget?.type === "delete"
+            ? "¿Borrar este usuario?"
+            : "¿Quitar esta invitación?"
+        }
+        description={
+          confirmTarget?.type === "delete"
+            ? "Se eliminará su cuenta, sesiones y todos sus registros. No se puede deshacer."
+            : "Se quita la inscripción/invitación a este curso (la cuenta no se borra)."
+        }
+        confirmLabel={confirmTarget?.type === "delete" ? "borrar" : "quitar"}
+      />
     </>
   );
 }
