@@ -1,6 +1,8 @@
 // @ts-nocheck
 import { convexAuth } from "@convex-dev/auth/server";
 import { Password } from "@convex-dev/auth/providers/Password";
+import { Email } from "@convex-dev/auth/providers/Email";
+import Resend from "@auth/core/providers/resend";
 import { mutation } from "./_generated/server";
 import { v } from "convex/values";
 
@@ -8,8 +10,28 @@ import { v } from "convex/values";
 // en este workshop (pending) hasta que un admin marque el pago.
 const DEFAULT_WORKSHOP_SLUG = "finanzas-personales-ia";
 
+// Email (magic link) es el método principal. Resend es el proveedor de email.
+// Password queda como opción secundaria no-default.
+const emailProvider = Email(
+  Resend({
+    apiKey: process.env.AUTH_RESEND_KEY,
+    from: process.env.AUTH_EMAIL_FROM ?? "Grounded Labs <onboarding@resend.dev>",
+  }),
+);
+
 export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
-  providers: [Password],
+  providers: [
+    // Magic link - default
+    Email({
+      ...emailProvider,
+      // Magic link: solo el token es necesario, no requiere re-enviar email en verificación
+      authorize: undefined,
+      id: "resend",
+      type: "email",
+    }),
+    // Password - secundario
+    Password,
+  ],
   callbacks: {
     async afterUserCreatedOrUpdated(ctx, args) {
       const existing = await ctx.db
