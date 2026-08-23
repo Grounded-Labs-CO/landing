@@ -3,10 +3,12 @@ import { useAuthActions } from "@convex-dev/auth/react";
 import { useConvexAuth } from "convex/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
+import { useRole } from "@/hooks/useRole";
 
 function SignInForm() {
   const { signIn } = useAuthActions();
   const { isAuthenticated } = useConvexAuth();
+  const { isAdmin, isLoading: roleLoading } = useRole();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [authMethod, setAuthMethod] = useState<"email" | "password">("email");
@@ -21,8 +23,9 @@ function SignInForm() {
   const [emailSent, setEmailSent] = useState(false);
 
   useEffect(() => {
-    if (isAuthenticated) router.replace("/estudiantes");
-  }, [isAuthenticated, router]);
+    if (!isAuthenticated || roleLoading) return;
+    router.replace(isAdmin ? "/admin" : "/estudiantes");
+  }, [isAuthenticated, isAdmin, roleLoading, router]);
 
   async function handleEmailSubmit(e: React.FormEvent) {
     e.preventDefault();

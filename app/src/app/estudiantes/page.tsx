@@ -5,6 +5,8 @@ import { useAuthActions } from "@convex-dev/auth/react";
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 function StatusChip({ status }: { status: string }) {
   const map: Record<string, { label: string; className: string }> = {
@@ -23,10 +25,14 @@ function StatusChip({ status }: { status: string }) {
 }
 
 function StudentHome() {
-  const { isPending } = useRole();
+  const { isPending, isAdmin } = useRole();
   const courses = useQuery(api.courses.list);
   const registrations = useQuery(api.queries.myRegistrations);
   const { signOut } = useAuthActions();
+  const router = useRouter();
+  useEffect(() => {
+    if (isAdmin) router.replace("/admin");
+  }, [isAdmin, router]);
 
   const byslug = new Map((registrations ?? []).map((r) => [r.workshopSlug, r]));
 
