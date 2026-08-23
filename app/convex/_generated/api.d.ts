@@ -14,6 +14,7 @@ import type * as courses from "../courses.js";
 import type * as http from "../http.js";
 import type * as material from "../material.js";
 import type * as mutations from "../mutations.js";
+import type * as profile from "../profile.js";
 import type * as queries from "../queries.js";
 import type * as seed from "../seed.js";
 
@@ -30,6 +31,7 @@ declare const fullApi: ApiFromModules<{
   http: typeof http;
   material: typeof material;
   mutations: typeof mutations;
+  profile: typeof profile;
   queries: typeof queries;
   seed: typeof seed;
 }>;

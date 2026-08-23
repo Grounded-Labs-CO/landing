@@ -346,3 +346,26 @@ export const attachItemFile = action({
     return { storageId };
   },
 });
+
+export const seedCatalogOptions = mutation({
+  args: {
+    secret: v.string(),
+    professions: v.array(v.string()),
+    aiTools: v.array(v.string()),
+  },
+  handler: async (ctx, args) => {
+    requireSecret(args);
+    const existingProfs = await ctx.db.query("professions").collect();
+    for (const row of existingProfs) await ctx.db.delete(row._id);
+    const existingTools = await ctx.db.query("ai_tools").collect();
+    for (const row of existingTools) await ctx.db.delete(row._id);
+
+    for (const [i, label] of args.professions.entries()) {
+      await ctx.db.insert("professions", { order: i, label });
+    }
+    for (const [i, label] of args.aiTools.entries()) {
+      await ctx.db.insert("ai_tools", { order: i, label });
+    }
+    return { professions: args.professions.length, aiTools: args.aiTools.length };
+  },
+});

@@ -5,10 +5,6 @@ import Resend from "@auth/core/providers/resend";
 import { mutation } from "./_generated/server";
 import { v } from "convex/values";
 
-// Curso activo: toda cuenta nueva en la zona de estudiantes reserva cupo
-// en este workshop (pending) hasta que un admin marque el pago.
-const DEFAULT_WORKSHOP_SLUG = "finanzas-personales-ia";
-
 // Email (magic link) es el método principal. Resend es el proveedor.
 // Password queda como opción secundaria no-default.
 export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
@@ -59,7 +55,12 @@ export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
         if (!res.ok) throw new Error("Resend error: " + JSON.stringify(await res.json()));
       },
     },
-    Password,
+    Password({
+      profile: (params) => ({
+        email: (params.email as string)?.toLowerCase(),
+        ...(params.phone ? { phone: params.phone as string } : {}),
+      }),
+    }),
   ],
   callbacks: {
     async afterUserCreatedOrUpdated(ctx, args) {
@@ -71,26 +72,8 @@ export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
         await ctx.db.insert("user_roles", {
           userId: args.userId,
           role: "viewer",
-          status: "pending",
+          status: "active",
         });
-      }
-
-      const user = await ctx.db.get(args.userId);
-      const email = user?.email?.toLowerCase();
-      if (email) {
-        const registration = await ctx.db
-          .query("workshop_registrations")
-          .withIndex("by_email", (q) => q.eq("email", email))
-          .filter((q) => q.eq(q.field("workshopSlug"), DEFAULT_WORKSHOP_SLUG))
-          .unique();
-        if (!registration) {
-          await ctx.db.insert("workshop_registrations", {
-            email,
-            workshopSlug: DEFAULT_WORKSHOP_SLUG,
-            status: "pending",
-            createdAt: Date.now(),
-          });
-        }
       }
     },
   },

@@ -18,10 +18,10 @@ function SignInForm() {
   );
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [phone, setPhone] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
+  const [verificationSent, setVerificationSent] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated || roleLoading || redirected.current) return;
@@ -51,16 +51,26 @@ function SignInForm() {
     setError(null);
     setSubmitting(true);
     try {
-      await signIn("password", {
-        email: email.trim().toLowerCase(),
-        password,
-        flow: mode,
-      });
+      if (mode === "signUp") {
+        // Crear cuenta valida el email con un magic-link (provider de primer nivel).
+        await signIn("resend", {
+          email: email.trim().toLowerCase(),
+          redirectTo: "/signin",
+        });
+        setVerificationSent(true);
+      } else {
+        await signIn("password", {
+          email: email.trim().toLowerCase(),
+          password,
+          flow: "signIn",
+          redirectTo: "/signin",
+        });
+      }
     } catch {
       setError(
         mode === "signIn"
           ? "No pudimos validar tu email o contraseña."
-          : "No pudimos crear la cuenta. ¿Ese email ya tiene una?",
+          : "No pudimos enviar el correo. Verifica tu email e intenta de nuevo.",
       );
     } finally {
       setSubmitting(false);
@@ -71,6 +81,36 @@ function SignInForm() {
     return (
       <div className="mx-auto max-w-md px-6 py-16">
         <p className="font-mono text-[12px] text-[#6C7573]">ingresando…</p>
+      </div>
+    );
+  }
+
+  if (verificationSent) {
+    return (
+      <div className="mx-auto max-w-md px-6 py-16">
+        <span className="font-mono text-[11px] tracking-[0.18em] uppercase text-[#B4552B]">Estudiantes</span>
+        <h1 className="mt-3 font-sans text-[32px] font-light tracking-[-0.02em] text-[#F1F3F2]">
+          Revisá tu correo
+        </h1>
+        <p className="mt-2 font-sans text-[14px] leading-[1.6] text-[#9AA3A1]">
+          Te enviamos un enlace para <span className="text-[#DDE2E0]">validar tu email</span> y activar tu
+          cuenta. Cuando lo confirmes, seguirás para completar tu perfil.
+        </p>
+        <div className="mt-8 border border-[#1C2427] bg-[#0E1214] px-4 py-4">
+          <p className="font-mono text-[12px] leading-[1.7] text-[#DDE2E0]">
+            El enlace expira en 1 hora. ¿No lo ves? Revisa spam.
+          </p>
+          <button
+            type="button"
+            onClick={() => {
+              setVerificationSent(false);
+              setError(null);
+            }}
+            className="mt-4 font-mono text-[11px] tracking-[0.08em] uppercase text-[#6C7573] hover:text-[#9AA3A1]"
+          >
+            ← usar otro correo
+          </button>
+        </div>
       </div>
     );
   }
@@ -86,7 +126,7 @@ function SignInForm() {
           ? "Te enviamos un link a tu correo para ingresar — sin contraseña."
           : mode === "signIn"
             ? "Accede con tu email y contraseña."
-            : "Crea tu cuenta con email y contraseña."}
+            : "Te enviamos un enlace para validar tu email y crear tu cuenta."}
       </p>
 
       {authMethod === "email" ? (
@@ -170,28 +210,16 @@ function SignInForm() {
                 className="border border-[#262E31] bg-[#0E1214] px-4 py-3 font-mono text-[14px] text-[#F1F3F2] outline-none focus:border-[#B4552B]"
               />
             </label>
-            <label className="flex flex-col gap-2">
-              <span className="font-mono text-[11px] tracking-[0.12em] uppercase text-[#6C7573]">contraseña</span>
-              <input
-                type="password"
-                required
-                minLength={8}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                autoComplete={mode === "signIn" ? "current-password" : "new-password"}
-                className="border border-[#262E31] bg-[#0E1214] px-4 py-3 font-mono text-[14px] text-[#F1F3F2] outline-none focus:border-[#B4552B]"
-              />
-            </label>
-            {mode === "signUp" && (
+            {mode === "signIn" && (
               <label className="flex flex-col gap-2">
-                <span className="font-mono text-[11px] tracking-[0.12em] uppercase text-[#6C7573]">teléfono</span>
+                <span className="font-mono text-[11px] tracking-[0.12em] uppercase text-[#6C7573]">contraseña</span>
                 <input
-                  type="tel"
+                  type="password"
                   required
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  autoComplete="tel"
-                  placeholder="+57 300 123 4567"
+                  minLength={8}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="current-password"
                   className="border border-[#262E31] bg-[#0E1214] px-4 py-3 font-mono text-[14px] text-[#F1F3F2] outline-none focus:border-[#B4552B]"
                 />
               </label>

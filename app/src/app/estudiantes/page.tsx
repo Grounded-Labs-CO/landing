@@ -1,6 +1,6 @@
 "use client";
 import { AuthGuard } from "@/components/AuthGuard";
-import { useRole } from "@/hooks/useRole";
+import { ProfileGuard } from "@/components/ProfileGuard";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
@@ -23,7 +23,6 @@ function StatusChip({ status }: { status: string }) {
 }
 
 function StudentHome() {
-  const { isPending } = useRole();
   const courses = useQuery(api.courses.list);
   const registrations = useQuery(api.queries.myRegistrations);
   const { signOut } = useAuthActions();
@@ -49,12 +48,6 @@ function StudentHome() {
         </button>
       </div>
 
-      {isPending && (
-        <div className="mt-6 border border-[#5D4A2F] bg-[#1C2427] p-5 font-mono text-[12px] leading-[1.7] text-[#E2C084]">
-          {"// tu cuenta está pendiente de aprobación — la activamos al confirmar tu asistencia."}
-        </div>
-      )}
-
       {courses === undefined || registrations === undefined ? (
         <p className="mt-10 font-mono text-[12px] text-[#6C7573]">cargando…</p>
       ) : courses.length === 0 ? (
@@ -66,7 +59,7 @@ function StudentHome() {
           {courses.map((course) => {
             const registration = byslug.get(course.slug);
             const status = registration?.status ?? null;
-            const unlocked = status === "paid" && !isPending;
+            const unlocked = status === "paid";
             return (
               <div
                 key={course.slug}
@@ -120,7 +113,9 @@ function StudentHome() {
 export default function EstudiantesPage() {
   return (
     <AuthGuard>
-      <StudentHome />
+      <ProfileGuard>
+        <StudentHome />
+      </ProfileGuard>
     </AuthGuard>
   );
 }

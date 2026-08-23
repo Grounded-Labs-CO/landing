@@ -1,5 +1,6 @@
 "use client";
 import { AuthGuard } from "@/components/AuthGuard";
+import { ProfileGuard } from "@/components/ProfileGuard";
 import type { CourseMaterial, CourseSection, SampleProfile } from "@/lib/material-types";
 import { useQuery } from "convex/react";
 import { api } from "../../../../../convex/_generated/api";
@@ -46,7 +47,6 @@ function CourseMaterial() {
   const unlocked =
     !!access &&
     access.authenticated &&
-    access.accountStatus === "active" &&
     access.registrationStatus === "paid";
 
   const material = useQuery(
@@ -79,10 +79,7 @@ function CourseMaterial() {
       {access === undefined ? (
         <p className="mt-10 font-mono text-[12px] text-[#6C7573]">cargando…</p>
       ) : !unlocked ? (
-        <LockedPanel
-          registrationStatus={access.registrationStatus ?? null}
-          accountStatus={access.accountStatus ?? null}
-        />
+        <LockedPanel registrationStatus={access.registrationStatus ?? null} />
       ) : material === undefined ? (
         <p className="mt-10 font-mono text-[12px] text-[#6C7573]">cargando material…</p>
       ) : material === null ? (
@@ -462,23 +459,15 @@ function ProfileCard({
   );
 }
 
-function LockedPanel({
-  registrationStatus,
-  accountStatus,
-}: {
-  registrationStatus: string | null;
-  accountStatus: string | null;
-}) {
+function LockedPanel({ registrationStatus }: { registrationStatus: string | null }) {
   return (
     <div className="mt-10 border border-[#262E31] bg-[#1C2427] p-8">
       <div className="h-[1.5px] w-10 bg-[#B4552B]" />
       <p className="mt-4 font-mono text-[13px] leading-[1.8] text-[#9AA3A1]">
-        {registrationStatus !== "paid"
-          ? "// el material se desbloquea cuando se registre tu pago."
-          : "// tu cuenta está pendiente de aprobación — la activamos al confirmar tu asistencia."}
+        {"// el material se desbloquea cuando se registre tu pago."}
       </p>
       <p className="mt-2 font-mono text-[11px] leading-[1.7] text-[#565F62]">
-        {`estado: cuenta ${accountStatus ?? "—"} · pago ${registrationStatus ?? "—"}`}
+        {`estado: pago ${registrationStatus ?? "—"}`}
       </p>
       <Link
         href="/estudiantes"
@@ -493,7 +482,9 @@ function LockedPanel({
 export default function CourseMaterialPage() {
   return (
     <AuthGuard>
-      <CourseMaterial />
+      <ProfileGuard>
+        <CourseMaterial />
+      </ProfileGuard>
     </AuthGuard>
   );
 }

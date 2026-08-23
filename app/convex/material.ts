@@ -7,14 +7,6 @@ export async function requireMaterialAccess(ctx, courseSlug) {
   const userId = await getAuthUserId(ctx);
   if (!userId) throw new Error("No autenticado");
 
-  const role = await ctx.db
-    .query("user_roles")
-    .withIndex("by_userId", (q) => q.eq("userId", userId))
-    .unique();
-  if (!role || role.status !== "active") {
-    throw new Error("Cuenta pendiente de aprobación");
-  }
-
   const user = await ctx.db.get(userId);
   const email = user?.email?.toLowerCase();
   if (!email) throw new Error("Usuario sin email");
@@ -37,10 +29,6 @@ export const myAccess = query({
     const userId = await getAuthUserId(ctx);
     if (!userId) return { authenticated: false };
 
-    const role = await ctx.db
-      .query("user_roles")
-      .withIndex("by_userId", (q) => q.eq("userId", userId))
-      .unique();
     const user = await ctx.db.get(userId);
     const email = user?.email?.toLowerCase();
     const registration = email
@@ -54,7 +42,6 @@ export const myAccess = query({
     return {
       authenticated: true,
       email,
-      accountStatus: role?.status ?? "pending",
       registrationStatus: registration?.status ?? null,
     };
   },

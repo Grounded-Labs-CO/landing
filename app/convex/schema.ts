@@ -86,11 +86,29 @@ export default defineSchema({
     storageId: v.id("_storage"),
   }).index("by_profile", ["profileId"]),
 
-  // Perfil extendido del usuario (nombre, teléfono, profesión futura)
+  // Perfil extendido del usuario (nombre, teléfono, profesión y segmentación IA)
   user_profiles: defineTable({
     userId: v.id("users"),
     displayName: v.optional(v.string()),
     phone: v.optional(v.string()),
     profession: v.optional(v.string()),
+    aiLevel: v.optional(
+      v.union(v.literal("principiante"), v.literal("intermedio"), v.literal("avanzado")),
+    ),
+    aiTool: v.optional(v.string()),
+    contactMethod: v.optional(v.union(v.literal("whatsapp"), v.literal("correo"), v.literal("ambos"))),
+    completed: v.optional(v.boolean()),
   }).index("by_userId", ["userId"]),
+
+  // Profesiones para el dropdown del onboarding (sembradas)
+  professions: defineTable({
+    order: v.number(),
+    label: v.string(),
+  }).index("by_order", ["order"]),
+
+  // Herramientas de IA para el dropdown del onboarding (sembradas)
+  ai_tools: defineTable({
+    order: v.number(),
+    label: v.string(),
+  }).index("by_order", ["order"]),
 });

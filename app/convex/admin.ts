@@ -16,17 +16,122 @@ async function requireActiveAdmin(ctx) {
   return callerId;
 }
 
-export const approveUser = mutation({
+// BORRADO EN CASCADA (hard delete) de una cuenta y todo lo relacionado.
+// Solo para pruebas/operación: elimina de la BD todas las entidades del user.
+export const deleteUser = mutation({
   args: { userId: v.id("users") },
   handler: async (ctx, args) => {
-    await requireActiveAdmin(ctx);
-    const target = await ctx.db
+    const callerId = await requireActiveAdmin(ctx);
+    if (callerId === args.userId) throw new Error("No puedes borrar tu propia cuenta");
+    const user = await ctx.db.get(args.userId);
+    if (!user) throw new Error("Usuario no encontrado");
+    const email = (user as any)?.email?.toLowerCase();
+
+    let deleted = 0;
+
+    // authVerificationCodes + authAccounts (por userId)
+    const accounts = await ctx.db
+      .query("authAccounts")
+      .withIndex("userIdAndProvider", (q) => q.eq("userId", args.userId))
+      .collect();
+    for (const account of accounts) {
+      const codes = await ctx.db
+        .query("authVerificationCodes")
+        .withIndex("accountId", (q) => q.eq("accountId", account._id))
+        .collect();
+      for (const code of codes) {
+        await ctx.db.delete(code._id);
+        deleted++;
+      }
+      await ctx.db.delete(account._id);
+      deleted++;
+    }
+
+    // authRefreshTokens + authVerifiers + authSessions (por userId)
+    const sessions = await ctx.db
+      .query("authSessions")
+      .withIndex("userId", (q) => q.eq("userId", args.userId))
+      .collect();
+    const sessionIds = new Set(sessions.map((s) => s._id));
+    for (const session of sessions) {
+      const tokens = await ctx.db
+        .query("authRefreshTokens")
+        .withIndex("sessionId", (q) => q.eq("sessionId", session._id))
+        .collect();
+      for (const token of tokens) {
+        await ctx.db.delete(token._id);
+        deleted++;
+      }
+      await ctx.db.delete(session._id);
+      deleted++;
+    }
+    const verifiers = await ctx.db.query("authVerifiers").collect();
+    for (const verifier of verifiers) {
+      if (verifier.sessionId && sessionIds.has(verifier.sessionId)) {
+        await ctx.db.delete(verifier._id);
+        deleted++;
+      }
+    }
+
+    if (email) {
+      // authRateLimits + leads (por email)
+      const limits = await ctx.db
+        .query("authRateLimits")
+        .withIndex("identifier", (q) => q.eq("identifier", email))
+        .collect();
+      for (const limit of limits) {
+        await ctx.db.delete(limit._id);
+        deleted++;
+      }
+      const leads = await ctx.db
+        .query("leads")
+        .withIndex("by_email", (q) => q.eq("email", email))
+        .collect();
+      for (const lead of leads) {
+        await ctx.db.delete(lead._id);
+        deleted++;
+      }
+      // workshop_registrations: solo si nadie más comparte este email. Si hay
+      // usuarios duplicados, borrar un usuario no debe quitarle el curso al otro.
+      const others = await ctx.db
+        .query("users")
+        .filter((q) => q.eq(q.field("email"), email))
+        .collect();
+      const emailShared = others.some((u) => u._id !== args.userId);
+      if (!emailShared) {
+        const registrations = await ctx.db
+          .query("workshop_registrations")
+          .withIndex("by_email", (q) => q.eq("email", email))
+          .collect();
+        for (const registration of registrations) {
+          await ctx.db.delete(registration._id);
+          deleted++;
+        }
+      }
+    }
+
+    const role = await ctx.db
       .query("user_roles")
       .withIndex("by_userId", (q) => q.eq("userId", args.userId))
       .unique();
-    if (!target) throw new Error("Usuario sin rol");
-    await ctx.db.patch(target._id, { status: "active" });
-    return target._id;
+    if (role) {
+      await ctx.db.delete(role._id);
+      deleted++;
+    }
+    const profile = await ctx.db
+      .query("user_profiles")
+      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
+      .unique();
+    if (profile) {
+      await ctx.db.delete(profile._id);
+      deleted++;
+    }
+
+    // Por último, el user
+    await ctx.db.delete(args.userId);
+    deleted++;
+
+    return { deleted };
   },
 });
 
@@ -93,26 +198,6 @@ async function isActiveAdmin(ctx) {
   return !!callerRole && callerRole.role === "admin" && callerRole.status === "active";
 }
 
-export const listPendingUsers = query({
-  args: {},
-  handler: async (ctx) => {
-    if (!(await isActiveAdmin(ctx))) return [];
-    const roles = await ctx.db.query("user_roles").collect();
-    const pending = roles.filter((r) => r.status === "pending");
-    return await Promise.all(
-      pending.map(async (r) => {
-        const user = await ctx.db.get(r.userId);
-        return {
-          userId: r.userId,
-          email: user?.email ?? null,
-          name: user?.name ?? null,
-          role: r.role,
-        };
-      }),
-    );
-  },
-});
-
 export const listRegistrations = query({
   args: {},
   handler: async (ctx) => {
@@ -122,50 +207,32 @@ export const listRegistrations = query({
   },
 });
 
-// Crear estudiante sin pago (para pruebas) — usa bootstrap secret
+// Crear estudiante sin pago (para pruebas) — usa bootstrap secret.
+// NO pre-crea user/user_roles: el usuario nace en su primer sign-in (magic link);
+// pre-crearlo genera un usuario duplicado al autenticar.
 export const addStudent = mutation({
   args: { email: v.string(), secret: v.string(), name: v.optional(v.string()) },
   handler: async (ctx, args) => {
     const expected = process.env.ADMIN_BOOTSTRAP_SECRET;
     if (!expected || args.secret !== expected) throw new Error("Secreto inválido");
     const email = args.email.toLowerCase();
-    let user = await ctx.db
-      .query("users")
-      .filter((q) => q.eq(q.field("email"), email))
-      .unique();
-    if (!user) {
-      const userId = await ctx.db.insert("users", {
-        email,
-        name: args.name,
-      } as any);
-      user = await ctx.db.get(userId);
-    }
-    if (!user) throw new Error("No se pudo crear usuario");
-    let role = await ctx.db
-      .query("user_roles")
-      .withIndex("by_userId", (q) => q.eq("userId", user._id))
-      .unique();
-    if (!role) {
-      await ctx.db.insert("user_roles", { userId: user._id, role: "viewer", status: "active" });
-    } else if (role.status !== "active") {
-      await ctx.db.patch(role._id, { status: "active" });
-    }
     const existingReg = await ctx.db
       .query("workshop_registrations")
       .withIndex("by_email", (q) => q.eq("email", email))
       .filter((q) => q.eq(q.field("workshopSlug"), "finanzas-personales-ia"))
       .unique();
     if (!existingReg) {
-      await ctx.db.insert("workshop_registrations", {
+      return await ctx.db.insert("workshop_registrations", {
         email,
         workshopSlug: "finanzas-personales-ia",
         status: "pending",
         createdAt: Date.now(),
       });
-    } else if (existingReg.status !== "pending") {
+    }
+    if (existingReg.status !== "pending") {
       await ctx.db.patch(existingReg._id, { status: "pending" });
     }
-    return user._id;
+    return existingReg._id;
   },
 });
 
@@ -199,32 +266,6 @@ export const listAllStudents = query({
         };
       }),
     );
-  },
-});
-
-export const revokeUser = mutation({
-  args: { userId: v.id("users") },
-  handler: async (ctx, args) => {
-    await requireActiveAdmin(ctx);
-    const role = await ctx.db
-      .query("user_roles")
-      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
-      .unique();
-    if (!role) throw new Error("Usuario sin rol");
-    // Nunca borrar, solo pasar a pending (revocado)
-    await ctx.db.patch(role._id, { status: "pending" });
-    const user = await ctx.db.get(args.userId);
-    const email = (user as any)?.email?.toLowerCase();
-    if (email) {
-      const reg = await ctx.db
-        .query("workshop_registrations")
-        .withIndex("by_email", (q) => q.eq("email", email))
-        .unique();
-      if (reg && reg.status === "paid") {
-        await ctx.db.patch(reg._id, { status: "pending" });
-      }
-    }
-    return role._id;
   },
 });
 
@@ -280,43 +321,23 @@ export const inviteStudent = mutation({
     const email = args.email.toLowerCase().trim();
     if (!email.includes("@")) throw new Error("Email inválido");
     const status = args.asPaid ? "paid" : "pending";
-    // Usuario
-    let user = await ctx.db
-      .query("users")
-      .filter((q) => q.eq(q.field("email"), email))
-      .unique();
-    if (!user) {
-      const userId = await ctx.db.insert("users", { email } as any);
-      user = await ctx.db.get(userId);
-    }
-    if (!user) throw new Error("No se pudo crear usuario");
-    // Rol viewer activo (invitado directo, no pendiente)
-    const existingRole = await ctx.db
-      .query("user_roles")
-      .withIndex("by_userId", (q) => q.eq("userId", user!._id))
-      .unique();
-    if (!existingRole) {
-      await ctx.db.insert("user_roles", { userId: user._id, role: "viewer", status: "active" });
-    } else if (existingRole.status !== "active") {
-      await ctx.db.patch(existingRole._id, { status: "active" });
-    }
-    // Registro workshop
+    // NO pre-creamos user/user_roles: el usuario se crea con su primer sign-in
+    // (magic link). Pre-crearlo genera un duplicado al autenticar (ver AGENTS).
     const existingReg = await ctx.db
       .query("workshop_registrations")
       .withIndex("by_email", (q) => q.eq("email", email))
       .filter((q) => q.eq(q.field("workshopSlug"), args.workshopSlug))
       .unique();
     if (!existingReg) {
-      await ctx.db.insert("workshop_registrations", {
+      return await ctx.db.insert("workshop_registrations", {
         email,
         workshopSlug: args.workshopSlug,
         status,
         createdAt: Date.now(),
       });
-    } else {
-      await ctx.db.patch(existingReg._id, { status });
     }
-    return user._id;
+    await ctx.db.patch(existingReg._id, { status });
+    return existingReg._id;
   },
 });
 

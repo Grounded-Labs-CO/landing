@@ -1,0 +1,48 @@
+// Catálogo de opciones del onboarding — fuente de la siembra en Convex.
+// Editar aquí y correr `npm run seed-course` para actualizar el deployment.
+
+export const PROFESSIONS = [
+  "Contador(a)",
+  "Auditor(a)",
+  "Administrador(a) de empresas",
+  "Gerente / Directivo(a)",
+  "Emprendedor(a)",
+  "Comerciante",
+  "Desarrollador(a) de software",
+  "Ingeniero(a) de sistemas",
+  "Analista de datos",
+  "Científico(a) de datos",
+  "Ingeniero(a) industrial",
+  "Ingeniero(a) civil",
+  "Arquitecto(a)",
+  "Diseñador(a)",
+  "Mercadólogo(a)",
+  "Comunicador(a)",
+  "Publicista",
+  "Abogado(a)",
+  "Economista",
+  "Analista / Asesor(a) financiero(a)",
+  "Profesor(a) / Docente",
+  "Médico(a)",
+  "Enfermero(a)",
+  "Psicólogo(a)",
+  "Consultor(a)",
+  "Ejecutivo(a) de ventas",
+  "Asistente administrativo(a)",
+  "Logística / Operaciones",
+  "Recursos humanos",
+  "Estudiante",
+];
+
+export const AI_TOOLS = [
+  "Claude",
+  "OpenAI (ChatGPT)",
+  "OpenCode",
+  "Gemini",
+  "Copilot",
+  "Cursor",
+  "Perplexity",
+  "Bolt",
+  "Lovable",
+  "Replit",
+];

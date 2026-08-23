@@ -10,6 +10,7 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { COURSE, SECTIONS, PROFILES, CATEGORY_LABELS } from "./course-definition.mjs";
+import { PROFESSIONS, AI_TOOLS } from "./catalog-options.mjs";
 
 const appRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 
@@ -138,4 +139,6 @@ for (const profile of PROFILES) {
   }
 }
 console.log(`storage: ${uploaded} archivos subidos`);
+await call("seed:seedCatalogOptions", { secret, professions: PROFESSIONS, aiTools: AI_TOOLS });
+console.log(`catálogo: ${PROFESSIONS.length} profesiones · ${AI_TOOLS.length} herramientas de IA`);
 console.log("OK — siembra completa");

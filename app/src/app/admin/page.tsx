@@ -11,12 +11,10 @@ function AdminPanel() {
 
   // Estudiantes
   const allStudents = useQuery(api.admin.listAllStudents);
-  const pendingUsers = useQuery(api.admin.listPendingUsers);
   const registrations = useQuery(api.admin.listRegistrations);
-  const approveUser = useMutation(api.admin.approveUser);
-  const revokeUser = useMutation(api.admin.revokeUser);
   const markPaid = useMutation(api.admin.markRegistrationPaid);
   const inviteStudent = useMutation(api.admin.inviteStudent);
+  const deleteUser = useMutation(api.admin.deleteUser);
 
   // Cursos
   const courses = useQuery(api.admin.listCoursesAdmin);
@@ -36,18 +34,14 @@ function AdminPanel() {
   const [inviteAsPaid, setInviteAsPaid] = useState(true);
   const [inviteMsg, setInviteMsg] = useState<string | null>(null);
 
-  // Filtros estudiantes — todo en español (paid/pagado)
-  const [filter, setFilter] = useState<"todos" | "pendientes" | "activos" | "pagado" | "por_pagar">(
-    "todos",
-  );
+  // Filtros estudiantes — por estado de pago del curso
+  const [filter, setFilter] = useState<"todos" | "pagado" | "por_pagar">("todos");
   const [search, setSearch] = useState("");
 
   const filteredStudents = (allStudents ?? []).filter((s) => {
     const q = search.toLowerCase();
     if (q && !(s.email?.toLowerCase().includes(q) || s.name?.toLowerCase().includes(q)))
       return false;
-    if (filter === "pendientes") return s.status === "pending";
-    if (filter === "activos") return s.status === "active";
     if (filter === "pagado") return s.workshopStatus === "paid";
     if (filter === "por_pagar") return s.workshopStatus === "pending";
     return true;
@@ -92,8 +86,6 @@ function AdminPanel() {
             <div className="flex flex-wrap gap-2">
               {[
                 ["todos", "todos"],
-                ["pendientes", "pend. cuenta"],
-                ["activos", "activos"],
                 ["pagado", "pagado"],
                 ["por_pagar", "por pagar"],
               ].map(([v, l]) => (
@@ -122,8 +114,6 @@ function AdminPanel() {
           <div className="mt-4 flex gap-4 font-mono text-[11px] text-[#6C7573]">
             <span>total: {allStudents?.length ?? "…"}</span>
             <span className="text-[#DDE2E0]">·</span>
-            <span>pendientes: {pendingUsers?.length ?? "…"}</span>
-            <span className="text-[#DDE2E0]">·</span>
             <span>registros: {registrations?.length ?? "…"}</span>
           </div>
 
@@ -144,34 +134,10 @@ function AdminPanel() {
                       {s.email ?? s.userId}
                     </span>
                     <span className="font-mono text-[11px] text-[#6C7573]">
-                      {s.name ?? "—"} {s.phone ? `· ${s.phone}` : ""} · {s.role} · cuenta:{s.status === "active" ? "activa" : "pendiente"} · cupo:{s.workshopStatus === "paid" ? "pagado" : s.workshopStatus === "pending" ? "pendiente" : "—"}
+                      {s.name ?? "—"} {s.phone ? `· ${s.phone}` : ""} · {s.role} · cupo:{s.workshopStatus === "paid" ? "pagado" : s.workshopStatus === "pending" ? "pendiente" : "—"}
                     </span>
                   </div>
                   <div className="flex gap-2 shrink-0">
-                    {s.status === "pending" && (
-                      <button
-                        onClick={() => void approveUser({ userId: s.userId as any })}
-                        className="border border-[#2F5D43] px-3 py-1.5 font-mono text-[11px] tracking-[0.08em] uppercase text-[#7FC7A3] hover:bg-[#2F5D43] hover:text-[#F1F3F2]"
-                      >
-                        aprobar
-                      </button>
-                    )}
-                    {s.status === "active" && (
-                      <button
-                        onClick={() => {
-                          if (
-                            !confirm(
-                              `¿Revocar acceso de ${s.email}? No se borra, solo pasa a pending.`,
-                            )
-                          )
-                            return;
-                          void revokeUser({ userId: s.userId as any });
-                        }}
-                        className="border border-[#5D2F2F] px-3 py-1.5 font-mono text-[11px] tracking-[0.08em] uppercase text-[#C77F7F] hover:bg-[#5D2F2F] hover:text-[#F1F3F2]"
-                      >
-                        revocar
-                      </button>
-                    )}
                     {s.workshopStatus === "pending" && (
                       <button
                         onClick={() =>
@@ -188,6 +154,25 @@ function AdminPanel() {
                     {s.workshopStatus === "paid" && (
                       <span className="px-2 py-1 font-mono text-[11px] text-[#7FC7A3]">✓ pagado</span>
                     )}
+                    <button
+                      onClick={() => {
+                        if (
+                          !confirm(`¿Borrar permanentemente a ${s.email ?? s.userId}?`)
+                        )
+                          return;
+                        if (
+                          !confirm(
+                            "Esto NO se puede deshacer. Se eliminarán su cuenta, sesiones y todos sus registros. ¿Confirmás?",
+                          )
+                        )
+                          return;
+                        void deleteUser({ userId: s.userId as any })
+                          .catch((e: any) => alert(e.message ?? "error"));
+                      }}
+                      className="border border-[#5D2F2F] px-3 py-1.5 font-mono text-[11px] tracking-[0.08em] uppercase text-[#E2A084] hover:bg-[#5D2F2F] hover:text-[#F1F3F2]"
+                    >
+                      borrar
+                    </button>
                   </div>
                 </div>
               ))
