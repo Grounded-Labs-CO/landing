@@ -40,12 +40,20 @@ function StudentHome() {
             Mis cursos
           </h1>
         </div>
-        <button
-          onClick={() => void signOut()}
-          className="border border-[#262E31] px-4 py-2 font-mono text-[11px] tracking-[0.12em] uppercase text-[#9AA3A1] hover:text-[#F1F3F2] hover:border-[#9AA3A1] transition-colors"
-        >
-          cerrar sesión
-        </button>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/estudiantes/perfil"
+            className="border border-[#262E31] px-4 py-2 font-mono text-[11px] tracking-[0.12em] uppercase text-[#9AA3A1] hover:text-[#F1F3F2] hover:border-[#9AA3A1] transition-colors"
+          >
+            mis datos
+          </Link>
+          <button
+            onClick={() => void signOut()}
+            className="border border-[#262E31] px-4 py-2 font-mono text-[11px] tracking-[0.12em] uppercase text-[#9AA3A1] hover:text-[#F1F3F2] hover:border-[#9AA3A1] transition-colors"
+          >
+            cerrar sesión
+          </button>
+        </div>
       </div>
 
       {courses === undefined || registrations === undefined ? (
