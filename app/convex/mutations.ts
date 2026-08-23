@@ -24,3 +24,31 @@ export const createLead = mutation({
     });
   },
 });
+
+export const saveUserProfile = mutation({
+  args: {
+    displayName: v.optional(v.string()),
+    phone: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("No autenticado");
+    const userId = identity.subject as any;
+    const existing = await ctx.db
+      .query("user_profiles")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .unique();
+    if (existing) {
+      await ctx.db.patch(existing._id, {
+        displayName: args.displayName ?? existing.displayName,
+        phone: args.phone ?? existing.phone,
+      });
+      return existing._id;
+    }
+    return await ctx.db.insert("user_profiles", {
+      userId,
+      displayName: args.displayName,
+      phone: args.phone,
+    });
+  },
+});

@@ -15,6 +15,7 @@ function SignInForm() {
   );
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
@@ -70,42 +71,12 @@ function SignInForm() {
         {authMethod === "email"
           ? "Te enviamos un link a tu correo para ingresar — sin contraseña."
           : mode === "signIn"
-            ? "Accede a tus cursos inscritos y su material."
-            : "Reserva tu cupo: creas tu cuenta y queda pendiente hasta registrar el pago."}
+            ? "Accede con tu email y contraseña."
+            : "Crea tu cuenta con email y contraseña."}
       </p>
 
-      {/* Selector de método: Email (default) vs Password (secundario) */}
-      <div className="mt-8 flex border border-[#262E31]">
-        <button
-          type="button"
-          onClick={() => {
-            setAuthMethod("email");
-            setError(null);
-            setEmailSent(false);
-          }}
-          className={`flex-1 px-4 py-3 font-mono text-[11px] tracking-[0.12em] uppercase transition-colors ${
-            authMethod === "email" ? "bg-[#1C2427] text-[#F1F3F2]" : "text-[#6C7573] hover:text-[#9AA3A1]"
-          }`}
-        >
-          correo
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            setAuthMethod("password");
-            setError(null);
-            setEmailSent(false);
-          }}
-          className={`flex-1 px-4 py-3 font-mono text-[11px] tracking-[0.12em] uppercase transition-colors border-l border-[#262E31] ${
-            authMethod === "password" ? "bg-[#1C2427] text-[#F1F3F2]" : "text-[#6C7573] hover:text-[#9AA3A1]"
-          }`}
-        >
-          contraseña
-        </button>
-      </div>
-
       {authMethod === "email" ? (
-        <form onSubmit={handleEmailSubmit} className="mt-6 flex flex-col gap-4">
+        <form onSubmit={handleEmailSubmit} className="mt-8 flex flex-col gap-4">
           <label className="flex flex-col gap-2">
             <span className="font-mono text-[11px] tracking-[0.12em] uppercase text-[#6C7573]">email</span>
             <input
@@ -125,12 +96,8 @@ function SignInForm() {
 
           {emailSent ? (
             <div className="border border-[#1C2427] bg-[#0E1214] px-4 py-4">
-              <p className="font-mono text-[12px] leading-[1.7] text-[#DDE2E0]">
-                Revisa tu correo — te enviamos un link para ingresar.
-              </p>
-              <p className="mt-2 font-mono text-[11px] leading-[1.6] text-[#9AA3A1]">
-                Si no lo ves, revisa spam. El link expira en 1 hora.
-              </p>
+              <p className="font-mono text-[12px] leading-[1.7] text-[#DDE2E0]">Revisa tu correo — te enviamos un link para ingresar.</p>
+              <p className="mt-2 font-mono text-[11px] leading-[1.6] text-[#9AA3A1]">Si no lo ves, revisa spam. El link expira en 1 hora.</p>
               <button
                 type="button"
                 onClick={() => setEmailSent(false)}
@@ -140,48 +107,44 @@ function SignInForm() {
               </button>
             </div>
           ) : (
-            <button
-              type="submit"
-              disabled={submitting}
-              className="mt-2 bg-[#B4552B] px-6 py-[14px] font-mono text-[12px] font-medium tracking-[0.12em] uppercase text-[#0E1214] hover:bg-[#9A4A24] transition-colors disabled:opacity-60"
-            >
-              {submitting ? "enviando…" : "enviar link →"}
-            </button>
+            <>
+              <button
+                type="submit"
+                disabled={submitting}
+                className="mt-2 bg-[#B4552B] px-6 py-[14px] font-mono text-[12px] font-medium tracking-[0.12em] uppercase text-[#0E1214] hover:bg-[#9A4A24] transition-colors disabled:opacity-60"
+              >
+                {submitting ? "enviando…" : "enviar link →"}
+              </button>
+              <div className="flex justify-between pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAuthMethod("password");
+                    setMode("signIn");
+                    setError(null);
+                  }}
+                  className="font-mono text-[11px] tracking-[0.08em] uppercase text-[#6C7573] hover:text-[#F1F3F2] underline-offset-4 hover:underline"
+                >
+                  usar contraseña
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAuthMethod("password");
+                    setMode("signUp");
+                    setError(null);
+                  }}
+                  className="font-mono text-[11px] tracking-[0.08em] uppercase text-[#6C7573] hover:text-[#F1F3F2] underline-offset-4 hover:underline"
+                >
+                  crear cuenta
+                </button>
+              </div>
+            </>
           )}
-          <p className="font-mono text-[11px] tracking-[0.08em] leading-[1.7] text-[#565F62]">
-            {"// sin contraseña — el link te lleva directo a tus cursos"}
-          </p>
         </form>
       ) : (
         <>
-          <div className="mt-6 flex border border-[#262E31]">
-            <button
-              type="button"
-              onClick={() => {
-                setMode("signIn");
-                setError(null);
-              }}
-              className={`flex-1 px-4 py-3 font-mono text-[11px] tracking-[0.12em] uppercase transition-colors ${
-                mode === "signIn" ? "bg-[#1C2427] text-[#F1F3F2]" : "text-[#6C7573] hover:text-[#9AA3A1]"
-              }`}
-            >
-              ingresar
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setMode("signUp");
-                setError(null);
-              }}
-              className={`flex-1 px-4 py-3 font-mono text-[11px] tracking-[0.12em] uppercase transition-colors border-l border-[#262E31] ${
-                mode === "signUp" ? "bg-[#1C2427] text-[#F1F3F2]" : "text-[#6C7573] hover:text-[#9AA3A1]"
-              }`}
-            >
-              crear cuenta
-            </button>
-          </div>
-
-          <form onSubmit={handlePasswordSubmit} className="mt-6 flex flex-col gap-4">
+          <form onSubmit={handlePasswordSubmit} className="mt-8 flex flex-col gap-4">
             <label className="flex flex-col gap-2">
               <span className="font-mono text-[11px] tracking-[0.12em] uppercase text-[#6C7573]">email</span>
               <input
@@ -205,6 +168,20 @@ function SignInForm() {
                 className="border border-[#262E31] bg-[#0E1214] px-4 py-3 font-mono text-[14px] text-[#F1F3F2] outline-none focus:border-[#B4552B]"
               />
             </label>
+            {mode === "signUp" && (
+              <label className="flex flex-col gap-2">
+                <span className="font-mono text-[11px] tracking-[0.12em] uppercase text-[#6C7573]">teléfono</span>
+                <input
+                  type="tel"
+                  required
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  autoComplete="tel"
+                  placeholder="+57 300 123 4567"
+                  className="border border-[#262E31] bg-[#0E1214] px-4 py-3 font-mono text-[14px] text-[#F1F3F2] outline-none focus:border-[#B4552B]"
+                />
+              </label>
+            )}
 
             {error && (
               <p className="border border-[#3A1C0C] bg-[#1C2427] px-4 py-3 font-mono text-[12px] leading-[1.6] text-[#E2A084]">{error}</p>
@@ -213,7 +190,7 @@ function SignInForm() {
             <button
               type="submit"
               disabled={submitting}
-              className="mt-2 bg-[#262E31] px-6 py-[14px] font-mono text-[12px] font-medium tracking-[0.12em] uppercase text-[#9AA3A1] hover:bg-[#2F3A3D] hover:text-[#F1F3F2] transition-colors disabled:opacity-60"
+              className="mt-2 bg-[#B4552B] px-6 py-[14px] font-mono text-[12px] font-medium tracking-[0.12em] uppercase text-[#0E1214] hover:bg-[#9A4A24] transition-colors disabled:opacity-60"
             >
               {submitting ? "un momento…" : mode === "signIn" ? "ingresar →" : "crear cuenta →"}
             </button>
@@ -221,20 +198,17 @@ function SignInForm() {
           <p className="mt-4 text-center">
             <button
               type="button"
-              onClick={() => setAuthMethod("email")}
-              className="font-mono text-[11px] tracking-[0.08em] text-[#565F62] hover:text-[#9AA3A1]"
+              onClick={() => {
+                setMode(mode === "signIn" ? "signUp" : "signIn");
+                setError(null);
+              }}
+              className="font-mono text-[11px] tracking-[0.08em] uppercase text-[#6C7573] hover:text-[#F1F3F2] underline-offset-4 hover:underline"
             >
-              ← volver a ingresar con correo
+              {mode === "signIn" ? "¿no tienes cuenta? crear cuenta" : "¿ya tienes cuenta? ingresar"}
             </button>
           </p>
         </>
       )}
-
-      <p className="mt-6 font-mono text-[11px] tracking-[0.08em] leading-[1.7] text-[#565F62]">
-        {"// al crear tu cuenta reservas cupo en el workshop; el material"}
-        <br />
-        {"// se desbloquea cuando se registre tu pago."}
-      </p>
     </div>
   );
 }
