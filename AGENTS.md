@@ -55,6 +55,11 @@ npx convex env set X valor          # variables del deployment (JWT_PRIVATE_KEY 
 - HTTP API distingue `/api/mutation` de `/api/action` (matters al llamar funciones por fetch, como hace `seed-course.mjs`).
 - Variables (`JWKS`, `JWT_PRIVATE_KEY`, `SITE_URL`, `ADMIN_BOOTSTRAP_SECRET`) se incrustan al **empujar**: tras cambiarlas, correr `npx convex dev --once` de nuevo.
 - En local, los httpActions/storage se sirven en `127.0.0.1:3210/3211`; cookies `__session` de deployments anteriores provocan `Can't parse refresh token` (hay autocuración en `ConvexClientProvider`).
+- **`JWT_PRIVATE_KEY` corrupto = login colgado**: si se setea en una sola línea (con espacios) o con padding inválido, la verificación del magic link muere con `atob: Invalid byte 61` (Server Error) → "cargando" infinito. Setear SIEMPRE multilínea: `npx convex env set JWT_PRIVATE_KEY -- "$(cat ruta.pem)"` (con `--`; y re-setear `JWKS` a juego).
+- **Usuarios duplicados por email**: sign-Ins repetidos del mismo email pueden crear `users` duplicados → `admin:promoteByEmail` revienta con `unique() returned more than one result`. Dedupear (conservar el user vinculado a la authAccount, promover, borrar huérfanos + roles/sessions/refreshTokens) antes de promover.
+- **Apuntar comandos a prod**: `env set` no acepta `--deployment`; usar `CONVEX_DEPLOYMENT=careful-spaniel-774 npx convex env set ...` (igual `deploy`/`run` con `--deployment`). `npx convex run auth:signIn` funciona (público) pero `auth:store` es interna (no llamable por HTTP directo).
+- **BD local sin cloud**: `CONVEX_AGENT_MODE=anonymous npx convex dev` corre un backend 100% local (sin cuenta/cloud) en `3210/3211`; datos → `npx convex export` (cloud) → `import --replace-all`. Dashboard: `npx convex dashboard` en `:6790`. Env vars del deployment local se setean igual con `npx convex env set`.
+- **DNS Umbrella bloquea `*.convex.cloud`** (resolver `192.168.40.1` → IPs sinkhole `146.112.x`): para operar cloud sin sudo, preload de Node que parchea `dns.lookup` → `NODE_OPTIONS="--require /tmp/dns-fix.js" npx convex ...`. En el navegador: Firefox con DoH, o red sin Umbrella.
 
 ## Pendientes / siguientes pasos
 
