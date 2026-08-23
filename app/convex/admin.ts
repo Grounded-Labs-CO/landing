@@ -121,3 +121,50 @@ export const listRegistrations = query({
     return registrations.sort((a, b) => a.createdAt - b.createdAt);
   },
 });
+
+// Crear estudiante sin pago (para pruebas) — usa bootstrap secret
+export const addStudent = mutation({
+  args: { email: v.string(), secret: v.string(), name: v.optional(v.string()) },
+  handler: async (ctx, args) => {
+    const expected = process.env.ADMIN_BOOTSTRAP_SECRET;
+    if (!expected || args.secret !== expected) throw new Error("Secreto inválido");
+    const email = args.email.toLowerCase();
+    let user = await ctx.db
+      .query("users")
+      .filter((q) => q.eq(q.field("email"), email))
+      .unique();
+    if (!user) {
+      const userId = await ctx.db.insert("users", {
+        email,
+        name: args.name,
+      } as any);
+      user = await ctx.db.get(userId);
+    }
+    if (!user) throw new Error("No se pudo crear usuario");
+    let role = await ctx.db
+      .query("user_roles")
+      .withIndex("by_userId", (q) => q.eq("userId", user._id))
+      .unique();
+    if (!role) {
+      await ctx.db.insert("user_roles", { userId: user._id, role: "viewer", status: "active" });
+    } else if (role.status !== "active") {
+      await ctx.db.patch(role._id, { status: "active" });
+    }
+    const existingReg = await ctx.db
+      .query("workshop_registrations")
+      .withIndex("by_email", (q) => q.eq("email", email))
+      .filter((q) => q.eq(q.field("workshopSlug"), "finanzas-personales-ia"))
+      .unique();
+    if (!existingReg) {
+      await ctx.db.insert("workshop_registrations", {
+        email,
+        workshopSlug: "finanzas-personales-ia",
+        status: "pending",
+        createdAt: Date.now(),
+      });
+    } else if (existingReg.status !== "pending") {
+      await ctx.db.patch(existingReg._id, { status: "pending" });
+    }
+    return user._id;
+  },
+});

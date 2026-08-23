@@ -31,6 +31,7 @@ function SignInForm() {
     try {
       await signIn("resend", {
         email: email.trim().toLowerCase(),
+        redirectTo: "/estudiantes",
       });
       setEmailSent(true);
     } catch {

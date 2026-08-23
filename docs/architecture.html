@@ -1,24 +1,30 @@
 <!doctype html><html lang="es"><head><meta charset="utf-8"><title>Arquitectura — GROUNDED Labs</title><style>body{font-family:system-ui;padding:40px;max-width:900px;margin:0 auto;line-height:1.6}pre{background:#f6f2ea;padding:16px;border-radius:8px;overflow:auto}</style></head><body>
 <h1>Arquitectura</h1>
-<p>Stack: Next.js 16 (App Router, React 19) + Convex + Tailwind v4 + shadcn/ui base-nova neutral + next-themes + lucide-react.</p>
+<p>Stack: Next.js 16 (App Router, React 19) + Convex + Tailwind v4 + shadcn/ui + next-themes + lucide-react. Branding 2A: tinta #0E1214 / panel #1C2427 / terracota #B4552B, IBM Plex Sans 200/300 + Mono 400/500/600.</p>
 <h2>Convex</h2>
-<pre>convex/schema.ts – user_roles, leads, workshop_registrations
-convex/auth.ts – @convex-dev/auth Password + afterUserCreatedOrUpdated (pending)
+<pre>convex/schema.ts – user_roles, leads, workshop_registrations, courses, course_sections, course_items, sample_profiles, sample_files, user_profiles (displayName, phone)
+convex/auth.ts – @convex-dev/auth con Email (Resend, magic link, from noreply@grounded-labs.com) + Password (secundario) + afterUserCreatedOrUpdated (pending)
 convex/queries.ts – getUserRole, listLeads (admin-only)
-convex/mutations.ts – createLead
-convex/admin.ts – approveUser
+convex/mutations.ts – createLead, saveUserProfile
+convex/admin.ts – approveUser, promoteByEmail, markRegistrationPaid, addStudent (bootstrap), listPendingUsers, listRegistrations
+convex/courses.ts / material.ts – catálogo y material
 </pre>
 <h2>Frontend</h2>
 <ul>
-<li>ConvexClientProvider (ConvexAuthProvider + NEXT_PUBLIC_CONVEX_URL)</li>
-<li>AuthGuard → /signin</li>
+<li>ConvexClientProvider (ConvexAuthProvider + NEXT_PUBLIC_CONVEX_URL, fallback placeholder)</li>
+<li>AuthGuard → /signin (redirectTo /estudiantes en magic link)</li>
 <li>useRole() → {role, isAdmin, isPending, isLoading}</li>
-<li>Layout: DM Sans + Fraunces, ThemeProvider (light), Header sticky</li>
+<li>Layout: IBM Plex Sans/Mono, ThemeProvider (dark), Header sticky tinta #0E1214/90 blur, max-w 1240</li>
 <li>Alias @/* → src/*</li>
+<li>Páginas: / (corporativa 2A), /workshops/finanzas-personales-ia (ficha sin header, CTA marco), /signin (email default + contraseña secundaria), /admin, /estudiantes</li>
 </ul>
 <h2>Variables</h2>
-<pre>CONVEX_DEPLOYMENT=local:local-{team}-{project}
-NEXT_PUBLIC_CONVEX_URL=http://127.0.0.1:3210
-NEXT_PUBLIC_CONVEX_SITE_URL=http://127.0.0.1:3211
+<pre>CONVEX_DEPLOYMENT=dev:flippant-dog-457 (prod: careful-spaniel-774)
+NEXT_PUBLIC_CONVEX_URL=https://flippant-dog-457.convex.cloud
+NEXT_PUBLIC_CONVEX_SITE_URL=https://flippant-dog-457.convex.site
+AUTH_RESEND_KEY=re_... (Resend Full access)
+AUTH_EMAIL_FROM=Grounded Labs <noreply@grounded-labs.com>
+SITE_URL=http://localhost:3000 (dev) / https://...vercel.app (prod)
+ADMIN_BOOTSTRAP_SECRET=... (para addStudent/promote)
 </pre>
 </body></html>
