@@ -47,6 +47,17 @@ function loginHtml(url, to) {
   );
 }
 
+function validationHtml(url, to) {
+  return shellHtml(
+    heading("Valida tu correo") +
+      body(
+        "Para activar tu cuenta y <span style=\"color:#DDE2E0;\">completar tu perfil</span>, confirma tu dirección de email. Haz clic en el enlace, expira en 1 hora.",
+      ) +
+      cta(url, "validar →") +
+      footnote(`Si no solicitaste este correo, puedes ignorarlo. El enlace solo funciona para ${to}.`),
+  );
+}
+
 function welcomeHtml(url, to, course) {
   const detail = `${course.schedule} · ${course.price}`;
   return shellHtml(
@@ -94,6 +105,13 @@ export const resendEmailProvider = {
         subject,
         welcomeHtml(url, to, course),
         `Bienvenido al curso ${course.title}\n${course.schedule} · ${course.price}\n\nYa podés ingresar a tu cuenta para completar tu perfil y consultar el material del curso.\n${url}`,
+      );
+    } else if (!verified) {
+      await sendEmail(
+        to,
+        "Valida tu correo — Grounded Labs",
+        validationHtml(url, email),
+        `Valida tu correo en Grounded Labs\n${url}\n\nPara activar tu cuenta y completar tu perfil, confirma tu dirección de email. Expira en 1 hora.`,
       );
     } else {
       await sendEmail(
