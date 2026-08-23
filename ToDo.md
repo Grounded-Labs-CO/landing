@@ -1,6 +1,5 @@
 TODO:
 
-6. El dropdown de profesiones la completar el perfil poder buscar (crear componente dropdown con busqueda)
 7. [bajo][facil] Los confirm que no sean alert de javascript si no de shadcn volverlo componente
 8. [bajo][facil] En editar cursos, el precio seria bueno con . en miles pero solo numerico
 9. En borrado de usuario NO habilitar el borrado del mismo usaurio conectado
@@ -13,3 +12,4 @@ DONE:
 - [x] ~~3. [medio][facil] Completar perfil en este orden: nombre, correo (solo vista), telefono, metodo de contacto, contraseña, profesion, nivel de IA, herramienta de ia~~
 - [x] ~~4. [medio][normal] Telefono dividido en 2 un drop de paises (por defecto colombia) ojala con las banderas del pais y otro campo con el numero de telefono (volverlo componente)~~
 - [x] ~~5. [medio][normal] DropDown con un diseno mas lindo (usar shadcn) volverlo componente~~
+- [x] ~~6. El dropdown de profesiones la completar el perfil poder buscar (crear componente dropdown con busqueda)~~

@@ -185,6 +185,7 @@ export function ProfileForm({ profile, professions, aiTools, mode }: ProfileForm
           value={professionSel}
           onChange={(v) => setProfessionSel(v)}
           placeholder="elige…"
+          searchable
         />
         {professionSel === "otro" && (
           <input required value={professionCustom} onChange={(e) => setProfessionCustom(e.target.value)} className={input} placeholder="escribe tu profesión" />
