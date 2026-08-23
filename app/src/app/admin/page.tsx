@@ -27,6 +27,9 @@ function AdminPanel() {
 
   // Cursos
   const courses = useQuery(api.admin.listCoursesAdmin);
+  const selectableCourses = (courses ?? []).filter(
+    (c: any) => (c.status ?? "active") !== "disabled",
+  );
   const updateCourse = useMutation(api.admin.updateCourse);
   const setCourseStatus = useMutation(api.admin.setCourseStatus);
   const [editCourseId, setEditCourseId] = useState<string | null>(null);
@@ -320,7 +323,7 @@ function AdminPanel() {
                           });
                           setEditCourseId(null);
                         }}
-                        className="bg-[#B4552B] px-4 py-2 font-mono text-[11px] uppercase text-[#0E1214] hover:bg-[#9A4A24]"
+            className="bg-[#B4552B] px-4 py-2 font-mono text-[11px] uppercase text-[#0E1214] hover:bg-[#9A4A24] disabled:bg-[#5D4A2F] disabled:text-[#3A1C0C] disabled:cursor-not-allowed disabled:hover:bg-[#5D4A2F]"
                       >
                         guardar
                       </button>
@@ -389,22 +392,23 @@ function AdminPanel() {
             <select
               value={inviteWorkshop}
               onChange={(e) => setInviteWorkshop(e.target.value)}
-              className="border border-[#262E31] bg-[#0E1214] px-3 py-2 font-mono text-[13px] text-[#F1F3F2] outline-none focus:border-[#B4552B]"
+              disabled={selectableCourses.length === 0}
+              className="border border-[#262E31] bg-[#0E1214] px-3 py-2 font-mono text-[13px] text-[#F1F3F2] outline-none focus:border-[#B4552B] disabled:opacity-50"
             >
-              {(courses ?? []).filter((c: any) => (c.status ?? "active") === "active").length === 0 ? (
-                <option value={inviteWorkshop}>{inviteWorkshop || "— sin cursos activos —"}</option>
+              {selectableCourses.length === 0 ? (
+                <option value="">— sin cursos disponibles —</option>
               ) : (
-                (courses ?? [])
-                  .filter((c: any) => (c.status ?? "active") === "active")
-                  .map((c: any) => (
-                    <option key={c._id} value={c.slug}>
-                      {c.title} · {c.slug}
-                    </option>
-                  ))
+                selectableCourses.map((c: any) => (
+                  <option key={c._id} value={c.slug}>
+                    {c.title} · {c.slug}
+                  </option>
+                ))
               )}
             </select>
-            {courses && (courses as any[]).filter((c) => (c.status ?? "active") === "active").length === 0 && (
-              <span className="font-mono text-[10px] text-[#565F62]">no hay cursos activos — crea uno primero</span>
+            {selectableCourses.length === 0 && (
+              <span className="font-mono text-[10px] text-[#565F62]">
+                no hay cursos disponibles para invitar (solo se ocultan los desactivados)
+              </span>
             )}
           </label>
           <label className="flex items-center gap-2 font-mono text-[11px] text-[#9AA3A1]">
@@ -417,6 +421,7 @@ function AdminPanel() {
             pagado (acceso directo a material)
           </label>
           <button
+            disabled={selectableCourses.length === 0 || !inviteWorkshop}
             onClick={async () => {
               setInviteMsg(null);
               try {
