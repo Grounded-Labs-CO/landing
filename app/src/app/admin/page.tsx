@@ -24,8 +24,11 @@ function AdminPanel() {
   const toggleCourseStatus = useMutation(api.admin.toggleCourseStatus);
   const [editCourseId, setEditCourseId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
-  const [editPrice, setEditPrice] = useState("");
+  const [editTagline, setEditTagline] = useState("");
+  const [editSlug, setEditSlug] = useState("");
   const [editSchedule, setEditSchedule] = useState("");
+  const [editPrice, setEditPrice] = useState("");
+  const [editEventInfo, setEditEventInfo] = useState("");
 
   // Invitar
   const [inviteEmail, setInviteEmail] = useState("");
@@ -33,17 +36,20 @@ function AdminPanel() {
   const [inviteAsPaid, setInviteAsPaid] = useState(true);
   const [inviteMsg, setInviteMsg] = useState<string | null>(null);
 
-  // Filtros estudiantes
-  const [filter, setFilter] = useState<"todos" | "pendientes" | "activos" | "paid" | "pending">("todos");
+  // Filtros estudiantes — todo en español (paid/pagado)
+  const [filter, setFilter] = useState<"todos" | "pendientes" | "activos" | "pagado" | "por_pagar">(
+    "todos",
+  );
   const [search, setSearch] = useState("");
 
   const filteredStudents = (allStudents ?? []).filter((s) => {
     const q = search.toLowerCase();
-    if (q && !(s.email?.toLowerCase().includes(q) || s.name?.toLowerCase().includes(q))) return false;
+    if (q && !(s.email?.toLowerCase().includes(q) || s.name?.toLowerCase().includes(q)))
+      return false;
     if (filter === "pendientes") return s.status === "pending";
     if (filter === "activos") return s.status === "active";
-    if (filter === "paid") return s.workshopStatus === "paid";
-    if (filter === "pending") return s.workshopStatus === "pending";
+    if (filter === "pagado") return s.workshopStatus === "paid";
+    if (filter === "por_pagar") return s.workshopStatus === "pending";
     return true;
   });
 
@@ -52,9 +58,8 @@ function AdminPanel() {
     return (
       <div className="mt-8 border border-[#262E31] bg-[#1C2427] p-6">
         <div className="h-[1.5px] w-8 bg-[#B4552B]"></div>
-        <p className="mt-3 font-mono text-[12px] leading-[1.7] text-[#9AA3A1]">{"// solo usuarios con rol admin activo."}</p>
-        <p className="mt-2 font-mono text-[11px] leading-[1.7] text-[#565F62]">
-          {"// primer admin: npx convex run admin:promoteByEmail '{\"email\":\"...\",\"secret\":\"...\",\"role\":\"admin\"}'"}
+        <p className="mt-3 font-mono text-[12px] leading-[1.7] text-[#9AA3A1]">
+          {"// acceso denegado"}
         </p>
       </div>
     );
@@ -89,14 +94,16 @@ function AdminPanel() {
                 ["todos", "todos"],
                 ["pendientes", "pend. cuenta"],
                 ["activos", "activos"],
-                ["paid", "paid"],
-                ["pending", "pending cupo"],
+                ["pagado", "pagado"],
+                ["por_pagar", "por pagar"],
               ].map(([v, l]) => (
                 <button
                   key={v}
                   onClick={() => setFilter(v as any)}
                   className={`px-3 py-1.5 font-mono text-[11px] tracking-[0.08em] uppercase border ${
-                    filter === v ? "border-[#B4552B] bg-[#1C2427] text-[#F1F3F2]" : "border-[#262E31] text-[#6C7573] hover:border-[#9AA3A1] hover:text-[#F1F3F2]"
+                    filter === v
+                      ? "border-[#B4552B] bg-[#1C2427] text-[#F1F3F2]"
+                      : "border-[#262E31] text-[#6C7573] hover:border-[#9AA3A1] hover:text-[#F1F3F2]"
                   }`}
                 >
                   {l}
@@ -128,11 +135,17 @@ function AdminPanel() {
               <p className="font-mono text-[12px] text-[#565F62]">{"// sin resultados"}</p>
             ) : (
               filteredStudents.map((s) => (
-                <div key={String(s.userId)} className="border border-[#262E31] bg-[#111719] p-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <div
+                  key={String(s.userId)}
+                  className="border border-[#262E31] bg-[#111719] p-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between"
+                >
                   <div className="flex flex-col gap-1 min-w-0">
-                    <span className="font-mono text-[13px] text-[#DDE2E0] truncate">{s.email ?? s.userId}</span>
+                    <span className="font-mono text-[13px] text-[#DDE2E0] truncate">
+                      {s.email ?? s.userId}
+                    </span>
                     <span className="font-mono text-[11px] text-[#6C7573]">
-                      {s.name ?? "—"} {s.phone ? `· ${s.phone}` : ""} · {s.role} · cuenta:{s.status} · cupo:{s.workshopStatus ?? "—"}
+                      {s.name ?? "—"} {s.phone ? `· ${s.phone}` : ""} · {s.role} · cuenta:{s.status}{" "}
+                      · cupo:{s.workshopStatus ?? "—"}
                     </span>
                   </div>
                   <div className="flex gap-2 shrink-0">
@@ -147,7 +160,12 @@ function AdminPanel() {
                     {s.status === "active" && (
                       <button
                         onClick={() => {
-                          if (!confirm(`¿Revocar acceso de ${s.email}? No se borra, solo pasa a pending.`)) return;
+                          if (
+                            !confirm(
+                              `¿Revocar acceso de ${s.email}? No se borra, solo pasa a pending.`,
+                            )
+                          )
+                            return;
                           void revokeUser({ userId: s.userId as any });
                         }}
                         className="border border-[#5D2F2F] px-3 py-1.5 font-mono text-[11px] tracking-[0.08em] uppercase text-[#C77F7F] hover:bg-[#5D2F2F] hover:text-[#F1F3F2]"
@@ -157,13 +175,20 @@ function AdminPanel() {
                     )}
                     {s.workshopStatus === "pending" && (
                       <button
-                        onClick={() => void markPaid({ email: s.email!, workshopSlug: s.workshopSlug ?? "finanzas-personales-ia" })}
+                        onClick={() =>
+                          void markPaid({
+                            email: s.email!,
+                            workshopSlug: s.workshopSlug ?? "finanzas-personales-ia",
+                          })
+                        }
                         className="border border-[#5D4A2F] px-3 py-1.5 font-mono text-[11px] tracking-[0.08em] uppercase text-[#E2C084] hover:bg-[#5D4A2F] hover:text-[#F1F3F2]"
                       >
                         marcar pagado
                       </button>
                     )}
-                    {s.workshopStatus === "paid" && <span className="px-2 py-1 font-mono text-[11px] text-[#7FC7A3]">✓ paid</span>}
+                    {s.workshopStatus === "paid" && (
+                      <span className="px-2 py-1 font-mono text-[11px] text-[#7FC7A3]">✓ pagado</span>
+                    )}
                   </div>
                 </div>
               ))
@@ -180,33 +205,130 @@ function AdminPanel() {
             <p className="font-mono text-[12px] text-[#565F62]">{"// sin cursos"}</p>
           ) : (
             courses.map((c: any) => (
-              <div key={c._id} className="border border-[#262E31] bg-[#111719] p-5 flex flex-col gap-4">
+              <div
+                key={c._id}
+                className="border border-[#262E31] bg-[#111719] p-5 flex flex-col gap-4"
+              >
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <span className="font-mono text-[11px] tracking-[0.12em] uppercase text-[#B4552B]">{c.slug}</span>
-                    <h3 className="mt-1 font-sans text-[18px] font-light text-[#F1F3F2]">{c.title}</h3>
-                    <p className="font-mono text-[11px] text-[#6C7573]">{c.tagline} · {c.schedule} · {c.price}</p>
+                    <span className="font-mono text-[11px] tracking-[0.12em] uppercase text-[#B4552B]">
+                      {c.slug}
+                    </span>
+                    <h3 className="mt-1 font-sans text-[18px] font-light text-[#F1F3F2]">
+                      {c.title}
+                    </h3>
+                    <p className="font-mono text-[11px] text-[#6C7573]">
+                      {c.tagline} · {c.schedule} · {c.price}
+                    </p>
                   </div>
-                  <span className={`px-2 py-1 font-mono text-[11px] uppercase ${c.status === "archived" ? "bg-[#5D2F2F] text-[#E2A084]" : "bg-[#1C2427] text-[#7FC7A3] border border-[#262E31]"}`}>
+                  <span
+                    className={`px-2 py-1 font-mono text-[11px] uppercase ${c.status === "archived" ? "bg-[#5D2F2F] text-[#E2A084]" : "bg-[#1C2427] text-[#7FC7A3] border border-[#262E31]"}`}
+                  >
                     {c.status}
                   </span>
                 </div>
                 {editCourseId === c._id ? (
                   <div className="flex flex-col gap-3 border-t border-[#262E31] pt-4">
-                    <input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} placeholder="título" className="border border-[#262E31] bg-[#0E1214] px-3 py-2 font-mono text-[12px] text-[#F1F3F2]" />
-                    <input value={editPrice} onChange={(e) => setEditPrice(e.target.value)} placeholder="precio" className="border border-[#262E31] bg-[#0E1214] px-3 py-2 font-mono text-[12px] text-[#F1F3F2]" />
-                    <input value={editSchedule} onChange={(e) => setEditSchedule(e.target.value)} placeholder="schedule" className="border border-[#262E31] bg-[#0E1214] px-3 py-2 font-mono text-[12px] text-[#F1F3F2]" />
+                    <label className="flex flex-col gap-1">
+                      <span className="font-mono text-[10px] tracking-[0.08em] uppercase text-[#6C7573]">título *</span>
+                      <input
+                        value={editTitle}
+                        onChange={(e) => setEditTitle(e.target.value)}
+                        placeholder="Ej: Asistente Financiero con IA"
+                        className="border border-[#262E31] bg-[#0E1214] px-3 py-2 font-mono text-[12px] text-[#F1F3F2] outline-none focus:border-[#B4552B]"
+                      />
+                    </label>
+                    <label className="flex flex-col gap-1">
+                      <span className="font-mono text-[10px] tracking-[0.08em] uppercase text-[#6C7573]">tagline</span>
+                      <input
+                        value={editTagline}
+                        onChange={(e) => setEditTagline(e.target.value)}
+                        placeholder="Ej: Tu asistente financiero, andando"
+                        className="border border-[#262E31] bg-[#0E1214] px-3 py-2 font-mono text-[12px] text-[#F1F3F2] outline-none focus:border-[#B4552B]"
+                      />
+                    </label>
+                    <label className="flex flex-col gap-1">
+                      <span className="font-mono text-[10px] tracking-[0.08em] uppercase text-[#6C7573]">slug (URL) *</span>
+                      <input
+                        value={editSlug}
+                        onChange={(e) => setEditSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-"))}
+                        placeholder="finanzas-personales-ia"
+                        className="border border-[#262E31] bg-[#0E1214] px-3 py-2 font-mono text-[12px] text-[#F1F3F2] outline-none focus:border-[#B4552B]"
+                      />
+                    </label>
+                    <label className="flex flex-col gap-1">
+                      <span className="font-mono text-[10px] tracking-[0.08em] uppercase text-[#6C7573]">fecha / horario</span>
+                      <input
+                        value={editSchedule}
+                        onChange={(e) => setEditSchedule(e.target.value)}
+                        placeholder="Ej: Sábado 26 sep · 4 horas · Medellín"
+                        className="border border-[#262E31] bg-[#0E1214] px-3 py-2 font-mono text-[12px] text-[#F1F3F2] outline-none focus:border-[#B4552B]"
+                      />
+                    </label>
+                    <label className="flex flex-col gap-1">
+                      <span className="font-mono text-[10px] tracking-[0.08em] uppercase text-[#6C7573]">precio (COP) *</span>
+                      <input
+                        type="number"
+                        inputMode="numeric"
+                        min={0}
+                        step={1000}
+                        value={editPrice}
+                        onChange={(e) => setEditPrice(e.target.value)}
+                        placeholder="400000"
+                        className="border border-[#262E31] bg-[#0E1214] px-3 py-2 font-mono text-[12px] text-[#F1F3F2] outline-none focus:border-[#B4552B]"
+                      />
+                      <span className="font-mono text-[10px] text-[#565F62]">{editPrice ? `→ $${Number(editPrice).toLocaleString("es-CO")} COP` : "ej: 400000"}</span>
+                    </label>
+                    <label className="flex flex-col gap-1">
+                      <span className="font-mono text-[10px] tracking-[0.08em] uppercase text-[#6C7573]">eventInfo (JSON)</span>
+                      <textarea
+                        value={editEventInfo}
+                        onChange={(e) => setEditEventInfo(e.target.value)}
+                        placeholder='[{"label":"fecha","value":"26 sep"},{"label":"lugar","value":"Medellín"}]'
+                        rows={3}
+                        className="border border-[#262E31] bg-[#0E1214] px-3 py-2 font-mono text-[11px] text-[#F1F3F2] outline-none focus:border-[#B4552B]"
+                      />
+                      <span className="font-mono text-[10px] text-[#565F62]">formato: array de {"{label, value}"} — deja vacío para no cambiar</span>
+                    </label>
                     <div className="flex gap-2">
                       <button
                         onClick={async () => {
-                          await updateCourse({ courseId: c._id, patch: { title: editTitle || undefined, price: editPrice || undefined, schedule: editSchedule || undefined } });
+                          let eventInfo: { label: string; value: string }[] | undefined;
+                          if (editEventInfo.trim()) {
+                            try {
+                              eventInfo = JSON.parse(editEventInfo);
+                            } catch {
+                              alert("eventInfo no es JSON válido");
+                              return;
+                            }
+                          }
+                          // price se guarda como string con formato $400k o número; normalizamos a "$400.000"
+                          let priceStr: string | undefined;
+                          if (editPrice) {
+                            const n = Number(editPrice);
+                            priceStr = isNaN(n) ? editPrice : `$${n.toLocaleString("es-CO")}`;
+                          }
+                          await updateCourse({
+                            courseId: c._id,
+                            patch: {
+                              title: editTitle || undefined,
+                              tagline: editTagline || undefined,
+                              slug: editSlug || undefined,
+                              schedule: editSchedule || undefined,
+                              price: priceStr,
+                              eventInfo,
+                            } as any,
+                          });
                           setEditCourseId(null);
                         }}
-                        className="bg-[#B4552B] px-4 py-2 font-mono text-[11px] uppercase text-[#0E1214]"
+                        className="bg-[#B4552B] px-4 py-2 font-mono text-[11px] uppercase text-[#0E1214] hover:bg-[#9A4A24]"
                       >
                         guardar
                       </button>
-                      <button onClick={() => setEditCourseId(null)} className="border border-[#262E31] px-4 py-2 font-mono text-[11px] uppercase text-[#6C7573]">
+                      <button
+                        onClick={() => setEditCourseId(null)}
+                        className="border border-[#262E31] px-4 py-2 font-mono text-[11px] uppercase text-[#6C7573] hover:text-[#F1F3F2]"
+                      >
                         cancelar
                       </button>
                     </div>
@@ -217,8 +339,11 @@ function AdminPanel() {
                       onClick={() => {
                         setEditCourseId(c._id);
                         setEditTitle(c.title);
-                        setEditPrice(c.price);
+                        setEditTagline((c as any).tagline ?? "");
+                        setEditSlug(c.slug);
+                        setEditPrice(String((c.price ?? "").replace(/[^0-9]/g, "")));
                         setEditSchedule(c.schedule);
+                        setEditEventInfo(JSON.stringify((c as any).eventInfo ?? [], null, 2));
                       }}
                       className="border border-[#262E31] px-3 py-1.5 font-mono text-[11px] uppercase text-[#9AA3A1] hover:text-[#F1F3F2]"
                     >
@@ -240,24 +365,63 @@ function AdminPanel() {
 
       {tab === "invitar" && (
         <div className="mt-6 max-w-[480px] border border-[#262E31] bg-[#111719] p-6 flex flex-col gap-4">
-          <span className="font-mono text-[11px] tracking-[0.12em] uppercase text-[#B4552B]">invitar a curso</span>
-          <p className="font-mono text-[11px] leading-[1.6] text-[#6C7573]">Crea o activa la cuenta y la deja como <span className="text-[#E2C084]">paid</span> si marcas la casilla. Solo email.</p>
+          <span className="font-mono text-[11px] tracking-[0.12em] uppercase text-[#B4552B]">
+            invitar a curso
+          </span>
+          <p className="font-mono text-[11px] leading-[1.6] text-[#6C7573]">
+            Crea o activa la cuenta y la deja como <span className="text-[#E2C084]">paid</span> si
+            marcas la casilla. Solo email.
+          </p>
           <label className="flex flex-col gap-2">
             <span className="font-mono text-[11px] uppercase text-[#6C7573]">email</span>
-            <input value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)} placeholder="alguien@correo.com" className="border border-[#262E31] bg-[#0E1214] px-3 py-2 font-mono text-[13px] text-[#F1F3F2]" />
+            <input
+              value={inviteEmail}
+              onChange={(e) => setInviteEmail(e.target.value)}
+              placeholder="alguien@correo.com"
+              className="border border-[#262E31] bg-[#0E1214] px-3 py-2 font-mono text-[13px] text-[#F1F3F2]"
+            />
           </label>
           <label className="flex flex-col gap-2">
             <span className="font-mono text-[11px] uppercase text-[#6C7573]">workshop</span>
-            <input value={inviteWorkshop} onChange={(e) => setInviteWorkshop(e.target.value)} className="border border-[#262E31] bg-[#0E1214] px-3 py-2 font-mono text-[13px] text-[#F1F3F2]" />
+            <select
+              value={inviteWorkshop}
+              onChange={(e) => setInviteWorkshop(e.target.value)}
+              className="border border-[#262E31] bg-[#0E1214] px-3 py-2 font-mono text-[13px] text-[#F1F3F2] outline-none focus:border-[#B4552B]"
+            >
+              {(courses ?? []).filter((c: any) => (c.status ?? "active") === "active").length === 0 ? (
+                <option value={inviteWorkshop}>{inviteWorkshop || "— sin cursos activos —"}</option>
+              ) : (
+                (courses ?? [])
+                  .filter((c: any) => (c.status ?? "active") === "active")
+                  .map((c: any) => (
+                    <option key={c._id} value={c.slug}>
+                      {c.title} · {c.slug}
+                    </option>
+                  ))
+              )}
+            </select>
+            {courses && (courses as any[]).filter((c) => (c.status ?? "active") === "active").length === 0 && (
+              <span className="font-mono text-[10px] text-[#565F62]">no hay cursos activos — crea uno primero</span>
+            )}
           </label>
           <label className="flex items-center gap-2 font-mono text-[11px] text-[#9AA3A1]">
-            <input type="checkbox" checked={inviteAsPaid} onChange={(e) => setInviteAsPaid(e.target.checked)} className="accent-[#B4552B]" /> pagado (acceso directo a material)
+            <input
+              type="checkbox"
+              checked={inviteAsPaid}
+              onChange={(e) => setInviteAsPaid(e.target.checked)}
+              className="accent-[#B4552B]"
+            />{" "}
+            pagado (acceso directo a material)
           </label>
           <button
             onClick={async () => {
               setInviteMsg(null);
               try {
-                await inviteStudent({ email: inviteEmail, workshopSlug: inviteWorkshop, asPaid: inviteAsPaid });
+                await inviteStudent({
+                  email: inviteEmail,
+                  workshopSlug: inviteWorkshop,
+                  asPaid: inviteAsPaid,
+                });
                 setInviteMsg(`✓ invitado ${inviteEmail} como ${inviteAsPaid ? "paid" : "pending"}`);
                 setInviteEmail("");
               } catch (e: any) {
@@ -279,8 +443,12 @@ export default function AdminPage() {
   return (
     <AuthGuard>
       <div className="mx-auto max-w-[900px] px-6 py-16">
-        <span className="font-mono text-[11px] tracking-[0.18em] uppercase text-[#B4552B]">Admin</span>
-        <h1 className="mt-3 font-sans text-[32px] font-light tracking-[-0.02em] text-[#F1F3F2]">Panel de administración</h1>
+        <span className="font-mono text-[11px] tracking-[0.18em] uppercase text-[#B4552B]">
+          Admin
+        </span>
+        <h1 className="mt-3 font-sans text-[32px] font-light tracking-[-0.02em] text-[#F1F3F2]">
+          Panel de administración
+        </h1>
         <AdminPanel />
       </div>
     </AuthGuard>

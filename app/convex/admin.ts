@@ -234,14 +234,27 @@ export const updateCourse = mutation({
     patch: v.object({
       title: v.optional(v.string()),
       tagline: v.optional(v.string()),
+      slug: v.optional(v.string()),
       schedule: v.optional(v.string()),
       price: v.optional(v.string()),
+      eventInfo: v.optional(v.array(v.object({ label: v.string(), value: v.string() }))),
     }),
   },
   handler: async (ctx, args) => {
     await requireActiveAdmin(ctx);
     const course = await ctx.db.get(args.courseId);
     if (!course) throw new Error("Curso no encontrado");
+    // Si cambia slug, verificar no colisione
+    if (args.patch.slug && args.patch.slug !== (course as any).slug) {
+      const slug = args.patch.slug.toLowerCase().trim();
+      if (!/^[a-z0-9-]+$/.test(slug)) throw new Error("Slug solo a-z, 0-9 y -");
+      const existing = await ctx.db
+        .query("courses")
+        .withIndex("by_slug", (q) => q.eq("slug", slug))
+        .unique();
+      if (existing) throw new Error(`Ya existe un curso con slug "${slug}"`);
+      (args.patch as any).slug = slug;
+    }
     await ctx.db.patch(args.courseId, args.patch as any);
     return args.courseId;
   },
