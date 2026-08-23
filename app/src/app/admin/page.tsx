@@ -4,6 +4,7 @@ import { useRole } from "@/hooks/useRole";
 import { useAction, useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { useState } from "react";
+import { DropdownSelect } from "@/components/DropdownSelect";
 
 const STATUS_META: Record<string, { label: string; className: string }> = {
   active: { label: "activo", className: "bg-[#1C2427] text-[#7FC7A3] border border-[#262E31]" },
@@ -351,16 +352,17 @@ function AdminPanel() {
                     >
                       editar
                     </button>
-                    <select
+                    <DropdownSelect
+                      size="sm"
+                      options={[
+                        { value: "active", label: "activo" },
+                        { value: "full", label: "lleno" },
+                        { value: "completed", label: "dictado" },
+                        { value: "disabled", label: "desactivado" },
+                      ]}
                       value={(c as any).status ?? "active"}
-                      onChange={(e) => void setCourseStatus({ courseId: c._id, status: e.target.value as any })}
-                      className="border border-[#262E31] bg-[#0E1214] px-3 py-1.5 font-mono text-[11px] uppercase text-[#F1F3F2] outline-none focus:border-[#B4552B]"
-                    >
-                      <option value="active">activo</option>
-                      <option value="full">lleno</option>
-                      <option value="completed">dictado</option>
-                      <option value="disabled">desactivado</option>
-                    </select>
+                      onChange={(v) => void setCourseStatus({ courseId: c._id, status: v as any })}
+                    />
                   </div>
                 )}
               </div>
@@ -389,22 +391,18 @@ function AdminPanel() {
           </label>
           <label className="flex flex-col gap-2">
             <span className="font-mono text-[11px] uppercase text-[#6C7573]">workshop</span>
-            <select
-              value={inviteWorkshop}
-              onChange={(e) => setInviteWorkshop(e.target.value)}
+            <DropdownSelect
+              size="sm"
+              options={selectableCourses.map((c: any) => ({
+                value: c.slug,
+                label: `${c.title} · ${c.slug}`,
+              }))}
+              value={selectableCourses.length === 0 ? "" : inviteWorkshop}
+              onChange={setInviteWorkshop}
               disabled={selectableCourses.length === 0}
-              className="border border-[#262E31] bg-[#0E1214] px-3 py-2 font-mono text-[13px] text-[#F1F3F2] outline-none focus:border-[#B4552B] disabled:opacity-50"
-            >
-              {selectableCourses.length === 0 ? (
-                <option value="">— sin cursos disponibles —</option>
-              ) : (
-                selectableCourses.map((c: any) => (
-                  <option key={c._id} value={c.slug}>
-                    {c.title} · {c.slug}
-                  </option>
-                ))
-              )}
-            </select>
+              placeholder="— sin cursos disponibles —"
+              className="w-full"
+            />
             {selectableCourses.length === 0 && (
               <span className="font-mono text-[10px] text-[#565F62]">
                 no hay cursos disponibles para invitar (solo se ocultan los desactivados)

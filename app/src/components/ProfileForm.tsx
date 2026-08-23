@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { isProfileComplete, resolveFieldValue } from "@/lib/onboarding";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { PhoneInput } from "@/components/PhoneInput";
+import { DropdownSelect } from "@/components/DropdownSelect";
 import { Mail, MessagesSquare } from "lucide-react";
 
 const AI_LEVELS = ["principiante", "intermedio", "avanzado"];
@@ -134,7 +136,7 @@ export function ProfileForm({ profile, professions, aiTools, mode }: ProfileForm
 
       <label className="flex flex-col gap-2">
         <span className={label}>teléfono (whatsapp)</span>
-        <input value={phone} onChange={(e) => setPhone(e.target.value)} className={input} placeholder="+57 300 123 4567" />
+        <PhoneInput value={phone ?? ""} onChange={(v) => setPhone(v)} placeholder="300 123 4567" />
       </label>
 
       <label className="flex flex-col gap-2">
@@ -175,13 +177,15 @@ export function ProfileForm({ profile, professions, aiTools, mode }: ProfileForm
 
       <label className="flex flex-col gap-2">
         <span className={label}>profesión</span>
-        <select required value={professionSel} onChange={(e) => setProfessionSel(e.target.value)} className={input}>
-          <option value="">elige…</option>
-          {professions.map((p) => (
-            <option key={p} value={p}>{p}</option>
-          ))}
-          <option value="otro">Otro…</option>
-        </select>
+        <DropdownSelect
+          options={[
+            ...professions.map((p) => ({ value: p, label: p })),
+            { value: "otro", label: "Otro…" },
+          ]}
+          value={professionSel}
+          onChange={(v) => setProfessionSel(v)}
+          placeholder="elige…"
+        />
         {professionSel === "otro" && (
           <input required value={professionCustom} onChange={(e) => setProfessionCustom(e.target.value)} className={input} placeholder="escribe tu profesión" />
         )}
@@ -189,23 +193,25 @@ export function ProfileForm({ profile, professions, aiTools, mode }: ProfileForm
 
       <label className="flex flex-col gap-2">
         <span className={label}>nivel de IA</span>
-        <select required value={aiLevel} onChange={(e) => setAiLevel(e.target.value)} className={input}>
-          <option value="">elige…</option>
-          {AI_LEVELS.map((l) => (
-            <option key={l} value={l}>{l}</option>
-          ))}
-        </select>
+        <DropdownSelect
+          options={AI_LEVELS.map((l) => ({ value: l, label: l }))}
+          value={aiLevel}
+          onChange={(v) => setAiLevel(v)}
+          placeholder="elige…"
+        />
       </label>
 
       <label className="flex flex-col gap-2">
         <span className={label}>herramienta de IA que usas</span>
-        <select required value={aiToolSel} onChange={(e) => setAiToolSel(e.target.value)} className={input}>
-          <option value="">elige…</option>
-          {aiTools.map((t) => (
-            <option key={t} value={t}>{t}</option>
-          ))}
-          <option value="otro">Otro…</option>
-        </select>
+        <DropdownSelect
+          options={[
+            ...aiTools.map((t) => ({ value: t, label: t })),
+            { value: "otro", label: "Otro…" },
+          ]}
+          value={aiToolSel}
+          onChange={(v) => setAiToolSel(v)}
+          placeholder="elige…"
+        />
         {aiToolSel === "otro" && (
           <input required value={aiToolCustom} onChange={(e) => setAiToolCustom(e.target.value)} className={input} placeholder="escribe la herramienta" />
         )}
