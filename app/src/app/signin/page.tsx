@@ -2,13 +2,16 @@
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useConvexAuth } from "convex/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
+import { useRole } from "@/hooks/useRole";
 
 function SignInForm() {
   const { signIn } = useAuthActions();
   const { isAuthenticated } = useConvexAuth();
+  const { isAdmin, isLoading: roleLoading } = useRole();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const redirected = useRef(false);
   const [authMethod, setAuthMethod] = useState<"email" | "password">("email");
   const [mode, setMode] = useState<"signIn" | "signUp">(
     searchParams.get("mode") === "signup" ? "signUp" : "signIn",
@@ -21,8 +24,10 @@ function SignInForm() {
   const [emailSent, setEmailSent] = useState(false);
 
   useEffect(() => {
-    if (isAuthenticated) router.replace("/estudiantes");
-  }, [isAuthenticated, router]);
+    if (!isAuthenticated || roleLoading || redirected.current) return;
+    redirected.current = true;
+    router.replace(isAdmin ? "/admin" : "/estudiantes");
+  }, [isAuthenticated, isAdmin, roleLoading, router]);
 
   async function handleEmailSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -31,7 +36,7 @@ function SignInForm() {
     try {
       await signIn("resend", {
         email: email.trim().toLowerCase(),
-        redirectTo: "/estudiantes",
+        redirectTo: "/signin",
       });
       setEmailSent(true);
     } catch {
@@ -60,6 +65,14 @@ function SignInForm() {
     } finally {
       setSubmitting(false);
     }
+  }
+
+  if (isAuthenticated) {
+    return (
+      <div className="mx-auto max-w-md px-6 py-16">
+        <p className="font-mono text-[12px] text-[#6C7573]">ingresando…</p>
+      </div>
+    );
   }
 
   return (
