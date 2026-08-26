@@ -159,7 +159,7 @@ export default function CorporatePage() {
           </p>
         </div>
         <div className="grid grid-cols-3 max-[900px]:grid-cols-1 gap-[22px]">
-          {(publicCourses ?? []).map((c) => (
+{(publicCourses ?? []).map((c) => (
             <Link
               key={c.slug}
               href={`/workshops/${c.slug}`}
@@ -241,9 +241,9 @@ export default function CorporatePage() {
               <Image
                 src="/assets/Francisco.jpeg"
                 alt="Francisco Martínez"
-                width={64}
-                height={64}
-                className="h-16 w-16 rounded-none object-cover border border-[#262E31]"
+                width={96}
+                height={96}
+                className="h-24 w-24 rounded-none object-cover border border-[#262E31]"
               />
               <div className="flex flex-col gap-2">
                 <span className="font-mono text-[14px] font-medium text-[#F1F3F2]">
@@ -263,11 +263,11 @@ export default function CorporatePage() {
             </div>
             <div className="bg-[#1C2427] p-8 flex flex-col gap-[18px]">
               <Image
-                src="/assets/Carlos.jpeg"
+                src="/assets/eduardo-castillo.jpeg"
                 alt="Eduardo Castillo"
-                width={64}
-                height={64}
-                className="h-16 w-16 rounded-none object-cover border border-[#262E31]"
+                width={96}
+                height={96}
+                className="h-24 w-24 rounded-none object-cover border border-[#262E31]"
               />
               <div className="flex flex-col gap-2">
                 <span className="font-mono text-[14px] font-medium text-[#F1F3F2]">
