@@ -72,9 +72,17 @@ export default function CorporatePage() {
           </div>
         </div>
         <div className="flex flex-col gap-[14px]">
-          <div className="aspect-[4/5] border border-[#262E31] bg-[repeating-linear-gradient(135deg,#1C2427_0_10px,#131A1C_10px_20px)] grid place-items-center">
-            <span className="font-mono text-[11px] tracking-[0.12em] uppercase text-[#6C7573]">
-              [foto] sesión 4:5 — Medellín presencial
+          <div className="relative aspect-[4/5] overflow-hidden border border-[#262E31] bg-[#1C2427]">
+            <Image
+              src="/assets/lobby.jpeg"
+              alt="Lobby del workshop — espacio de trabajo colaborativo en Medellín"
+              fill
+              sizes="(max-width: 900px) 100vw, 40vw"
+              className="object-cover"
+              priority
+            />
+            <span className="absolute left-0 top-0 bg-[#0E1214]/75 px-3 py-1.5 font-mono text-[10px] tracking-[0.12em] uppercase text-[#9AA3A1] backdrop-blur-sm">
+              Medellín · presencial
             </span>
           </div>
           <span className="font-mono text-[10px] leading-[1.7] text-[#565F62]">
