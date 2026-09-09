@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-09-08 — Landing y marca visual
+
+### Landing corporativa
+- Hero: el placeholder `[foto] sesión 4:5 — Medellín presencial` ahora muestra una foto real del espacio (`/assets/lobby.jpeg`, 1024×1280) con chip superpuesto "Medellín · presencial" (`src/app/page.tsx`).
+- Equipo: la foto de Eduardo Castillo era la de Carlos — corregida (`/assets/eduardo-castillo.jpeg`) y fotos del equipo más grandes en la landing y el workshop.
+
+### Marca
+- Favicon reemplazado por el ícono de marca en PNG (`src/app/favicon.ico`, 16/32/48 px) en lugar del `.ico` clásico de Next.
+
 ## 2026-08-23 — Zona de estudiantes y perfil
 
 ### Nuevos componentes reutilizables
