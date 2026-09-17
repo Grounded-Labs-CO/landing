@@ -306,11 +306,6 @@ function SectionDetail({
 
       {section.kind === "sample-data" && section.sampleData && (
         <>
-          <p className="max-w-[64ch] font-sans text-[15px] leading-[1.7] text-[#DDE2E0]">
-            Un caso completo —documentos 100% ficticios— para trabajarlo con tu asistente:
-            banca, deudas, nómina, servicios e historial. Descarga el expediente en un
-            solo .zip y tráelo al workshop: con este material hacemos los ejercicios.
-          </p>
           <div className="flex flex-col gap-6">
             {section.sampleData.map((profile, index) => {
               const zipFiles = [
@@ -363,26 +358,9 @@ function ProfileDossier({
   // `?? []` protege contra deployments cuya query aún no manda los campos de
   // ficha (el schema/query se empuja después de este cambio de UI).
   const facts = profile.facts ?? [];
-  const manifest = [
-    ...(profile.introUrl
-      ? [{ label: "Encabezado", files: [profile.introName ?? "perfil.md"] }]
-      : []),
-    ...profile.categories
-      .filter((category) => category.files.length > 0)
-      .map((category) => ({
-        label: category.label,
-        files: category.files.map((file) => file.fileName),
-      })),
-  ];
-  const total = manifest.reduce((count, group) => count + group.files.length, 0);
-  const categoryCount = manifest.length - (profile.introUrl ? 1 : 0);
-  const extensions = [
-    ...new Set(
-      manifest.flatMap((group) =>
-        group.files.map((fileName) => `.${fileName.split(".").pop()?.toLowerCase() ?? "md"}`),
-      ),
-    ),
-  ].sort();
+  const categories = profile.categories.filter((category) => category.files.length > 0);
+  const docCount = categories.reduce((count, category) => count + category.files.length, 0);
+  const total = docCount + (profile.introUrl ? 1 : 0);
 
   return (
     <article className="border border-[#2F3A3D] border-t-2 border-t-[#B4552B] bg-[#0E1214]">
@@ -393,7 +371,7 @@ function ProfileDossier({
           caseNo={caseNo}
           extra={[
             { label: "documentos", value: String(total) },
-            { label: "categorías", value: String(categoryCount) },
+            { label: "categorías", value: String(categories.length) },
           ]}
         />
         <div className="flex flex-col gap-6 border-t border-[#2F3A3D] p-6 md:border-l md:border-t-0 md:p-7">
@@ -419,7 +397,7 @@ function ProfileDossier({
           </div>
 
           {profile.bio && (
-            <p className="max-w-[62ch] font-sans text-[14px] leading-[1.75] text-[#9AA3A1]">
+            <p className="max-w-[62ch] whitespace-pre-line font-sans text-[14px] leading-[1.75] text-[#9AA3A1]">
               {profile.bio}
             </p>
           )}
@@ -453,46 +431,6 @@ function ProfileDossier({
         </div>
       )}
 
-      {/* Manifiesto: qué entra en el zip (los archivos no se descargan sueltos) */}
-      <div className="border-t border-[#2F3A3D]">
-        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 px-6 pb-4 pt-5 md:px-7">
-          <span className="font-mono text-[10px] tracking-[0.18em] uppercase text-[#9AA3A1]">
-            contenido del .zip
-          </span>
-          <span className="font-mono text-[10px] text-[#565F62]">
-            {total} {total === 1 ? "archivo" : "archivos"} · {extensions.join(" · ")}
-          </span>
-        </div>
-        <div className="grid grid-cols-1 gap-px border-t border-[#2F3A3D] bg-[#262E31] sm:grid-cols-2 lg:grid-cols-3">
-          {manifest.map((group) => (
-            <div
-              key={group.label}
-              className="flex flex-col gap-2 bg-[#0E1214] px-6 py-4 md:px-7"
-            >
-              <div className="flex items-baseline justify-between gap-3">
-                <span className="font-mono text-[10px] tracking-[0.16em] uppercase text-[#DDE2E0]">
-                  {group.label}
-                </span>
-                <span className="font-mono text-[10px] text-[#565F62]">
-                  {String(group.files.length).padStart(2, "0")}
-                </span>
-              </div>
-              <ul className="flex flex-col gap-1">
-                {group.files.map((fileName) => (
-                  <li
-                    key={`${group.label}-${fileName}`}
-                    title={fileName}
-                    className="truncate font-mono text-[11px] leading-[1.6] text-[#6C7573]"
-                  >
-                    {fileName}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-      </div>
-
       {/* Descarga: un único paquete */}
       <div className="flex flex-col gap-5 border-t border-[#2F3A3D] bg-[#111719] px-6 py-5 md:flex-row md:items-center md:justify-between md:px-7">
         <div className="flex flex-col gap-1">
@@ -500,7 +438,7 @@ function ProfileDossier({
             paquete de descarga
           </span>
           <span className="font-mono text-[12px] leading-[1.6] text-[#DDE2E0]">
-            {profile.slug}.zip
+            {profile.slug}.zip · {total} archivos
           </span>
           <span className="font-mono text-[10px] leading-[1.6] text-[#565F62]">
             {"// un solo archivo, en carpetas por categoría"}
