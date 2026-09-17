@@ -55,17 +55,12 @@ function CourseMaterial() {
   );
 
   const [openSection, setOpenSection] = useState<number | null>(null);
-  // undefined = nunca abierto (por defecto el primer perfil); null = cerrado
-  const [openProfile, setOpenProfile] = useState<string | null | undefined>(undefined);
   const [zipping, setZipping] = useState<string | null>(null);
 
-  // Sección/perfil activos derivados (sin efectos): si el estado aún no
-  // apunta a algo válido, cae al primero.
+  // Sección activa derivada (sin efectos): si el estado aún no apunta a algo
+  // válido, cae a la primera.
   const sections = material?.sections ?? [];
   const activeSection = sections.find((s) => s.order === openSection) ?? sections[0];
-  const sampleData = sections.find((s) => s.kind === "sample-data")?.sampleData ?? [];
-  const activeProfileSlug =
-    openProfile === undefined ? (sampleData[0]?.slug ?? null) : openProfile;
 
   return (
     <div className="mx-auto max-w-[960px] px-6 py-12">
@@ -170,8 +165,6 @@ function CourseMaterial() {
                 key={activeSection.order}
                 section={activeSection}
                 material={material}
-                activeProfileSlug={activeProfileSlug}
-                setOpenProfile={setOpenProfile}
                 zipping={zipping}
                 setZipping={setZipping}
               />
@@ -186,15 +179,11 @@ function CourseMaterial() {
 function SectionDetail({
   section,
   material,
-  activeProfileSlug,
-  setOpenProfile,
   zipping,
   setZipping,
 }: {
   section: CourseSection;
   material: CourseMaterial;
-  activeProfileSlug: string | null;
-  setOpenProfile: (slug: string | null) => void;
   zipping: string | null;
   setZipping: (slug: string | null) => void;
 }) {
@@ -317,38 +306,33 @@ function SectionDetail({
 
       {section.kind === "sample-data" && section.sampleData && (
         <>
-          <p className="max-w-[64ch] font-sans text-[15px] leading-[1.7] text-[#DDE2E0]">
-            Tres casos completos con documentos 100% ficticios. Elige tu viajero, descarga
-            sus documentos y tráelos al workshop: con ese material hacemos los ejercicios.
-          </p>
-          <div className="flex flex-col gap-3">
-            {section.sampleData.map((profile) => (
-              <ProfileCard
-                key={profile.slug}
-                profile={profile}
-                isOpen={activeProfileSlug === profile.slug}
-                onToggle={() =>
-                  setOpenProfile(activeProfileSlug === profile.slug ? null : profile.slug)
-                }
-                zipping={zipping === profile.slug}
-                onZip={async () => {
-                  setZipping(profile.slug);
-                  try {
-                    const files = [
-                      ...(profile.introUrl
-                        ? [{ name: profile.introName ?? "perfil.md", url: profile.introUrl }]
-                        : []),
-                      ...profile.categories.flatMap((c) =>
-                        c.files.map((f) => ({ name: `${c.label}/${f.fileName}`, url: f.url })),
-                      ),
-                    ];
-                    await downloadZip(`${profile.slug}.zip`, files);
-                  } finally {
-                    setZipping(null);
-                  }
-                }}
-              />
-            ))}
+          <div className="flex flex-col gap-6">
+            {section.sampleData.map((profile, index) => {
+              const zipFiles = [
+                ...(profile.introUrl
+                  ? [{ name: profile.introName ?? "perfil.md", url: profile.introUrl }]
+                  : []),
+                ...profile.categories.flatMap((c) =>
+                  c.files.map((f) => ({ name: `${c.label}/${f.fileName}`, url: f.url })),
+                ),
+              ];
+              return (
+                <ProfileDossier
+                  key={profile.slug}
+                  profile={profile}
+                  index={index + 1}
+                  zipping={zipping === profile.slug}
+                  onZip={async () => {
+                    setZipping(profile.slug);
+                    try {
+                      await downloadZip(`${profile.slug}.zip`, zipFiles);
+                    } finally {
+                      setZipping(null);
+                    }
+                  }}
+                />
+              );
+            })}
           </div>
           <p className="font-mono text-[11px] tracking-[0.08em] leading-[1.7] text-[#565F62]">
             {"// documentos simulados — datos 100% ficticios con fines educativos."}
@@ -359,102 +343,200 @@ function SectionDetail({
   );
 }
 
-function ProfileCard({
+function ProfileDossier({
   profile,
-  isOpen,
-  onToggle,
+  index,
   zipping,
   onZip,
 }: {
   profile: SampleProfile;
-  isOpen: boolean;
-  onToggle: () => void;
+  index: number;
   zipping: boolean;
   onZip: () => Promise<void>;
 }) {
-  return (
-    <div className="border border-[#262E31] bg-[#0E1214]">
-      <button
-        onClick={onToggle}
-        className={`flex w-full items-center gap-5 p-5 text-left transition-colors ${
-          isOpen ? "border-b border-[#262E31] bg-[#111719]" : "hover:bg-[#111719]"
-        }`}
-      >
-        <div className="grid h-14 w-14 shrink-0 place-items-center bg-[#B4552B]">
-          <span className="font-mono text-[24px] font-semibold text-[#0E1214]">
-            {profile.name.charAt(0)}
-          </span>
-        </div>
-        <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <span className="font-sans text-[18px] font-light text-[#F1F3F2]">{profile.name}</span>
-          <span className="font-mono text-[11px] leading-[1.5] text-[#9AA3A1]">
-            {profile.tagline}
-          </span>
-        </div>
-        <div className="flex shrink-0 flex-col items-end gap-1">
-          <span className="font-mono text-[22px] font-extralight leading-none text-[#B4552B]">
-            {profile.fileCount}
-          </span>
-          <span className="font-mono text-[10px] tracking-[0.12em] uppercase text-[#6C7573]">
-            documentos {isOpen ? "▲" : "▼"}
-          </span>
-        </div>
-      </button>
+  const caseNo = String(index).padStart(2, "0");
+  // `?? []` protege contra deployments cuya query aún no manda los campos de
+  // ficha (el schema/query se empuja después de este cambio de UI).
+  const facts = profile.facts ?? [];
+  const categories = profile.categories.filter((category) => category.files.length > 0);
+  const docCount = categories.reduce((count, category) => count + category.files.length, 0);
+  const total = docCount + (profile.introUrl ? 1 : 0);
 
-      {isOpen && (
-        <div className="flex flex-col gap-5 p-5">
-          {profile.introUrl && (
-            <div className="border border-[#2F3A3D] bg-[#111719] p-4">
-              <span className="font-mono text-[10px] tracking-[0.14em] uppercase text-[#B4552B]">
-                perfil del caso
-              </span>
-              <a
-                href={profile.introUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-2 block font-mono text-[13px] text-[#F1F3F2] underline decoration-[#B4552B] underline-offset-4 hover:text-[#E2A084]"
-              >
-                {(profile.introName ?? "perfil")
-                  .replace(/-/g, " ")
-                  .replace(/\.md$/, "")}{" "}
-                ⬇
-              </a>
-            </div>
+  return (
+    <article className="border border-[#2F3A3D] border-t-2 border-t-[#B4552B] bg-[#0E1214]">
+      {/* Identificación: foto + ficha tipo hoja de vida */}
+      <header className="grid grid-cols-1 md:grid-cols-[248px_1fr]">
+        <PhotoSlot
+          profile={profile}
+          caseNo={caseNo}
+          extra={[
+            { label: "documentos", value: String(total) },
+            { label: "categorías", value: String(categories.length) },
+          ]}
+        />
+        <div className="flex flex-col gap-6 border-t border-[#2F3A3D] p-6 md:border-l md:border-t-0 md:p-7">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <span className="font-mono text-[10px] tracking-[0.18em] uppercase text-[#B4552B]">
+              [expediente {caseNo}]
+            </span>
+            <span className="border border-dashed border-[#2F3A3D] px-2.5 py-1 font-mono text-[9px] tracking-[0.14em] uppercase text-[#565F62]">
+              datos ficticios
+            </span>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <h3 className="font-sans text-[26px] font-light leading-[1.1] tracking-[-0.02em] text-[#F1F3F2]">
+              {profile.name}
+            </h3>
+            <p className="font-mono text-[12px] leading-[1.6] text-[#DDE2E0]">
+              {profile.tagline}
+            </p>
+            {profile.meta && (
+              <p className="font-mono text-[11px] leading-[1.6] text-[#6C7573]">{profile.meta}</p>
+            )}
+          </div>
+
+          {profile.bio && (
+            <p className="max-w-[62ch] whitespace-pre-line font-sans text-[14px] leading-[1.75] text-[#9AA3A1]">
+              {profile.bio}
+            </p>
           )}
 
-          {profile.categories
-            .filter((c) => c.files.length > 0)
-            .map((category) => (
-              <div key={category.label}>
-                <span className="font-mono text-[11px] tracking-[0.14em] uppercase text-[#6C7573]">
-                  {category.label} · {category.files.length}
-                </span>
-                <ul className="mt-2 grid grid-cols-1 gap-1.5 md:grid-cols-2">
-                  {category.files.map((file) => (
-                    <li key={file.fileName + file.label}>
-                      <a
-                        href={file.url ?? "#"}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="font-mono text-[12px] leading-[1.6] text-[#DDE2E0] hover:text-[#B4552B]"
-                      >
-                        {file.label} ⬇
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+          {facts.length > 0 && (
+            <dl className="grid grid-cols-1 gap-x-6 gap-y-4 border-t border-dashed border-[#2F3A3D] pt-5 sm:grid-cols-2 lg:grid-cols-3">
+              {facts.map((fact) => (
+                <div key={fact.label} className="flex flex-col gap-0.5">
+                  <dt className="font-mono text-[9px] tracking-[0.16em] uppercase text-[#6C7573]">
+                    {fact.label}
+                  </dt>
+                  <dd className="font-mono text-[11px] leading-[1.55] text-[#DDE2E0]">
+                    {fact.value}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          )}
+        </div>
+      </header>
 
-          <button
-            onClick={() => void onZip()}
-            disabled={zipping}
-            className="self-start border border-[#B4552B] px-4 py-2 font-mono text-[11px] font-medium tracking-[0.12em] uppercase text-[#B4552B] hover:bg-[#B4552B] hover:text-[#0E1214] transition-colors disabled:opacity-60"
-          >
-            {zipping ? "preparando zip…" : "descargar todo (zip) ⬇"}
-          </button>
+      {/* La pregunta que le lleva al asistente */}
+      {profile.quote && (
+        <div className="border-t border-[#2F3A3D] bg-[#111719] px-6 py-6 md:px-7">
+          <p className="max-w-[70ch] border-l-2 border-[#B4552B] pl-4 font-sans text-[15px] font-light leading-[1.7] text-[#F1F3F2]">
+            “{profile.quote}”
+          </p>
+          <p className="mt-3 pl-[18px] font-mono text-[10px] tracking-[0.12em] uppercase text-[#6C7573]">
+            lo que le pide al asistente
+          </p>
         </div>
       )}
+
+      {/* Descarga: un único paquete */}
+      <div className="flex flex-col gap-5 border-t border-[#2F3A3D] bg-[#111719] px-6 py-5 md:flex-row md:items-center md:justify-between md:px-7">
+        <div className="flex flex-col gap-1">
+          <span className="font-mono text-[10px] tracking-[0.16em] uppercase text-[#6C7573]">
+            paquete de descarga
+          </span>
+          <span className="font-mono text-[12px] leading-[1.6] text-[#DDE2E0]">
+            {profile.slug}.zip · {total} archivos
+          </span>
+          <span className="font-mono text-[10px] leading-[1.6] text-[#565F62]">
+            {"// un solo archivo, en carpetas por categoría"}
+          </span>
+        </div>
+        <button
+          onClick={() => void onZip()}
+          disabled={zipping}
+          className="inline-flex items-center gap-3 self-start bg-[#B4552B] px-5 py-3 font-mono text-[11px] font-medium tracking-[0.12em] uppercase text-[#0E1214] transition-colors hover:bg-[#C96A3C] disabled:opacity-60 md:self-auto"
+        >
+          {zipping ? "generando zip…" : "descargar expediente"}
+          <span aria-hidden>⬇</span>
+        </button>
+      </div>
+    </article>
+  );
+}
+
+function PhotoSlot({
+  profile,
+  caseNo,
+  extra,
+}: {
+  profile: SampleProfile;
+  caseNo: string;
+  extra: { label: string; value: string }[];
+}) {
+  const [failed, setFailed] = useState(false);
+  const photoUrl = failed ? null : profile.photoUrl;
+
+  return (
+    <div className="flex flex-col p-4 md:p-5">
+      <div className="relative mx-auto aspect-[4/5] w-full max-w-[260px] overflow-hidden bg-[#111719] md:mx-0 md:max-w-none">
+        {photoUrl ? (
+          // URL firmada de Convex storage: <img> directo, sin optimizador ni dominios permitidos.
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={photoUrl}
+            alt={`Retrato de ${profile.name}`}
+            onError={() => setFailed(true)}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <>
+            <div className="absolute inset-0 grid place-items-center">
+              <svg
+                width="64"
+                height="64"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#2F3A3D"
+                strokeWidth="1.5"
+                aria-hidden
+              >
+                <circle cx="12" cy="8.5" r="3.75" />
+                <path d="M4.5 20.5c0-4.1 3.36-7.4 7.5-7.4s7.5 3.3 7.5 7.4" />
+              </svg>
+            </div>
+            <div className="absolute inset-x-0 bottom-3 flex flex-col items-center gap-1 px-3 text-center">
+              <span className="font-mono text-[9px] tracking-[0.18em] uppercase text-[#6C7573]">
+                foto pendiente
+              </span>
+              {profile.photoName && (
+                <span className="w-full truncate font-mono text-[9px] text-[#565F62]">
+                  {profile.photoName}
+                </span>
+              )}
+            </div>
+          </>
+        )}
+        <span className="pointer-events-none absolute left-2 top-2 h-3.5 w-3.5 border-l border-t border-[#B4552B]" aria-hidden />
+        <span className="pointer-events-none absolute right-2 top-2 h-3.5 w-3.5 border-r border-t border-[#B4552B]" aria-hidden />
+        <span className="pointer-events-none absolute bottom-2 left-2 h-3.5 w-3.5 border-b border-l border-[#B4552B]" aria-hidden />
+        <span className="pointer-events-none absolute bottom-2 right-2 h-3.5 w-3.5 border-b border-r border-[#B4552B]" aria-hidden />
+      </div>
+      <div className="mx-auto mt-3 flex w-full max-w-[260px] items-center justify-between border-t border-dashed border-[#2F3A3D] pt-2 md:mx-0 md:max-w-none">
+        <span className="font-mono text-[9px] tracking-[0.14em] uppercase text-[#565F62]">
+          exp. {caseNo}
+        </span>
+        <span className="font-mono text-[9px] text-[#565F62]">
+          {photoUrl ? "4:5 · foto" : "espacio 4:5"}
+        </span>
+      </div>
+
+      {/* Ficha rápida bajo la foto (solo desktop: en móvil ya está el manifiesto) */}
+      <dl className="mt-4 hidden flex-col gap-3 md:flex">
+        {extra.map((item) => (
+          <div key={item.label} className="flex items-baseline justify-between gap-2">
+            <dt className="font-mono text-[9px] tracking-[0.14em] uppercase text-[#6C7573]">
+              {item.label}
+            </dt>
+            <dd className="font-mono text-[11px] text-[#DDE2E0]">{item.value}</dd>
+          </div>
+        ))}
+        <span className="mt-1 inline-block -rotate-3 self-start border border-[#B4552B]/70 px-2.5 py-1 font-mono text-[8px] tracking-[0.18em] uppercase text-[#B4552B]">
+          muestra · sin valor legal
+        </span>
+      </dl>
     </div>
   );
 }
