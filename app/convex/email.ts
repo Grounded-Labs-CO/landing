@@ -63,7 +63,7 @@ function welcomeHtml(url, to, course) {
     "Qué necesitas saber — fecha, lugar y qué llevar.",
     "Antes de — cómo llegar con la cuenta de IA lista.",
     "Qué documentos traer — la lista (opcional) para practicar con tus datos.",
-    "Caso de práctica — un expediente de ejemplo, con su .zip.",
+    "Datos de prueba — un expediente de ejemplo, con su .zip.",
     "Presentación y artículos — el material de la sesión, después del taller.",
     "Links de interés — las herramientas que usamos.",
   ];

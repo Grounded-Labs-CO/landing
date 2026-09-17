@@ -451,8 +451,8 @@ function ChecklistSection({ items, storageKey }: { items: CourseItem[]; storageK
         </p>
         <p className="font-sans text-[15px] leading-[1.7] text-[#9AA3A1]">
           Entre más datos y contexto le des, mejor responde tu asesor financiero. Y si no
-          quieres traer nada, no pasa nada: en la sección 04 · Caso de práctica hay una
-          data de prueba para hacer el taller.
+          quieres traer nada, no pasa nada: en la sección 04 · Datos de prueba hay
+          un caso completo para hacer el taller.
         </p>
       </div>
 
