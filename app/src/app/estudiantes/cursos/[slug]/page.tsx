@@ -391,9 +391,6 @@ function ProfileDossier({
             <p className="font-mono text-[12px] leading-[1.6] text-[#DDE2E0]">
               {profile.tagline}
             </p>
-            {profile.meta && (
-              <p className="font-mono text-[11px] leading-[1.6] text-[#6C7573]">{profile.meta}</p>
-            )}
           </div>
 
           {profile.bio && (
@@ -419,18 +416,6 @@ function ProfileDossier({
         </div>
       </header>
 
-      {/* La pregunta que le lleva al asistente */}
-      {profile.quote && (
-        <div className="border-t border-[#2F3A3D] bg-[#111719] px-6 py-6 md:px-7">
-          <p className="max-w-[70ch] border-l-2 border-[#B4552B] pl-4 font-sans text-[15px] font-light leading-[1.7] text-[#F1F3F2]">
-            “{profile.quote}”
-          </p>
-          <p className="mt-3 pl-[18px] font-mono text-[10px] tracking-[0.12em] uppercase text-[#6C7573]">
-            lo que le pide al asistente
-          </p>
-        </div>
-      )}
-
       {/* Descarga: un único paquete */}
       <div className="flex flex-col gap-5 border-t border-[#2F3A3D] bg-[#111719] px-6 py-5 md:flex-row md:items-center md:justify-between md:px-7">
         <div className="flex flex-col gap-1">
@@ -449,7 +434,7 @@ function ProfileDossier({
           disabled={zipping}
           className="inline-flex items-center gap-3 self-start bg-[#B4552B] px-5 py-3 font-mono text-[11px] font-medium tracking-[0.12em] uppercase text-[#0E1214] transition-colors hover:bg-[#C96A3C] disabled:opacity-60 md:self-auto"
         >
-          {zipping ? "generando zip…" : "descargar expediente"}
+          {zipping ? "generando zip…" : "descargar datos de prueba"}
           <span aria-hidden>⬇</span>
         </button>
       </div>
@@ -533,9 +518,6 @@ function PhotoSlot({
             <dd className="font-mono text-[11px] text-[#DDE2E0]">{item.value}</dd>
           </div>
         ))}
-        <span className="mt-1 inline-block -rotate-3 self-start border border-[#B4552B]/70 px-2.5 py-1 font-mono text-[8px] tracking-[0.18em] uppercase text-[#B4552B]">
-          muestra · sin valor legal
-        </span>
       </dl>
     </div>
   );
