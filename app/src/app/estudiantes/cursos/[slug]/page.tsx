@@ -7,7 +7,7 @@ import { useQuery } from "convex/react";
 import { api } from "../../../../../convex/_generated/api";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function Barcode() {
   return (
@@ -216,9 +216,6 @@ function SectionDetail({
 
       {section.kind === "info" && (
         <>
-          <p className="font-sans text-[15px] leading-[1.7] text-[#DDE2E0]">
-            Lo esencial del día: cuándo, dónde y qué llevar.
-          </p>
           <div className="grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
             {material.eventInfo.map((item) => (
               <div key={item.label} className="flex flex-col gap-1 border-l-2 border-[#B4552B] pl-4">
@@ -243,6 +240,7 @@ function SectionDetail({
               </div>
             ))}
           </div>
+          <ParkingCard />
           {section.items
             .filter((item) => item.imageUrl)
             .map((item) => (
@@ -533,6 +531,115 @@ function ChecklistSection({ items, storageKey }: { items: CourseItem[]; storageK
           </button>
         )}
       </div>
+    </>
+  );
+}
+
+// Tarifas del parqueadero del edificio (recreadas de la tabla del venue).
+// Se muestran en un modal para no cargar la ficha del evento.
+const PARKING_ROWS: { label: string; car: string; moto: string }[] = [
+  { label: "15 minutos", car: "gratis", moto: "gratis" },
+  { label: "1ª hora", car: "$4.300", moto: "$2.500" },
+  { label: "2ª hora", car: "$3.100", moto: "$1.800" },
+  { label: "3ª hora en adelante (cada hora)", car: "$7.400", moto: "$4.300" },
+  { label: "día completo (12 horas)", car: "$37.600", moto: "$22.200" },
+  { label: "6:00 p.m. a 7:00 a.m.", car: "$2.000", moto: "$1.800" },
+  { label: "sábado 12:00 m. al lunes 7:00 a.m.", car: "$2.000", moto: "$1.800" },
+];
+
+function ParkingCard() {
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
+
+  return (
+    <>
+      <div className="flex flex-col gap-1 border-l-2 border-[#B4552B] pl-4">
+        <span className="font-mono text-[10px] tracking-[0.14em] uppercase text-[#6C7573]">
+          parqueadero
+        </span>
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="self-start text-left font-mono text-[13px] leading-[1.6] text-[#DDE2E0] underline decoration-[#B4552B]/50 underline-offset-4 transition-colors hover:text-[#E2A084]"
+        >
+          El lugar cuenta con parqueadero
+          <span className="whitespace-nowrap">&nbsp;· ver tarifas ↗</span>
+        </button>
+      </div>
+
+      {open && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Tarifas del parqueadero"
+          onClick={() => setOpen(false)}
+          className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-[#0E1214]/85 p-4 py-10"
+        >
+          <div
+            onClick={(event) => event.stopPropagation()}
+            className="w-full max-w-[520px] border border-[#2F3A3D] bg-[#111719]"
+          >
+            <div className="flex items-center justify-between gap-4 border-b border-[#262E31] px-6 py-4">
+              <span className="font-mono text-[11px] tracking-[0.16em] uppercase text-[#B4552B]">
+                tarifas del parqueadero
+              </span>
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="font-mono text-[10px] tracking-[0.12em] uppercase text-[#6C7573] transition-colors hover:text-[#F1F3F2]"
+              >
+                cerrar ✕
+              </button>
+            </div>
+            <table className="w-full border-collapse font-mono text-[12px]">
+              <thead>
+                <tr className="text-[#6C7573]">
+                  <th className="border-b border-[#262E31] px-6 py-3 text-left text-[10px] font-normal tracking-[0.16em] uppercase">
+                    tiempo
+                  </th>
+                  <th className="border-b border-[#262E31] px-3 py-3 text-right text-[10px] font-medium tracking-[0.16em] uppercase">
+                    carro
+                  </th>
+                  <th className="border-b border-[#262E31] px-6 py-3 text-right text-[10px] font-medium tracking-[0.16em] uppercase">
+                    moto
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {PARKING_ROWS.map((row) => (
+                  <tr key={row.label}>
+                    <td className="border-b border-[#1C2427] px-6 py-2.5 text-[#9AA3A1]">
+                      {row.label}
+                    </td>
+                    <td className="border-b border-[#1C2427] px-3 py-2.5 text-right text-[#DDE2E0]">
+                      {row.car}
+                    </td>
+                    <td className="border-b border-[#1C2427] px-6 py-2.5 text-right text-[#DDE2E0]">
+                      {row.moto}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div className="flex flex-col gap-2 px-6 py-4">
+              <p className="font-mono text-[11px] leading-[1.7] text-[#DDE2E0]">
+                Para el taller (4 horas): ≈ $22.200 en carro o $12.900 en moto.
+              </p>
+              <p className="font-mono text-[10px] leading-[1.7] text-[#6C7573]">
+                {"// tarifas del edificio; pueden cambiar sin aviso."}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
