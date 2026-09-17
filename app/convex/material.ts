@@ -93,6 +93,7 @@ export const getCourse = query({
           note: item.note ?? null,
           status: item.status ?? null,
           downloadUrl: item.storageId ? await ctx.storage.getUrl(item.storageId) : null,
+          group: item.group ?? null,
         });
       }
 
