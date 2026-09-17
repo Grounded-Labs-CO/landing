@@ -42,6 +42,9 @@ export default defineSchema({
     // /admin; opcional: si falta, la landing no pinta el botón de descarga.
     brochureStorageId: v.optional(v.id("_storage")),
     brochureFileName: v.optional(v.string()),
+    // Link "agregar al calendario" del evento (Google Calendar, con fecha y
+    // sede prellenadas). Opcional: si falta, no se muestra.
+    calendarUrl: v.optional(v.string()),
   }).index("by_slug", ["slug"]),
 
   // Secciones del curso (los "sellos" 01..N)

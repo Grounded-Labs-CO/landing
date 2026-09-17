@@ -1,6 +1,7 @@
 "use client";
 import { AuthGuard } from "@/components/AuthGuard";
 import { ProfileGuard } from "@/components/ProfileGuard";
+import { SupportLine } from "@/components/SupportLine";
 import type { CourseItem, CourseMaterial, CourseSection, SampleProfile } from "@/lib/material-types";
 import { useQuery } from "convex/react";
 import { api } from "../../../../../convex/_generated/api";
@@ -95,7 +96,7 @@ function CourseMaterial() {
                 </h1>
                 <div className="flex flex-wrap gap-x-6 gap-y-1 pt-1 font-mono text-[11px] tracking-[0.06em] text-[#9AA3A1]">
                   <span>
-                    pasajero: <span className="text-[#DDE2E0]">{material.email}</span>
+                    pasajero: <span className="text-[#DDE2E0]">{material.passengerName ?? material.email}</span>
                   </span>
                   <span>
                     estado: <span className="text-[#7FC7A3]">cupo pagado ✓</span>
@@ -115,8 +116,20 @@ function CourseMaterial() {
                 ))}
               </div>
             </div>
-            <div className="border-t border-[#2F3A3D] px-7 py-3">
-              <Barcode />
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-[#2F3A3D] px-7 py-3">
+              <div className="min-w-[180px] flex-1">
+                <Barcode />
+              </div>
+              {material.calendarUrl && (
+                <a
+                  href={material.calendarUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="shrink-0 border border-[#2F3A3D] px-3 py-1.5 font-mono text-[10px] tracking-[0.12em] uppercase text-[#9AA3A1] transition-colors hover:border-[#9AA3A1] hover:text-[#F1F3F2]"
+                >
+                  agregar al calendario ↗
+                </a>
+              )}
             </div>
           </section>
 
@@ -170,6 +183,10 @@ function CourseMaterial() {
               />
             )}
           </section>
+
+          <div className="mt-8">
+            <SupportLine />
+          </div>
         </>
       )}
     </div>
@@ -214,7 +231,7 @@ function SectionDetail({
               </div>
             ))}
           </div>
-          <p className="font-mono text-[11px] tracking-[0.08em] leading-[1.7] text-[#565F62]">
+          <p className="font-mono text-[11px] tracking-[0.08em] leading-[1.7] text-[#6C7573]">
             {"// café, snacks y buena conversación incluidos — trae ganas de trabajar con tus datos."}
           </p>
         </>
@@ -232,7 +249,7 @@ function SectionDetail({
           <p className="font-sans text-[15px] leading-[1.7] text-[#DDE2E0]">
             {section.kind === "articles"
               ? "Lecturas cortas para llegar con todo listo al sábado."
-              : "El material que entregamos durante la sesión queda disponible aquí."}
+              : "El material de la sesión se publica aquí después del taller — te avisamos por correo."}
           </p>
           <div
             className={`grid grid-cols-1 gap-3 ${
@@ -305,7 +322,7 @@ function SectionDetail({
               </a>
             ))}
           </div>
-          <p className="font-mono text-[11px] tracking-[0.08em] leading-[1.7] text-[#565F62]">
+          <p className="font-mono text-[11px] tracking-[0.08em] leading-[1.7] text-[#6C7573]">
             {"// ninguna afiliación — son las herramientas que usamos y recomendamos para el ejercicio."}
           </p>
         </>
@@ -473,14 +490,14 @@ function ChecklistSection({ items, storageKey }: { items: CourseItem[]; storageK
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
-        <p className="font-mono text-[11px] tracking-[0.08em] leading-[1.7] text-[#565F62]">
+        <p className="font-mono text-[11px] tracking-[0.08em] leading-[1.7] text-[#6C7573]">
           {"// sin imprimir nada: el PDF o la captura del portal es suficiente."}
         </p>
         {doneCount > 0 && (
           <button
             type="button"
             onClick={clear}
-            className="font-mono text-[10px] tracking-[0.12em] uppercase text-[#565F62] underline decoration-[#2F3A3D] underline-offset-4 transition-colors hover:text-[#9AA3A1]"
+            className="font-mono text-[10px] tracking-[0.12em] uppercase text-[#6C7573] underline decoration-[#2F3A3D] underline-offset-4 transition-colors hover:text-[#9AA3A1]"
           >
             borrar marcas
           </button>
@@ -528,7 +545,7 @@ function ProfileDossier({
             <span className="font-mono text-[10px] tracking-[0.18em] uppercase text-[#B4552B]">
               [expediente {caseNo}]
             </span>
-            <span className="border border-dashed border-[#2F3A3D] px-2.5 py-1 font-mono text-[9px] tracking-[0.14em] uppercase text-[#565F62]">
+            <span className="border border-dashed border-[#2F3A3D] px-2.5 py-1 font-mono text-[9px] tracking-[0.14em] uppercase text-[#6C7573]">
               datos ficticios
             </span>
           </div>
@@ -618,7 +635,7 @@ function PhotoSlot({
                   foto pendiente
                 </span>
                 {profile.photoName && (
-                  <span className="w-full truncate font-mono text-[9px] text-[#565F62]">
+                  <span className="w-full truncate font-mono text-[9px] text-[#6C7573]">
                     {profile.photoName}
                   </span>
                 )}
@@ -631,10 +648,10 @@ function PhotoSlot({
           <span className="pointer-events-none absolute bottom-2 right-2 h-3.5 w-3.5 border-b border-r border-[#B4552B]" aria-hidden />
         </div>
         <div className="mx-auto mt-3 flex w-full max-w-[260px] items-center justify-between border-t border-dashed border-[#2F3A3D] pt-2 md:mx-0 md:max-w-none">
-          <span className="font-mono text-[9px] tracking-[0.14em] uppercase text-[#565F62]">
+          <span className="font-mono text-[9px] tracking-[0.14em] uppercase text-[#6C7573]">
             exp. {caseNo}
           </span>
-          <span className="font-mono text-[9px] text-[#565F62]">
+          <span className="font-mono text-[9px] text-[#6C7573]">
             {photoUrl ? "4:5 · foto" : "espacio 4:5"}
           </span>
         </div>
@@ -671,7 +688,7 @@ function LockedPanel({ registrationStatus }: { registrationStatus: string | null
       <p className="mt-4 font-mono text-[13px] leading-[1.8] text-[#9AA3A1]">
         {"// el material se desbloquea cuando se registre tu pago."}
       </p>
-      <p className="mt-2 font-mono text-[11px] leading-[1.7] text-[#565F62]">
+      <p className="mt-2 font-mono text-[11px] leading-[1.7] text-[#6C7573]">
         {`estado: pago ${registrationStatus ?? "—"}`}
       </p>
       <Link
@@ -680,6 +697,9 @@ function LockedPanel({ registrationStatus }: { registrationStatus: string | null
       >
         ← mis cursos
       </Link>
+      <div className="mt-6">
+        <SupportLine note="// si ya registraste el pago, escríbenos y lo revisamos." />
+      </div>
     </div>
   );
 }

@@ -1,6 +1,8 @@
 "use client";
 import { AuthGuard } from "@/components/AuthGuard";
 import { ProfileGuard } from "@/components/ProfileGuard";
+import { SupportLine } from "@/components/SupportLine";
+import type { CourseSummary } from "@/lib/material-types";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
@@ -61,7 +63,7 @@ function StudentHome() {
         (() => {
           const enrolled = registrations.filter((r) => r.courseStatus !== "disabled");
           const enrolledSlugs = new Set(enrolled.map((r) => r.workshopSlug));
-          const available = (courses as any[]).filter((c) => !enrolledSlugs.has(c.slug));
+          const available = (courses as CourseSummary[]).filter((c) => !enrolledSlugs.has(c.slug));
 
           return (
             <div className="mt-10 flex flex-col gap-10">
@@ -71,7 +73,7 @@ function StudentHome() {
                   tus cursos
                 </span>
                 {enrolled.length === 0 ? (
-                  <div className="border border-[#262E31] bg-[#111719] p-6 font-mono text-[12px] text-[#565F62]">
+                  <div className="border border-[#262E31] bg-[#111719] p-6 font-mono text-[12px] text-[#6C7573]">
                     {"// aún no estás inscrito en ningún curso."}
                   </div>
                 ) : (
@@ -108,7 +110,7 @@ function StudentHome() {
                                 ver material →
                               </Link>
                             ) : r.status === "pending" ? (
-                              <span className="font-mono text-[11px] text-[#565F62]">
+                              <span className="font-mono text-[11px] text-[#6C7573]">
                                 {"// material disponible al registrar el pago"}
                               </span>
                             ) : (
@@ -127,16 +129,12 @@ function StudentHome() {
                 )}
               </section>
 
-              {/* Workshops disponibles */}
-              <section className="flex flex-col gap-3">
-                <span className="font-mono text-[11px] tracking-[0.16em] uppercase text-[#9AA3A1]">
-                  workshops disponibles
-                </span>
-                {available.length === 0 ? (
-                  <div className="border border-[#262E31] bg-[#111719] p-6 font-mono text-[12px] text-[#565F62]">
-                    {"// por ahora no hay workshops abiertos para reservar."}
-                  </div>
-                ) : (
+              {/* Workshops disponibles: solo si hay algo para reservar */}
+              {available.length > 0 && (
+                <section className="flex flex-col gap-3">
+                  <span className="font-mono text-[11px] tracking-[0.16em] uppercase text-[#9AA3A1]">
+                    workshops disponibles
+                  </span>
                   <div className="flex flex-col gap-4">
                     {available.map((c) => (
                       <div
@@ -155,7 +153,7 @@ function StudentHome() {
                           {c.status === "full" ? (
                             <>
                               <StatusChip status="full" />
-                              <span className="font-mono text-[11px] text-[#565F62]">
+                              <span className="font-mono text-[11px] text-[#6C7573]">
                                 {"// sin cupo por ahora — avisamos cuando se abra"}
                               </span>
                             </>
@@ -171,8 +169,10 @@ function StudentHome() {
                       </div>
                     ))}
                   </div>
-                )}
-              </section>
+                </section>
+              )}
+
+              <SupportLine />
             </div>
           );
         })()
