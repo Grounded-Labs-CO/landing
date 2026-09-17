@@ -233,7 +233,8 @@ function SectionDetail({
                       rel="noreferrer"
                       className="underline decoration-[#B4552B]/50 underline-offset-4 transition-colors hover:text-[#E2A084]"
                     >
-                      {item.value} ↗
+                      {item.value}
+                      <span className="whitespace-nowrap">&nbsp;↗</span>
                     </a>
                   ) : (
                     item.value
