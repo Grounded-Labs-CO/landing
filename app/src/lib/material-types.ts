@@ -10,6 +10,8 @@ export type CourseItem = {
   note: string | null;
   status: "proximo" | "published" | null;
   downloadUrl: string | null;
+  /** Imagen opcional que se muestra como figura en el detalle. */
+  imageUrl?: string | null;
   group: string | null;
 };
 
@@ -54,7 +56,7 @@ export type CourseMaterial = {
   tagline: string;
   schedule: string;
   price: string;
-  eventInfo: { label: string; value: string }[];
+  eventInfo: { label: string; value: string; url?: string | null }[];
   email: string | null;
   /** Nombre del perfil para el pase de abordar (cae al email si no hay). */
   passengerName?: string | null;

@@ -226,11 +226,40 @@ function SectionDetail({
                   {item.label}
                 </span>
                 <span className="font-mono text-[13px] leading-[1.6] text-[#DDE2E0]">
-                  {item.value}
+                  {item.url ? (
+                    <a
+                      href={item.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="underline decoration-[#B4552B]/50 underline-offset-4 transition-colors hover:text-[#E2A084]"
+                    >
+                      {item.value} ↗
+                    </a>
+                  ) : (
+                    item.value
+                  )}
                 </span>
               </div>
             ))}
           </div>
+          {section.items
+            .filter((item) => item.imageUrl)
+            .map((item) => (
+              <figure
+                key={item.title}
+                className="flex flex-col gap-3 border border-[#262E31] bg-[#0E1214] p-4"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={item.imageUrl!}
+                  alt={item.title}
+                  className="w-full max-w-[380px] self-start"
+                />
+                <figcaption className="font-mono text-[10px] tracking-[0.14em] uppercase text-[#6C7573]">
+                  {item.title}
+                </figcaption>
+              </figure>
+            ))}
           <p className="font-mono text-[11px] tracking-[0.08em] leading-[1.7] text-[#6C7573]">
             {"// café, snacks y buena conversación incluidos — trae ganas de trabajar con tus datos."}
           </p>

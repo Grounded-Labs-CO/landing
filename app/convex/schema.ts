@@ -34,7 +34,9 @@ export default defineSchema({
     tagline: v.string(),
     schedule: v.string(),
     price: v.string(),
-    eventInfo: v.array(v.object({ label: v.string(), value: v.string() })),
+    eventInfo: v.array(
+      v.object({ label: v.string(), value: v.string(), url: v.optional(v.string()) }),
+    ),
     status: v.optional(
       v.union(v.literal("active"), v.literal("full"), v.literal("completed"), v.literal("disabled")),
     ),
@@ -69,6 +71,9 @@ export default defineSchema({
     note: v.optional(v.string()),
     status: v.optional(v.union(v.literal("proximo"), v.literal("published"))),
     storageId: v.optional(v.id("_storage")),
+    // Imagen (foto de sede, tarifas del parqueadero…) que se muestra como
+    // figura en el detalle de la sección.
+    imageStorageId: v.optional(v.id("_storage")),
     // Agrupación para la sección `checklist` (ej. "Ingresos", "Deudas").
     group: v.optional(v.string()),
   }).index("by_section", ["sectionId"]),
