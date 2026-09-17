@@ -239,8 +239,8 @@ function SectionDetail({
                 </span>
               </div>
             ))}
+            <ParkingCard />
           </div>
-          <ParkingCard />
           {section.items
             .filter((item) => item.imageUrl)
             .map((item) => (
