@@ -334,9 +334,6 @@ function SectionDetail({
               );
             })}
           </div>
-          <p className="font-mono text-[11px] tracking-[0.08em] leading-[1.7] text-[#565F62]">
-            {"// documentos simulados — datos 100% ficticios con fines educativos."}
-          </p>
         </>
       )}
     </div>
@@ -373,6 +370,8 @@ function ProfileDossier({
             { label: "documentos", value: String(total) },
             { label: "categorías", value: String(categories.length) },
           ]}
+          zipping={zipping}
+          onZip={onZip}
         />
         <div className="flex flex-col gap-6 border-t border-[#2F3A3D] p-6 md:border-l md:border-t-0 md:p-7">
           <div className="flex flex-wrap items-start justify-between gap-3">
@@ -415,29 +414,6 @@ function ProfileDossier({
           )}
         </div>
       </header>
-
-      {/* Descarga: un único paquete */}
-      <div className="flex flex-col gap-5 border-t border-[#2F3A3D] bg-[#111719] px-6 py-5 md:flex-row md:items-center md:justify-between md:px-7">
-        <div className="flex flex-col gap-1">
-          <span className="font-mono text-[10px] tracking-[0.16em] uppercase text-[#6C7573]">
-            paquete de descarga
-          </span>
-          <span className="font-mono text-[12px] leading-[1.6] text-[#DDE2E0]">
-            {profile.slug}.zip · {total} archivos
-          </span>
-          <span className="font-mono text-[10px] leading-[1.6] text-[#565F62]">
-            {"// un solo archivo, en carpetas por categoría"}
-          </span>
-        </div>
-        <button
-          onClick={() => void onZip()}
-          disabled={zipping}
-          className="inline-flex items-center gap-3 self-start bg-[#B4552B] px-5 py-3 font-mono text-[11px] font-medium tracking-[0.12em] uppercase text-[#0E1214] transition-colors hover:bg-[#C96A3C] disabled:opacity-60 md:self-auto"
-        >
-          {zipping ? "generando zip…" : "descargar datos de prueba"}
-          <span aria-hidden>⬇</span>
-        </button>
-      </div>
     </article>
   );
 }
@@ -446,79 +422,94 @@ function PhotoSlot({
   profile,
   caseNo,
   extra,
+  zipping,
+  onZip,
 }: {
   profile: SampleProfile;
   caseNo: string;
   extra: { label: string; value: string }[];
+  zipping: boolean;
+  onZip: () => Promise<void>;
 }) {
   const [failed, setFailed] = useState(false);
   const photoUrl = failed ? null : profile.photoUrl;
 
   return (
-    <div className="flex flex-col p-4 md:p-5">
-      <div className="relative mx-auto aspect-[4/5] w-full max-w-[260px] overflow-hidden bg-[#111719] md:mx-0 md:max-w-none">
-        {photoUrl ? (
-          // URL firmada de Convex storage: <img> directo, sin optimizador ni dominios permitidos.
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={photoUrl}
-            alt={`Retrato de ${profile.name}`}
-            onError={() => setFailed(true)}
-            className="h-full w-full object-cover"
-          />
-        ) : (
-          <>
-            <div className="absolute inset-0 grid place-items-center">
-              <svg
-                width="64"
-                height="64"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#2F3A3D"
-                strokeWidth="1.5"
-                aria-hidden
-              >
-                <circle cx="12" cy="8.5" r="3.75" />
-                <path d="M4.5 20.5c0-4.1 3.36-7.4 7.5-7.4s7.5 3.3 7.5 7.4" />
-              </svg>
-            </div>
-            <div className="absolute inset-x-0 bottom-3 flex flex-col items-center gap-1 px-3 text-center">
-              <span className="font-mono text-[9px] tracking-[0.18em] uppercase text-[#6C7573]">
-                foto pendiente
-              </span>
-              {profile.photoName && (
-                <span className="w-full truncate font-mono text-[9px] text-[#565F62]">
-                  {profile.photoName}
+    <div className="flex flex-col">
+      <div className="flex flex-col p-4 md:p-5">
+        <div className="relative mx-auto aspect-[4/5] w-full max-w-[260px] overflow-hidden bg-[#111719] md:mx-0 md:max-w-none">
+          {photoUrl ? (
+            // URL firmada de Convex storage: <img> directo, sin optimizador ni dominios permitidos.
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={photoUrl}
+              alt={`Retrato de ${profile.name}`}
+              onError={() => setFailed(true)}
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <>
+              <div className="absolute inset-0 grid place-items-center">
+                <svg
+                  width="64"
+                  height="64"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#2F3A3D"
+                  strokeWidth="1.5"
+                  aria-hidden
+                >
+                  <circle cx="12" cy="8.5" r="3.75" />
+                  <path d="M4.5 20.5c0-4.1 3.36-7.4 7.5-7.4s7.5 3.3 7.5 7.4" />
+                </svg>
+              </div>
+              <div className="absolute inset-x-0 bottom-3 flex flex-col items-center gap-1 px-3 text-center">
+                <span className="font-mono text-[9px] tracking-[0.18em] uppercase text-[#6C7573]">
+                  foto pendiente
                 </span>
-              )}
+                {profile.photoName && (
+                  <span className="w-full truncate font-mono text-[9px] text-[#565F62]">
+                    {profile.photoName}
+                  </span>
+                )}
+              </div>
+            </>
+          )}
+          <span className="pointer-events-none absolute left-2 top-2 h-3.5 w-3.5 border-l border-t border-[#B4552B]" aria-hidden />
+          <span className="pointer-events-none absolute right-2 top-2 h-3.5 w-3.5 border-r border-t border-[#B4552B]" aria-hidden />
+          <span className="pointer-events-none absolute bottom-2 left-2 h-3.5 w-3.5 border-b border-l border-[#B4552B]" aria-hidden />
+          <span className="pointer-events-none absolute bottom-2 right-2 h-3.5 w-3.5 border-b border-r border-[#B4552B]" aria-hidden />
+        </div>
+        <div className="mx-auto mt-3 flex w-full max-w-[260px] items-center justify-between border-t border-dashed border-[#2F3A3D] pt-2 md:mx-0 md:max-w-none">
+          <span className="font-mono text-[9px] tracking-[0.14em] uppercase text-[#565F62]">
+            exp. {caseNo}
+          </span>
+          <span className="font-mono text-[9px] text-[#565F62]">
+            {photoUrl ? "4:5 · foto" : "espacio 4:5"}
+          </span>
+        </div>
+
+        {/* Resumen bajo la foto: cuántos documentos y categorías trae el caso */}
+        <dl className="mx-auto mt-4 flex w-full max-w-[260px] flex-col gap-3 md:mx-0 md:max-w-none">
+          {extra.map((item) => (
+            <div key={item.label} className="flex items-baseline justify-between gap-2">
+              <dt className="font-mono text-[9px] tracking-[0.14em] uppercase text-[#6C7573]">
+                {item.label}
+              </dt>
+              <dd className="font-mono text-[11px] text-[#DDE2E0]">{item.value}</dd>
             </div>
-          </>
-        )}
-        <span className="pointer-events-none absolute left-2 top-2 h-3.5 w-3.5 border-l border-t border-[#B4552B]" aria-hidden />
-        <span className="pointer-events-none absolute right-2 top-2 h-3.5 w-3.5 border-r border-t border-[#B4552B]" aria-hidden />
-        <span className="pointer-events-none absolute bottom-2 left-2 h-3.5 w-3.5 border-b border-l border-[#B4552B]" aria-hidden />
-        <span className="pointer-events-none absolute bottom-2 right-2 h-3.5 w-3.5 border-b border-r border-[#B4552B]" aria-hidden />
-      </div>
-      <div className="mx-auto mt-3 flex w-full max-w-[260px] items-center justify-between border-t border-dashed border-[#2F3A3D] pt-2 md:mx-0 md:max-w-none">
-        <span className="font-mono text-[9px] tracking-[0.14em] uppercase text-[#565F62]">
-          exp. {caseNo}
-        </span>
-        <span className="font-mono text-[9px] text-[#565F62]">
-          {photoUrl ? "4:5 · foto" : "espacio 4:5"}
-        </span>
+          ))}
+        </dl>
       </div>
 
-      {/* Ficha rápida bajo la foto (solo desktop: en móvil ya está el manifiesto) */}
-      <dl className="mt-4 hidden flex-col gap-3 md:flex">
-        {extra.map((item) => (
-          <div key={item.label} className="flex items-baseline justify-between gap-2">
-            <dt className="font-mono text-[9px] tracking-[0.14em] uppercase text-[#6C7573]">
-              {item.label}
-            </dt>
-            <dd className="font-mono text-[11px] text-[#DDE2E0]">{item.value}</dd>
-          </div>
-        ))}
-      </dl>
+      <button
+        onClick={() => void onZip()}
+        disabled={zipping}
+        title={`${profile.slug}.zip`}
+        className="mt-auto w-full bg-[#B4552B] px-3 py-3.5 font-mono text-[10px] font-medium leading-[1.5] tracking-[0.1em] uppercase text-[#0E1214] transition-colors hover:bg-[#C96A3C] disabled:opacity-60 md:text-[11px]"
+      >
+        {zipping ? "generando zip…" : "descargar datos de prueba ⬇"}
+      </button>
     </div>
   );
 }
