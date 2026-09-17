@@ -360,6 +360,9 @@ function ProfileDossier({
   onZip: () => Promise<void>;
 }) {
   const caseNo = String(index).padStart(2, "0");
+  // `?? []` protege contra deployments cuya query aún no manda los campos de
+  // ficha (el schema/query se empuja después de este cambio de UI).
+  const facts = profile.facts ?? [];
   const manifest = [
     ...(profile.introUrl
       ? [{ label: "Encabezado", files: [profile.introName ?? "perfil.md"] }]
@@ -421,9 +424,9 @@ function ProfileDossier({
             </p>
           )}
 
-          {profile.facts.length > 0 && (
+          {facts.length > 0 && (
             <dl className="grid grid-cols-1 gap-x-6 gap-y-4 border-t border-dashed border-[#2F3A3D] pt-5 sm:grid-cols-2 lg:grid-cols-3">
-              {profile.facts.map((fact) => (
+              {facts.map((fact) => (
                 <div key={fact.label} className="flex flex-col gap-0.5">
                   <dt className="font-mono text-[9px] tracking-[0.16em] uppercase text-[#6C7573]">
                     {fact.label}
