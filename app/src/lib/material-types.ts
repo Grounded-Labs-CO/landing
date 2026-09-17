@@ -56,12 +56,18 @@ export type CourseMaterial = {
   price: string;
   eventInfo: { label: string; value: string }[];
   email: string | null;
+  /** Nombre del perfil para el pase de abordar (cae al email si no hay). */
+  passengerName?: string | null;
+  /** Link "agregar al calendario" (opcional). */
+  calendarUrl?: string | null;
   sections: CourseSection[];
 };
 
 export type CourseSummary = {
   slug: string;
   title: string;
+  tagline?: string;
   schedule: string;
   price: string;
+  status?: "active" | "full" | "completed" | "disabled";
 };

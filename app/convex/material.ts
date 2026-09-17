@@ -60,13 +60,21 @@ export const myAccess = query({
 export const getCourse = query({
   args: { courseSlug: v.string() },
   handler: async (ctx, args) => {
-    const { email } = await requireMaterialAccess(ctx, args.courseSlug);
+    const { userId, email } = await requireMaterialAccess(ctx, args.courseSlug);
 
     const course = await ctx.db
       .query("courses")
       .withIndex("by_slug", (q) => q.eq("slug", args.courseSlug))
       .unique();
     if (!course) return null;
+
+    // Nombre del pasajero para el pase de abordar: el del perfil si existe.
+    const profile = await ctx.db
+      .query("user_profiles")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .unique();
+    const user = await ctx.db.get(userId);
+    const passengerName = profile?.displayName ?? (user as any)?.name ?? null;
 
     const sections = (
       await ctx.db
@@ -176,6 +184,8 @@ export const getCourse = query({
       price: course.price,
       eventInfo: course.eventInfo,
       email,
+      passengerName,
+      calendarUrl: (course as any).calendarUrl ?? null,
       sections: sectionsOut,
     };
   },

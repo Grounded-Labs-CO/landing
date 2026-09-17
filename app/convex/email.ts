@@ -59,15 +59,26 @@ function validationHtml(url, to) {
 }
 
 function welcomeHtml(url, to, course) {
-  const detail = `${course.schedule} · ${course.price}`;
+  const SECCIONES = [
+    "Qué necesitas saber — fecha, lugar y qué llevar.",
+    "Antes de — cómo llegar con la cuenta de IA lista.",
+    "Qué documentos traer — la lista (opcional) para practicar con tus datos.",
+    "Caso de práctica — un expediente de ejemplo, con su .zip.",
+    "Presentación y artículos — el material de la sesión, después del taller.",
+    "Links de interés — las herramientas que usamos.",
+  ];
   return shellHtml(
     heading(`Bienvenido al curso ${course.title}`) +
-      body(detail) +
+      body(`${course.schedule}`) +
       body(
-        "Ya podés ingresar a tu cuenta para <span style=\"color:#DDE2E0;\">completar tu perfil</span> y <span style=\"color:#DDE2E0;\">consultar el material del curso</span>.",
+        "Ya podés entrar a tu cuenta. Ahí vas a encontrar, en seis secciones:<br/><br/>" +
+          SECCIONES.map((p) => `· <span style="color:#DDE2E0;">${p}</span>`).join("<br/>"),
       ) +
       cta(url, "entrar a la plataforma →") +
-      footnote(`Si no esperabas este correo, puedes ignorarlo. El enlace solo funciona para ${to}.`),
+      body(
+        "Gracias por confiar en nosotros. Si tienes cualquier duda, escríbenos por WhatsApp al <span style=\"color:#DDE2E0;\">+57 323 908 5619</span>.",
+      ) +
+      footnote(`El enlace solo funciona para ${to}. Si no esperabas este correo, puedes ignorarlo.`),
   );
 }
 

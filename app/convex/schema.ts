@@ -38,6 +38,9 @@ export default defineSchema({
     status: v.optional(
       v.union(v.literal("active"), v.literal("full"), v.literal("completed"), v.literal("disabled")),
     ),
+    // Link "agregar al calendario" del evento (Google Calendar, con fecha y
+    // sede prellenadas). Opcional: si falta, no se muestra.
+    calendarUrl: v.optional(v.string()),
   }).index("by_slug", ["slug"]),
 
   // Secciones del curso (los "sellos" 01..N)
