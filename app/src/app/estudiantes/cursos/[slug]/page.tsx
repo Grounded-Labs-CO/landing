@@ -220,7 +220,12 @@ function SectionDetail({
         </>
       )}
 
-      {section.kind === "checklist" && <ChecklistSection items={section.items} />}
+      {section.kind === "checklist" && (
+        <ChecklistSection
+          items={section.items}
+          storageKey={`gl-checklist:${material.slug}:${section.order}`}
+        />
+      )}
 
       {(section.kind === "articles" || section.kind === "docs") && (
         <>
@@ -343,8 +348,9 @@ function SectionDetail({
 }
 
 // Sección tipo checklist: documentos agrupados por categoría (agrupación por
-// `item.group`, en el orden en que llegan los ítems).
-function ChecklistSection({ items }: { items: CourseItem[] }) {
+// `item.group`, en el orden en que llegan los ítems). Las marcas viven en
+// localStorage (sin BD): cada navegador recuerda lo que el estudiante ya tiene.
+function ChecklistSection({ items, storageKey }: { items: CourseItem[]; storageKey: string }) {
   const groups: { label: string; items: CourseItem[] }[] = [];
   for (const item of items) {
     const label = item.group ?? "Otros";
@@ -356,13 +362,77 @@ function ChecklistSection({ items }: { items: CourseItem[] }) {
     group.items.push(item);
   }
 
+  const [done, setDone] = useState<Record<string, boolean>>(() => {
+    // Lectura perezosa en el primer render: la sección solo monta en el cliente
+    // (el material llega por Convex), así que no hay riesgo de hidratación.
+    try {
+      const raw = window.localStorage.getItem(storageKey);
+      return raw ? (JSON.parse(raw) as Record<string, boolean>) : {};
+    } catch {
+      // localStorage bloqueado (modo privado): el checklist funciona sin memoria.
+      return {};
+    }
+  });
+
+  const toggle = (key: string) => {
+    setDone((prev) => {
+      const next = { ...prev, [key]: !prev[key] };
+      try {
+        window.localStorage.setItem(storageKey, JSON.stringify(next));
+      } catch {
+        // ignorar cuota/privacidad: la marca se ve igual, solo no persiste.
+      }
+      return next;
+    });
+  };
+
+  const clear = () => {
+    setDone({});
+    try {
+      window.localStorage.removeItem(storageKey);
+    } catch {
+      // nada que limpiar
+    }
+  };
+
+  const doneCount = items.filter((item) => done[item.title]).length;
+
   return (
     <>
       <p className="max-w-[64ch] font-sans text-[15px] leading-[1.7] text-[#DDE2E0]">
-        Reúne estos documentos en digital —PDF, CSV o captura— antes del sábado. Si
-        alguno no lo tienes a mano, tráelo anotado: con lo que exista hacemos el
-        ejercicio.
+        Reúne lo que tengas a mano —PDF, CSV, captura o incluso notas sueltas— y tráelo
+        en digital. No es una solicitud de crédito: es la materia prima para que tu
+        asistente entienda tus números. Lo que falte, se anota.
       </p>
+
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border border-[#262E31] bg-[#0E1214] px-5 py-4">
+        <span className="font-mono text-[12px] tracking-[0.06em] text-[#DDE2E0]">
+          {doneCount}/{items.length}
+        </span>
+        <div className="h-[3px] min-w-[140px] flex-1 bg-[#1C2427]">
+          <div
+            className="h-full bg-[#B4552B] transition-all"
+            style={{ width: `${items.length ? (doneCount / items.length) * 100 : 0}%` }}
+          />
+        </div>
+        {doneCount > 0 ? (
+          <button
+            type="button"
+            onClick={clear}
+            className="font-mono text-[10px] tracking-[0.12em] uppercase text-[#6C7573] underline decoration-[#2F3A3D] underline-offset-4 transition-colors hover:text-[#9AA3A1]"
+          >
+            borrar marcas
+          </button>
+        ) : (
+          <span className="font-mono text-[10px] tracking-[0.12em] uppercase text-[#565F62]">
+            marca lo que ya tengas
+          </span>
+        )}
+        <span className="font-mono text-[10px] text-[#565F62]">
+          {"// se guarda en este navegador"}
+        </span>
+      </div>
+
       <div className="grid grid-cols-1 gap-px border border-[#262E31] bg-[#262E31] sm:grid-cols-2 lg:grid-cols-3">
         {groups.map((group) => (
           <div key={group.label} className="flex flex-col gap-4 bg-[#0E1214] p-5">
@@ -370,28 +440,60 @@ function ChecklistSection({ items }: { items: CourseItem[] }) {
               {group.label}
             </span>
             <ul className="flex flex-col gap-4">
-              {group.items.map((item) => (
-                <li key={item.title} className="flex items-start gap-3">
-                  <span
-                    aria-hidden
-                    className="mt-[3px] h-3 w-3 shrink-0 border border-[#2F3A3D]"
-                  />
-                  <span className="flex flex-col gap-1">
-                    <span className="font-mono text-[12px] leading-[1.5] text-[#DDE2E0]">
-                      {item.title}
-                    </span>
-                    {item.description && (
-                      <span className="font-mono text-[10px] leading-[1.6] text-[#6C7573]">
-                        {item.description}
+              {group.items.map((item) => {
+                const isDone = !!done[item.title];
+                return (
+                  <li key={item.title}>
+                    <button
+                      type="button"
+                      role="checkbox"
+                      aria-checked={isDone}
+                      onClick={() => toggle(item.title)}
+                      className="group flex w-full items-start gap-3 text-left"
+                    >
+                      <span
+                        className={`mt-[3px] grid h-3 w-3 shrink-0 place-items-center border transition-colors ${
+                          isDone
+                            ? "border-[#B4552B] bg-[#B4552B]"
+                            : "border-[#2F3A3D] group-hover:border-[#9AA3A1]"
+                        }`}
+                      >
+                        {isDone && (
+                          <svg width="8" height="8" viewBox="0 0 10 10" aria-hidden>
+                            <path
+                              d="M1 5.2 3.8 8 9 2"
+                              fill="none"
+                              stroke="#0E1214"
+                              strokeWidth="1.8"
+                            />
+                          </svg>
+                        )}
                       </span>
-                    )}
-                  </span>
-                </li>
-              ))}
+                      <span className="flex flex-col gap-1">
+                        <span
+                          className={`font-mono text-[12px] leading-[1.5] transition-colors ${
+                            isDone
+                              ? "text-[#6C7573] line-through decoration-[#2F3A3D]"
+                              : "text-[#DDE2E0]"
+                          }`}
+                        >
+                          {item.title}
+                        </span>
+                        {item.description && (
+                          <span className="font-mono text-[10px] leading-[1.6] text-[#6C7573]">
+                            {item.description}
+                          </span>
+                        )}
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
             </ul>
           </div>
         ))}
       </div>
+
       <p className="font-mono text-[11px] tracking-[0.08em] leading-[1.7] text-[#565F62]">
         {"// sin imprimir nada: el PDF o la captura del portal es suficiente."}
       </p>
