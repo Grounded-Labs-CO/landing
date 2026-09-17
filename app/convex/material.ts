@@ -137,10 +137,19 @@ export const getCourse = query({
               slug: profile.slug,
               name: profile.name,
               tagline: profile.tagline,
+              role: profile.role ?? null,
+              meta: profile.meta ?? null,
+              bio: profile.bio ?? null,
+              facts: profile.facts ?? [],
+              quote: profile.quote ?? null,
               introUrl: profile.introStorageId
                 ? await ctx.storage.getUrl(profile.introStorageId)
                 : null,
               introName: profile.introFileName ?? null,
+              photoUrl: profile.photoStorageId
+                ? await ctx.storage.getUrl(profile.photoStorageId)
+                : null,
+              photoName: profile.photoFileName ?? null,
               categories,
               fileCount: filesOut.length,
             };

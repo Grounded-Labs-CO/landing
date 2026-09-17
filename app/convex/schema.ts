@@ -74,8 +74,16 @@ export default defineSchema({
     slug: v.string(),
     name: v.string(),
     tagline: v.string(),
+    // Ficha tipo hoja de vida (opcionales: el perfil puede ser mínimo)
+    role: v.optional(v.string()),
+    meta: v.optional(v.string()),
+    bio: v.optional(v.string()),
+    facts: v.optional(v.array(v.object({ label: v.string(), value: v.string() }))),
+    quote: v.optional(v.string()),
     introStorageId: v.optional(v.id("_storage")),
     introFileName: v.optional(v.string()),
+    photoStorageId: v.optional(v.id("_storage")),
+    photoFileName: v.optional(v.string()),
   }).index("by_course", ["courseId"]),
 
   // Documentos de cada perfil (archivo vive en Convex storage)

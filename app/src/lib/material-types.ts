@@ -25,8 +25,15 @@ export type SampleProfile = {
   slug: string;
   name: string;
   tagline: string;
+  role: string | null;
+  meta: string | null;
+  bio: string | null;
+  facts: { label: string; value: string }[];
+  quote: string | null;
   introUrl: string | null;
   introName: string | null;
+  photoUrl: string | null;
+  photoName: string | null;
   categories: SampleCategory[];
   fileCount: number;
 };
