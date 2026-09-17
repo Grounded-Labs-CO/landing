@@ -199,7 +199,7 @@ function SectionDetail({
 
       {section.kind === "info" && (
         <>
-          <p className="max-w-[64ch] font-sans text-[15px] leading-[1.7] text-[#DDE2E0]">
+          <p className="font-sans text-[15px] leading-[1.7] text-[#DDE2E0]">
             Lo esencial del día: cuándo, dónde y qué llevar.
           </p>
           <div className="grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
@@ -229,7 +229,7 @@ function SectionDetail({
 
       {(section.kind === "articles" || section.kind === "docs") && (
         <>
-          <p className="max-w-[64ch] font-sans text-[15px] leading-[1.7] text-[#DDE2E0]">
+          <p className="font-sans text-[15px] leading-[1.7] text-[#DDE2E0]">
             {section.kind === "articles"
               ? "Lecturas cortas para llegar con todo listo al sábado."
               : "El material que entregamos durante la sesión queda disponible aquí."}
@@ -274,7 +274,7 @@ function SectionDetail({
 
       {section.kind === "links" && (
         <>
-          <p className="max-w-[64ch] font-sans text-[15px] leading-[1.7] text-[#DDE2E0]">
+          <p className="font-sans text-[15px] leading-[1.7] text-[#DDE2E0]">
             Dónde conseguir las herramientas que usamos en sala. Todas requieren cuenta con
             plan de pago — elige la tuya antes del sábado.
           </p>
@@ -399,7 +399,7 @@ function ChecklistSection({ items, storageKey }: { items: CourseItem[]; storageK
 
   return (
     <>
-      <div className="flex max-w-[64ch] flex-col gap-3">
+      <div className="flex flex-col gap-3">
         <p className="font-sans text-[15px] leading-[1.7] text-[#DDE2E0]">
           Estos son algunos documentos que recomendamos traer al taller. Tu información
           es tuya y de nadie más: nada sale de tu computador.
