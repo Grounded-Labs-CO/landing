@@ -399,38 +399,16 @@ function ChecklistSection({ items, storageKey }: { items: CourseItem[]; storageK
 
   return (
     <>
-      <p className="max-w-[64ch] font-sans text-[15px] leading-[1.7] text-[#DDE2E0]">
-        Reúne lo que tengas a mano —PDF, CSV, captura o incluso notas sueltas— y tráelo
-        en digital. No es una solicitud de crédito: es la materia prima para que tu
-        asistente entienda tus números. Lo que falte, se anota.
-      </p>
-
-      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border border-[#262E31] bg-[#0E1214] px-5 py-4">
-        <span className="font-mono text-[12px] tracking-[0.06em] text-[#DDE2E0]">
-          {doneCount}/{items.length}
-        </span>
-        <div className="h-[3px] min-w-[140px] flex-1 bg-[#1C2427]">
-          <div
-            className="h-full bg-[#B4552B] transition-all"
-            style={{ width: `${items.length ? (doneCount / items.length) * 100 : 0}%` }}
-          />
-        </div>
-        {doneCount > 0 ? (
-          <button
-            type="button"
-            onClick={clear}
-            className="font-mono text-[10px] tracking-[0.12em] uppercase text-[#6C7573] underline decoration-[#2F3A3D] underline-offset-4 transition-colors hover:text-[#9AA3A1]"
-          >
-            borrar marcas
-          </button>
-        ) : (
-          <span className="font-mono text-[10px] tracking-[0.12em] uppercase text-[#565F62]">
-            marca lo que ya tengas
-          </span>
-        )}
-        <span className="font-mono text-[10px] text-[#565F62]">
-          {"// se guarda en este navegador"}
-        </span>
+      <div className="flex max-w-[64ch] flex-col gap-3">
+        <p className="font-sans text-[15px] leading-[1.7] text-[#DDE2E0]">
+          Estos son algunos documentos que recomendamos traer al taller. Tu información
+          es tuya y de nadie más: nada sale de tu computador.
+        </p>
+        <p className="font-sans text-[15px] leading-[1.7] text-[#9AA3A1]">
+          Entre más datos y contexto le des, mejor responde tu asesor financiero. Y si no
+          quieres traer nada, no pasa nada: en la sección 04 · Caso de práctica hay una
+          data de prueba para hacer el taller.
+        </p>
       </div>
 
       <div className="grid grid-cols-1 gap-px border border-[#262E31] bg-[#262E31] sm:grid-cols-2 lg:grid-cols-3">
@@ -494,9 +472,20 @@ function ChecklistSection({ items, storageKey }: { items: CourseItem[]; storageK
         ))}
       </div>
 
-      <p className="font-mono text-[11px] tracking-[0.08em] leading-[1.7] text-[#565F62]">
-        {"// sin imprimir nada: el PDF o la captura del portal es suficiente."}
-      </p>
+      <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
+        <p className="font-mono text-[11px] tracking-[0.08em] leading-[1.7] text-[#565F62]">
+          {"// sin imprimir nada: el PDF o la captura del portal es suficiente."}
+        </p>
+        {doneCount > 0 && (
+          <button
+            type="button"
+            onClick={clear}
+            className="font-mono text-[10px] tracking-[0.12em] uppercase text-[#565F62] underline decoration-[#2F3A3D] underline-offset-4 transition-colors hover:text-[#9AA3A1]"
+          >
+            borrar marcas
+          </button>
+        )}
+      </div>
     </>
   );
 }
