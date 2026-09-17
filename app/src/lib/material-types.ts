@@ -1,7 +1,7 @@
 // Formas devueltas por api.material.getCourse y api.courses.list
 // (espejo manual de convex/material.ts y convex/courses.ts).
 
-export type SectionKind = "info" | "articles" | "sample-data" | "docs" | "links";
+export type SectionKind = "info" | "articles" | "checklist" | "sample-data" | "docs" | "links";
 
 export type CourseItem = {
   title: string;
@@ -10,6 +10,7 @@ export type CourseItem = {
   note: string | null;
   status: "proximo" | "published" | null;
   downloadUrl: string | null;
+  group: string | null;
 };
 
 export type SampleFile = {

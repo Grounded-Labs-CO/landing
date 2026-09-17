@@ -47,6 +47,7 @@ export default defineSchema({
     kind: v.union(
       v.literal("info"),
       v.literal("articles"),
+      v.literal("checklist"),
       v.literal("sample-data"),
       v.literal("docs"),
       v.literal("links"),
@@ -65,6 +66,8 @@ export default defineSchema({
     note: v.optional(v.string()),
     status: v.optional(v.union(v.literal("proximo"), v.literal("published"))),
     storageId: v.optional(v.id("_storage")),
+    // Agrupación para la sección `checklist` (ej. "Ingresos", "Deudas").
+    group: v.optional(v.string()),
   }).index("by_section", ["sectionId"]),
 
   // Perfiles de sample data

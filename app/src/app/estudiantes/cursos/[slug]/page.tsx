@@ -1,7 +1,7 @@
 "use client";
 import { AuthGuard } from "@/components/AuthGuard";
 import { ProfileGuard } from "@/components/ProfileGuard";
-import type { CourseMaterial, CourseSection, SampleProfile } from "@/lib/material-types";
+import type { CourseItem, CourseMaterial, CourseSection, SampleProfile } from "@/lib/material-types";
 import { useQuery } from "convex/react";
 import { api } from "../../../../../convex/_generated/api";
 import Link from "next/link";
@@ -220,6 +220,8 @@ function SectionDetail({
         </>
       )}
 
+      {section.kind === "checklist" && <ChecklistSection items={section.items} />}
+
       {(section.kind === "articles" || section.kind === "docs") && (
         <>
           <p className="max-w-[64ch] font-sans text-[15px] leading-[1.7] text-[#DDE2E0]">
@@ -337,6 +339,63 @@ function SectionDetail({
         </>
       )}
     </div>
+  );
+}
+
+// Sección tipo checklist: documentos agrupados por categoría (agrupación por
+// `item.group`, en el orden en que llegan los ítems).
+function ChecklistSection({ items }: { items: CourseItem[] }) {
+  const groups: { label: string; items: CourseItem[] }[] = [];
+  for (const item of items) {
+    const label = item.group ?? "Otros";
+    let group = groups.find((candidate) => candidate.label === label);
+    if (!group) {
+      group = { label, items: [] };
+      groups.push(group);
+    }
+    group.items.push(item);
+  }
+
+  return (
+    <>
+      <p className="max-w-[64ch] font-sans text-[15px] leading-[1.7] text-[#DDE2E0]">
+        Reúne estos documentos en digital —PDF, CSV o captura— antes del sábado. Si
+        alguno no lo tienes a mano, tráelo anotado: con lo que exista hacemos el
+        ejercicio.
+      </p>
+      <div className="grid grid-cols-1 gap-px border border-[#262E31] bg-[#262E31] sm:grid-cols-2 lg:grid-cols-3">
+        {groups.map((group) => (
+          <div key={group.label} className="flex flex-col gap-4 bg-[#0E1214] p-5">
+            <span className="font-mono text-[10px] tracking-[0.16em] uppercase text-[#B4552B]">
+              {group.label}
+            </span>
+            <ul className="flex flex-col gap-4">
+              {group.items.map((item) => (
+                <li key={item.title} className="flex items-start gap-3">
+                  <span
+                    aria-hidden
+                    className="mt-[3px] h-3 w-3 shrink-0 border border-[#2F3A3D]"
+                  />
+                  <span className="flex flex-col gap-1">
+                    <span className="font-mono text-[12px] leading-[1.5] text-[#DDE2E0]">
+                      {item.title}
+                    </span>
+                    {item.description && (
+                      <span className="font-mono text-[10px] leading-[1.6] text-[#6C7573]">
+                        {item.description}
+                      </span>
+                    )}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+      <p className="font-mono text-[11px] tracking-[0.08em] leading-[1.7] text-[#565F62]">
+        {"// sin imprimir nada: el PDF o la captura del portal es suficiente."}
+      </p>
+    </>
   );
 }
 
