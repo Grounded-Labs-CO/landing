@@ -19,7 +19,7 @@ Landing comercial + **zona de estudiantes** (login → perfil → recursos del c
 
 1. **Auth**: Convex Auth Password. Al crear cuenta, el callback en `convex/auth.ts` crea `user_roles` (pending) y `workshop_registrations` (pending) para el curso sembrado.
 2. **Acceso al material**: `api.material.getCourse` solo devuelve contenido con cuenta **active** + registro **paid** (check en `requireMaterialAccess`).
-3. **Contenido en BD** (nada de material en el repo): tablas `courses`, `course_sections` (kind: info|articles|sample-data|docs|links), `course_items` (artículos/docs/links), `sample_profiles`, `sample_files`. Los archivos viven en **Convex storage**; la query entrega URLs que el estudiante usa directo.
+3. **Contenido en BD** (nada de material en el repo): tablas `courses`, `course_sections` (kind: info|articles|checklist|sample-data|docs|links), `course_items` (artículos/docs/links/checklist, con `group` e `imageStorageId`), `sample_profiles`, `sample_files`. Los archivos viven en **Convex storage**; la query entrega URLs que el estudiante usa directo. `courses.eventInfo` acepta `url` por fila (link en la ficha: mapa, calendario) y `courses.calendarUrl` alimenta el botón "agregar al calendario" del pase.
 4. **ZIP por perfil**: `POST /api/material/zip` (Next) descarga esas URLs y empaqueta sin dependencias (`src/lib/zip.ts`, método STORE). Valida anti-SSRF: solo host del deployment o `*.convex.cloud`.
 5. **Cierre de sesión** y guard de autocuración de cookies viciadas en `ConvexClientProvider`.
 
@@ -30,6 +30,8 @@ Landing comercial + **zona de estudiantes** (login → perfil → recursos del c
 - El deployment local anterior está en desuso (existe: `local:…local_grounded_labs`).
 - Tests: 11 pasando (`npm test` en `app/`): lógica de onboarding, zip y render de landings. Lint/tsc/build limpios.
 - **Contenido (2026-09-17): sin seed ni archivos de definición.** Curso (título, precio, horario, eventInfo, estado) y **brochure PDF** se administran desde `/admin` → *cursos*; el brochure se sirve con nombre legible en `/api/brochure/<slug>`. Secciones, ítems, links y sample data: dashboard de Convex. Para un deployment nuevo: `npx convex export` → `npx convex import --replace-all`.
+- **Contenido del workshop (2026-09-16)**: 6 secciones — 01 Qué necesitas saber (Tinkko Coworking · Milla de Oro, con dirección + link a mapa, parqueadero en modal, agregar-al-calendario) · 02 Antes de · 03 Qué documentos traer (checklist de 17 ítems con marcas en localStorage) · 04 Datos de prueba (expediente **Andrés Felipe Restrepo**: foto, ficha, bio y 17 documentos que se descargan en un solo .zip) · 05 Presentación y artículos · 06 Links de interés. Soportes: WhatsApp +57 323 908 5619 en mis cursos, curso y material bloqueado.
+- **Prod (2026-09-16)**: `careful-spaniel-774` ya tiene el código nuevo (functions+schema) y el mismo contenido (48 docs + 20 archivos de storage, sin tocar usuarios ni registros). El Next de Vercel producción toma el código al hacer push de `main` a origin.
 
 ## Comandos (desde `app/`)
 
@@ -62,12 +64,12 @@ npx convex env set X valor          # variables del deployment (JWT_PRIVATE_KEY 
 
 ## Pendientes / siguientes pasos
 
-1. **Artículos "Antes de"** (Configurar Claude Code / OpenCode / Z.ai): sin escribir — están como "próximamente".
-2. **Presentación y artículos del workshop**: publicar después de la sesión (sello 04).
-3. **Sede y hora exactas**: hoy dice "Medellín · sede por confirmar" (editable en `/admin` → *cursos*, campo eventInfo).
-4. **`SITE_URL`** en Convex sigue en `http://localhost:3000`: actualizar al publicar el Next con dominio real.
-5. **Deployment de producción**: `npx convex deploy` (repetir variables; el contenido se copia con `npx convex export` + `import --replace-all`) y deploy del Next (no hay config de Vercel todavía).
-6. No hay E2E automatizado del flujo (solo verificación manual en navegador).
+1. **Artículos "Antes de"** (Configurar Claude Code / Claude Desktop): sin escribir — están como "próximamente".
+2. **Presentación y artículos del workshop**: publicar después de la sesión (sello 05).
+3. ~~Sede y hora exactas~~ → resuelto: **Tinkko Coworking · Milla de Oro** (Cra 42 #3 Sur 81, piso 15), 8:00 a.m.
+4. **`SITE_URL`** en Convex: verificar que apunta al dominio real en prod (`careful-spaniel-774`).
+5. **Deployment de producción**: Convex ya está deployado y con la data; falta `git push origin main` para que Vercel producción reconstruya el Next.
+6. No hay E2E automatizado del flujo (solo verificación manual en navegador; se usó una cuenta de prueba en dev que ya se limpió).
 
 ## Convenciones
 
