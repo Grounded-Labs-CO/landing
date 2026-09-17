@@ -17,7 +17,6 @@ import type * as material from "../material.js";
 import type * as mutations from "../mutations.js";
 import type * as profile from "../profile.js";
 import type * as queries from "../queries.js";
-import type * as seed from "../seed.js";
 
 import type {
   ApiFromModules,
@@ -35,7 +34,6 @@ declare const fullApi: ApiFromModules<{
   mutations: typeof mutations;
   profile: typeof profile;
   queries: typeof queries;
-  seed: typeof seed;
 }>;
 
 /**

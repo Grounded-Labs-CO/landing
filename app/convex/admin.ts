@@ -366,6 +366,124 @@ export const setCourseStatus = mutation({
   },
 });
 
+// --- Brochure comercial del curso (PDF en storage) ---
+// El navegador sube el archivo directo a storage con esta URL firmada y después
+// setCourseBrochure guarda la referencia. Lo consume la landing del workshop.
+export const generateBrochureUploadUrl = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireActiveAdmin(ctx);
+    return await ctx.storage.generateUploadUrl();
+  },
+});
+
+export const setCourseBrochure = mutation({
+  args: {
+    courseId: v.id("courses"),
+    storageId: v.id("_storage"),
+    fileName: v.string(),
+  },
+  handler: async (ctx, args) => {
+    await requireActiveAdmin(ctx);
+    const course = await ctx.db.get(args.courseId);
+    if (!course) throw new Error("Curso no encontrado");
+    if (!(await ctx.storage.getUrl(args.storageId))) {
+      throw new Error("El archivo no llegó a storage");
+    }
+    const previous = course.brochureStorageId ?? null;
+    await ctx.db.patch(args.courseId, {
+      brochureStorageId: args.storageId,
+      brochureFileName: args.fileName.trim() || "brochure.pdf",
+    });
+    // Sin esto el PDF anterior queda huérfano en storage.
+    if (previous && previous !== args.storageId) {
+      await ctx.storage.delete(previous);
+    }
+    return args.storageId;
+  },
+});
+
+export const removeCourseBrochure = mutation({
+  args: { courseId: v.id("courses") },
+  handler: async (ctx, args) => {
+    await requireActiveAdmin(ctx);
+    const course = await ctx.db.get(args.courseId);
+    if (!course) throw new Error("Curso no encontrado");
+    const previous = course.brochureStorageId ?? null;
+    await ctx.db.patch(args.courseId, {
+      brochureStorageId: undefined,
+      brochureFileName: undefined,
+    });
+    if (previous) await ctx.storage.delete(previous);
+    return null;
+  },
+});
+
+// --- Ítems de una sección (los "sellos" del curso) ---
+export const createItem = mutation({
+  args: {
+    sectionId: v.id("course_sections"),
+    title: v.string(),
+    description: v.optional(v.string()),
+    url: v.optional(v.string()),
+    note: v.optional(v.string()),
+    status: v.optional(v.union(v.literal("proximo"), v.literal("published"))),
+  },
+  handler: async (ctx, args) => {
+    await requireActiveAdmin(ctx);
+    const section = await ctx.db.get(args.sectionId);
+    if (!section) throw new Error("Sección no encontrada");
+    const siblings = await ctx.db
+      .query("course_items")
+      .withIndex("by_section", (q) => q.eq("sectionId", args.sectionId))
+      .collect();
+    const order = siblings.reduce((max, i) => Math.max(max, i.order), 0) + 1;
+    return await ctx.db.insert("course_items", {
+      sectionId: args.sectionId,
+      order,
+      title: args.title,
+      description: args.description,
+      url: args.url,
+      note: args.note,
+      status: args.status ?? "proximo",
+    });
+  },
+});
+
+export const updateItem = mutation({
+  args: {
+    itemId: v.id("course_items"),
+    patch: v.object({
+      title: v.optional(v.string()),
+      description: v.optional(v.string()),
+      url: v.optional(v.string()),
+      note: v.optional(v.string()),
+      order: v.optional(v.number()),
+      status: v.optional(v.union(v.literal("proximo"), v.literal("published"))),
+    }),
+  },
+  handler: async (ctx, args) => {
+    await requireActiveAdmin(ctx);
+    const item = await ctx.db.get(args.itemId);
+    if (!item) throw new Error("Ítem no encontrado");
+    await ctx.db.patch(args.itemId, args.patch as any);
+    return args.itemId;
+  },
+});
+
+export const deleteItem = mutation({
+  args: { itemId: v.id("course_items") },
+  handler: async (ctx, args) => {
+    await requireActiveAdmin(ctx);
+    const item = await ctx.db.get(args.itemId);
+    if (!item) throw new Error("Ítem no encontrado");
+    // El archivo vive en storage: sin esto queda huérfano.
+    if (item.storageId) await ctx.storage.delete(item.storageId);
+    await ctx.db.delete(args.itemId);
+    return null;
+  },
+});
+
 export const inviteStudent = mutation({
   args: { email: v.string(), workshopSlug: v.string(), asPaid: v.optional(v.boolean()) },
   handler: async (ctx, args) => {

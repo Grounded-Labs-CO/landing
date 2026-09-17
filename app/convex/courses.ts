@@ -41,6 +41,11 @@ export const getBySlug = query({
       price: course.price,
       eventInfo: course.eventInfo,
       status: (course as any).status ?? "active",
+      // El brochure es material comercial público (la landing no tiene login).
+      brochureUrl: course.brochureStorageId
+        ? await ctx.storage.getUrl(course.brochureStorageId)
+        : null,
+      brochureFileName: course.brochureFileName ?? null,
     };
   },
 });

@@ -100,7 +100,7 @@ Fuente de verdad en `docs/` (HTML interactivo, no markdown):
 - `/` — corporativa: manifiesto, problema, próximos eventos (cards), quiénes somos (método y recurso gratuito ocultos por ahora)
 - `/workshops/finanzas-personales-ia` — landing transaccional (agenda 4h, precio $400k lanzamiento, checkpoints, FAQ)
 - `/signin` y `/admin` — auth `viewer`/`pending`/`active` vía `user_roles`
-- **Footer:** LinkedIn, Instagram y `groundedlabsco@gmail.com` (sin sección empresas por ahora)
+- **Footer:** LinkedIn, Instagram, WhatsApp (`wa.me/573239085619`) y `groundedlabsco@gmail.com` (sin sección empresas por ahora)
 
 ## Público
 

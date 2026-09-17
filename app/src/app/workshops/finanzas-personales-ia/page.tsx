@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
+import { FileTextIcon } from "lucide-react";
 import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 
@@ -59,12 +60,17 @@ export default function FinanzasPage() {
                 reservar mi cupo →
               </Link>
             )}
-            <Link
-              href="#agenda"
-              className="border border-[#2F3A3D] text-[#9AA3A1] px-[30px] py-[16px] font-mono text-[12px] tracking-[0.12em] uppercase hover:text-[#F1F3F2] hover:border-[#9AA3A1] transition-colors"
-            >
-              ver agenda
-            </Link>
+            {course?.brochureUrl ? (
+              <a
+                href={`/api/brochure/${course.slug}?disposition=inline`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 border border-[#2F3A3D] text-[#9AA3A1] px-[30px] py-[16px] font-mono text-[12px] tracking-[0.12em] uppercase hover:text-[#F1F3F2] hover:border-[#9AA3A1] transition-colors"
+              >
+                <FileTextIcon aria-hidden className="h-4 w-4" />
+                ver brochure
+              </a>
+            ) : null}
           </div>
         </div>
       </section>

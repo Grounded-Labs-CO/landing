@@ -30,7 +30,14 @@ export function ConvexClientProvider({ children }: { children: ReactNode }) {
   const convex = useMemo(() => {
     const url = process.env.NEXT_PUBLIC_CONVEX_URL;
     if (!url) {
-      // Durante build sin env, usa URL dummy; en runtime real requiere env real
+      // En el navegador no hay excusa: sin env, Convex revienta con un
+      // "Couldn't parse deployment name placeholder" que no dice qué falta.
+      if (typeof window !== "undefined") {
+        throw new Error(
+          "Falta NEXT_PUBLIC_CONVEX_URL. Creá app/.env.local (ver .env.local.example) y reiniciá `npm run dev`: las variables NEXT_PUBLIC_* se inlinean al compilar.",
+        );
+      }
+      // Durante build/prerender sin env, URL dummy para que el build no se caiga.
       return new ConvexReactClient("https://placeholder.convex.cloud");
     }
     return new ConvexReactClient(url);

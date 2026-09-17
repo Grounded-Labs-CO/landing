@@ -353,6 +353,14 @@ export default function CorporatePage() {
               instagram
             </a>
             <a
+              href="https://wa.me/573239085619"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-[#F1F3F2] transition-colors"
+            >
+              whatsapp
+            </a>
+            <a
               href="mailto:groundedlabsco@gmail.com"
               className="hover:text-[#F1F3F2] transition-colors"
             >

@@ -9,7 +9,14 @@ vi.mock("convex/react", async () => {
     ...actual,
     useQuery: (_fn: any, args?: any) => {
       if (args && typeof args === "object" && "slug" in args) {
-        return { status: "active", title: "Tu Asistente Financiero con IA" };
+        return {
+          status: "active",
+          title: "Tu Asistente Financiero con IA",
+          slug: "finanzas-personales-ia",
+          brochureUrl:
+            "https://flippant-dog-457.convex.cloud/api/storage/kg2btrj1fx9habve4t6dpnnaqh8ej1m3",
+          brochureFileName: "Grounded Labs - Workshop AI Financial Advisor.pdf",
+        };
       }
       return [
         {
@@ -47,5 +54,13 @@ describe("Landing Finanzas", () => {
     render(<FinanzasPage />);
     expect(screen.getAllByText(/\$400k/).length).toBeGreaterThan(0);
     expect(screen.getAllByText("Precio de lanzamiento").length).toBeGreaterThan(0);
+  });
+  it("abre el brochure del curso desde el hero", () => {
+    render(<FinanzasPage />);
+    const boton = screen.getByRole("link", { name: /ver brochure/i });
+    expect(boton).toHaveAttribute(
+      "href",
+      "/api/brochure/finanzas-personales-ia?disposition=inline",
+    );
   });
 });

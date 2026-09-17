@@ -11,9 +11,8 @@ Landing comercial + **zona de estudiantes** (login → perfil → recursos del c
 - `app/src/app/signin/` = login/registro (pestañas ingresar/crear cuenta).
 - `app/src/app/estudiantes/` = perfil (mis cursos) y `estudiantes/cursos/[slug]/` = página del curso: **[workshop]** (pase de abordar con fecha/formato/lugar/duración) + **[recursos]** (secciones 01–N como sellos).
 - `app/src/app/admin/` = panel: aprobar cuentas pendientes y marcar pagos.
-- `app/convex/` = backend: `schema.ts`, `auth.ts`, `courses.ts`, `material.ts`, `admin.ts`, `queries.ts`, `seed.ts`, `http.ts`.
-- `app/scripts/course-definition.mjs` = **definición del catálogo** (curso, secciones, artículos, links, perfiles) — editar aquí y re-sembrar.
-- `app/scripts/seed-course.mjs` = siembra hacia Convex (tablas + archivos).
+- `app/convex/` = backend: `schema.ts`, `auth.ts`, `courses.ts`, `material.ts`, `admin.ts`, `queries.ts`, `http.ts`.
+- `app/scripts/catalog-options.mjs` = listas del onboarding (profesiones, herramientas de IA).
 - Header global: botón "Estudiantes →" (con sesión: "Perfil →").
 
 ## Arquitectura de la zona de estudiantes
@@ -29,7 +28,8 @@ Landing comercial + **zona de estudiantes** (login → perfil → recursos del c
 - **Deployment activo: `dev:flippant-dog-457`** (Convex nube, equipo `grounded-labs`). `.env.local` (gitignored) apunta ahí. Verificado end-to-end: signup → admin aprueba + marca pago → material → descargas → zip.
 - Cuentas demo en ese deployment: `admin@groundedlabs.ai` (admin) y `estudiante@groundedlabs.ai` (activa + pagada), contraseña `demo1234`. El valor de `ADMIN_BOOTSTRAP_SECRET` está seteado en el deployment (no se commitea).
 - El deployment local anterior está en desuso (existe: `local:…local_grounded_labs`).
-- Tests: 10 pasando (`npm test` en `app/`): definición del curso, links https, zip. Lint/tsc/build limpios.
+- Tests: 11 pasando (`npm test` en `app/`): lógica de onboarding, zip y render de landings. Lint/tsc/build limpios.
+- **Contenido (2026-09-17): sin seed ni archivos de definición.** Curso (título, precio, horario, eventInfo, estado) y **brochure PDF** se administran desde `/admin` → *cursos*; el brochure se sirve con nombre legible en `/api/brochure/<slug>`. Secciones, ítems, links y sample data: dashboard de Convex. Para un deployment nuevo: `npx convex export` → `npx convex import --replace-all`.
 
 ## Comandos (desde `app/`)
 
@@ -37,7 +37,6 @@ Landing comercial + **zona de estudiantes** (login → perfil → recursos del c
 npx convex dev                      # watcher: empuja funciones a dev (requiere sesión: npx convex logout + cualquier comando abre browser)
 npm run dev                         # Next en :3000
 npm test / npm run lint / npm run build
-npm run seed-course -- --secret <ADMIN_BOOTSTRAP_SECRET>   # re-siembra el catálogo (idempotente: borra y recrea)
 npx convex run admin:promoteByEmail -- '{"email":"…","secret":"…","role":"admin"}'  # bootstrap de admin
 npx convex env set X valor          # variables del deployment (JWT_PRIVATE_KEY necesita " -- " antes del valor)
 ```
@@ -45,14 +44,14 @@ npx convex env set X valor          # variables del deployment (JWT_PRIVATE_KEY 
 ## Operación del negocio
 
 - **Nuevo estudiante**: crea cuenta en /signin → queda pending → admin entra a `/admin` → "aprobar" + "marcar pagado" → material desbloqueado.
-- **Cambiar contenido del curso** (textos, secciones, links, perfiles): editar `scripts/course-definition.mjs` y correr `npm run seed-course --`.
-- **Publicar un artículo/doc real** (pasa de "próximamente" a descargable): definirlo en la definición + subir archivo con `seed:attachItemFile` (action, args en `convex/seed.ts`).
-- **Cambiar sample data**: reemplazar archivos en `../../workshop/sample-data` y re-sembrar (las guías del facilitador y README quedan excluidos automáticamente).
+- **Cambiar contenido del curso**: la BD es la fuente de verdad. Título, tagline, slug, horario, precio, eventInfo, **estado** y **brochure** desde `/admin` → *cursos*; secciones, ítems, links y sample data desde el dashboard de Convex.
+- **Publicar un artículo/doc real** (pasa de "próximamente" a descargable): hoy solo por dashboard (`course_items`: `storageId` + `status: published`). Falta UI en `/admin`.
+- **Cambiar sample data**: hoy por dashboard de Convex (tablas `sample_profiles`/`sample_files` + storage) — el flujo viejo de `sample-data` + re-sembrar ya no existe.
 
 ## Gotchas de Convex (aprendidos aquí)
 
-- Los **actions no tienen `ctx.db`** directo: usar `ctx.runQuery`/`ctx.runMutation` (helpers exportados en `convex/seed.ts`). Igual los httpActions.
-- HTTP API distingue `/api/mutation` de `/api/action` (matters al llamar funciones por fetch, como hace `seed-course.mjs`).
+- Los **actions no tienen `ctx.db`** directo: usar `ctx.runQuery`/`ctx.runMutation`. Igual los httpActions.
+- HTTP API distingue `/api/mutation` de `/api/action` (matters al llamar funciones por fetch).
 - Variables (`JWKS`, `JWT_PRIVATE_KEY`, `SITE_URL`, `ADMIN_BOOTSTRAP_SECRET`) se incrustan al **empujar**: tras cambiarlas, correr `npx convex dev --once` de nuevo.
 - En local, los httpActions/storage se sirven en `127.0.0.1:3210/3211`; cookies `__session` de deployments anteriores provocan `Can't parse refresh token` (hay autocuración en `ConvexClientProvider`).
 - **`JWT_PRIVATE_KEY` corrupto = login colgado**: si se setea en una sola línea (con espacios) o con padding inválido, la verificación del magic link muere con `atob: Invalid byte 61` (Server Error) → "cargando" infinito. Setear SIEMPRE multilínea: `npx convex env set JWT_PRIVATE_KEY -- "$(cat ruta.pem)"` (con `--`; y re-setear `JWKS` a juego).
@@ -65,9 +64,9 @@ npx convex env set X valor          # variables del deployment (JWT_PRIVATE_KEY 
 
 1. **Artículos "Antes de"** (Configurar Claude Code / OpenCode / Z.ai): sin escribir — están como "próximamente".
 2. **Presentación y artículos del workshop**: publicar después de la sesión (sello 04).
-3. **Sede y hora exactas**: hoy dice "Medellín · sede por confirmar" (`course-definition.mjs` → re-sembrar).
+3. **Sede y hora exactas**: hoy dice "Medellín · sede por confirmar" (editable en `/admin` → *cursos*, campo eventInfo).
 4. **`SITE_URL`** en Convex sigue en `http://localhost:3000`: actualizar al publicar el Next con dominio real.
-5. **Deployment de producción**: `npx convex deploy` (repetir variables + seed) y deploy del Next (no hay config de Vercel todavía).
+5. **Deployment de producción**: `npx convex deploy` (repetir variables; el contenido se copia con `npx convex export` + `import --replace-all`) y deploy del Next (no hay config de Vercel todavía).
 6. No hay E2E automatizado del flujo (solo verificación manual en navegador).
 
 ## Convenciones

@@ -3,6 +3,7 @@ import { AuthGuard } from "@/components/AuthGuard";
 import { useRole } from "@/hooks/useRole";
 import { useAction, useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
+import type { Id } from "../../../convex/_generated/dataModel";
 import { useState } from "react";
 import { DropdownSelect } from "@/components/DropdownSelect";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
@@ -35,6 +36,11 @@ function AdminPanel() {
   );
   const updateCourse = useMutation(api.admin.updateCourse);
   const setCourseStatus = useMutation(api.admin.setCourseStatus);
+  const generateBrochureUploadUrl = useMutation(api.admin.generateBrochureUploadUrl);
+  const setCourseBrochure = useMutation(api.admin.setCourseBrochure);
+  const removeCourseBrochure = useMutation(api.admin.removeCourseBrochure);
+  const [brochureBusy, setBrochureBusy] = useState<string | null>(null);
+  const [brochureError, setBrochureError] = useState<string | null>(null);
   const [editCourseId, setEditCourseId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [editTagline, setEditTagline] = useState("");
@@ -63,6 +69,29 @@ function AdminPanel() {
   const [editError, setEditError] = useState<string | null>(null);
 
   const isSelf = (userId: any) => userId != null && userId === meId;
+
+  // Sube el PDF a Convex storage (URL firmada de un solo uso) y guarda la
+  // referencia en el curso. Reemplaza el que hubiera y borra el blob anterior.
+  const uploadBrochure = async (courseId: Id<"courses">, file: File) => {
+    setBrochureError(null);
+    setBrochureBusy(courseId);
+    try {
+      const postUrl = await generateBrochureUploadUrl();
+      const res = await fetch(postUrl, {
+        method: "POST",
+        headers: { "content-type": file.type || "application/pdf" },
+        body: file,
+      });
+      if (!res.ok) throw new Error("subida falló");
+      const { storageId } = await res.json();
+      if (!storageId) throw new Error("sin storageId");
+      await setCourseBrochure({ courseId, storageId, fileName: file.name });
+    } catch {
+      setBrochureError("// no pudimos subir el brochure (¿PDF y sesión activa?)");
+    } finally {
+      setBrochureBusy(null);
+    }
+  };
 
   const filteredStudents = (allStudents ?? []).filter((s) => {
     const q = search.toLowerCase();
@@ -304,6 +333,50 @@ function AdminPanel() {
                       />
                       <span className="font-mono text-[10px] text-[#565F62]">formato: array de {"{label, value}"} — deja vacío para no cambiar</span>
                     </label>
+                    <div className="flex flex-col gap-2 border-t border-[#262E31] pt-3">
+                      <span className="font-mono text-[10px] tracking-[0.08em] uppercase text-[#6C7573]">
+                        brochure (PDF de la landing)
+                      </span>
+                      {c.brochureStorageId ? (
+                        <div className="flex items-center gap-3">
+                          <a
+                            href={`/api/brochure/${c.slug}?disposition=inline`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="font-mono text-[11px] text-[#9AA3A1] underline hover:text-[#F1F3F2]"
+                          >
+                            {c.brochureFileName ?? "brochure.pdf"}
+                          </a>
+                          <button
+                            onClick={() => removeCourseBrochure({ courseId: c._id })}
+                            className="font-mono text-[10px] uppercase text-[#6C7573] hover:text-[#E2A084]"
+                          >
+                            quitar
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="font-mono text-[11px] text-[#565F62]">
+                          sin brochure — la landing no muestra el botón
+                        </span>
+                      )}
+                      <input
+                        type="file"
+                        accept="application/pdf,.pdf"
+                        disabled={brochureBusy === c._id}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          e.target.value = "";
+                          if (file) void uploadBrochure(c._id, file);
+                        }}
+                        className="font-mono text-[10px] text-[#6C7573] disabled:opacity-50"
+                      />
+                      {brochureBusy === c._id && (
+                        <span className="font-mono text-[10px] text-[#B4552B]">subiendo…</span>
+                      )}
+                      {brochureError && (
+                        <span className="font-mono text-[10px] text-[#E2A084]">{brochureError}</span>
+                      )}
+                    </div>
                     <div className="flex gap-2">
                       <button
                         onClick={async () => {

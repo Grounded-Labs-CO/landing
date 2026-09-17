@@ -38,6 +38,10 @@ export default defineSchema({
     status: v.optional(
       v.union(v.literal("active"), v.literal("full"), v.literal("completed"), v.literal("disabled")),
     ),
+    // Brochure comercial del curso (PDF en Convex storage). Se administra desde
+    // /admin; opcional: si falta, la landing no pinta el botón de descarga.
+    brochureStorageId: v.optional(v.id("_storage")),
+    brochureFileName: v.optional(v.string()),
   }).index("by_slug", ["slug"]),
 
   // Secciones del curso (los "sellos" 01..N)

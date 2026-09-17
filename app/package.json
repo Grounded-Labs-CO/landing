@@ -7,8 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "vitest run",
-    "seed-course": "node scripts/seed-course.mjs"
+    "test": "vitest run"
   },
   "dependencies": {
     "@auth/core": "^0.41.3",

@@ -1,5 +1,7 @@
-// Catálogo de opciones del onboarding — fuente de la siembra en Convex.
-// Editar aquí y correr `npm run seed-course` para actualizar el deployment.
+// Catálogo de opciones del onboarding (fixture de referencia).
+// La fuente de verdad es la BD del deployment: tablas `professions` y `ai_tools`.
+// Este archivo solo alimenta el test de onboarding; si cambiás las listas en la
+// BD, actualizá acá para que el test siga reflejando la realidad.
 
 export const PROFESSIONS = [
   "Contador(a)",
