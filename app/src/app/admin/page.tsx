@@ -96,7 +96,7 @@ function AdminPanel() {
 
   const filteredStudents = (allStudents ?? []).filter((s) => {
     const q = search.toLowerCase();
-    if (q && !(s.email?.toLowerCase().includes(q) || s.name?.toLowerCase().includes(q)))
+    if (q && !(s.email?.toLowerCase().includes(q) || s.name?.toLowerCase().includes(q) || s.motivation?.toLowerCase().includes(q)))
       return false;
     if (filter === "pagado") return s.workshopStatus === "paid";
     if (filter === "por_pagar") return s.workshopStatus === "pending";
@@ -192,6 +192,14 @@ function AdminPanel() {
                     <span className="font-mono text-[11px] text-[#6C7573]">
                       {s.name ?? "—"} {s.phone ? `· ${s.phone}` : ""} · {s.role ?? (s.workshopSlug ? "invitado" : "usuario")} · cupo:{s.workshopStatus === "paid" ? "pagado" : s.workshopStatus === "pending" ? "pendiente" : "—"}
                     </span>
+                    {s.motivation ? (
+                      <span
+                        className="line-clamp-2 border-l border-[#262E31] pl-2 font-mono text-[11px] leading-[1.6] text-[#9AA3A1]"
+                        title={s.motivation}
+                      >
+                        «{s.motivation}»
+                      </span>
+                    ) : null}
                   </div>
                   <div className="flex gap-2 shrink-0">
                     {s.workshopStatus === "pending" && (
