@@ -5,6 +5,9 @@ import { FileTextIcon } from "lucide-react";
 import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 
+// Mientras la query resuelve (y si no hay BD), el hero mantiene el fallback.
+const FALLBACK_TITLE = "Aprende IA construyendo tu Financial Advisor";
+
 export default function FinanzasPage() {
   const course = useQuery(api.courses.getBySlug, { slug: "finanzas-personales-ia" });
   const status = course?.status ?? "active";
@@ -28,8 +31,7 @@ export default function FinanzasPage() {
             className="m-0 max-w-[760px] text-[76px] max-[900px]:text-[48px] font-extralight leading-[0.98] tracking-[-0.04em] text-[#F1F3F2] text-balance"
             style={{ fontFamily: "var(--font-sans)" }}
           >
-            Aprende IA construyendo tu{" "}
-            <span className="text-[#F1F3F2]">Financial Advisor</span>
+            {course?.title || FALLBACK_TITLE}
           </h1>
           <p className="m-0 max-w-[52ch] text-[20px] leading-[1.6] text-[#DDE2E0]">
             Una sesión práctica para aprender a trabajar con información financiera y explorar
