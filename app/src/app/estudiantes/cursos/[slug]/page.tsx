@@ -8,6 +8,7 @@ import { api } from "../../../../../convex/_generated/api";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { CalendarIcon } from "lucide-react";
 
 function Barcode() {
   return (
@@ -125,9 +126,10 @@ function CourseMaterial() {
                   href={material.calendarUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="shrink-0 border border-[#2F3A3D] px-3 py-1.5 font-mono text-[10px] tracking-[0.12em] uppercase text-[#9AA3A1] transition-colors hover:border-[#9AA3A1] hover:text-[#F1F3F2]"
+                  className="inline-flex shrink-0 items-center gap-2 border border-[#2F3A3D] px-3 py-1.5 font-mono text-[10px] tracking-[0.12em] uppercase text-[#9AA3A1] transition-colors hover:border-[#9AA3A1] hover:text-[#F1F3F2]"
                 >
-                  agregar al calendario ↗
+                  <CalendarIcon aria-hidden className="h-3.5 w-3.5" />
+                  agregar al calendario
                 </a>
               )}
             </div>
