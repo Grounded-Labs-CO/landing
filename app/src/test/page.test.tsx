@@ -11,7 +11,7 @@ vi.mock("convex/react", async () => {
       if (args && typeof args === "object" && "slug" in args) {
         return {
           status: "active",
-          title: "Tu Asistente Financiero con IA",
+          title: "Aprende IA construyendo tu Financial Advisor",
           slug: "finanzas-personales-ia",
           brochureUrl:
             "https://flippant-dog-457.convex.cloud/api/storage/kg2btrj1fx9habve4t6dpnnaqh8ej1m3",
@@ -21,7 +21,7 @@ vi.mock("convex/react", async () => {
       return [
         {
           slug: "finanzas-personales-ia",
-          title: "Tu Asistente Financiero con IA",
+          title: "Aprende IA construyendo tu Financial Advisor",
           tagline: "Presupuesto, deudas, inversiones y tu marco de análisis — con tus datos.",
           schedule: "Presencial en Medellín · sábado 26 de septiembre · 4 horas",
           price: "$400k",
@@ -40,7 +40,7 @@ describe("Corporate", () => {
   });
   it("shows workshop destacado", () => {
     render(<Home />);
-    expect(screen.getByText(/Asistente Financiero/)).toBeInTheDocument();
+    expect(screen.getByText(/Financial Advisor/)).toBeInTheDocument();
     expect(screen.getAllByText(/\$400k/).length).toBeGreaterThan(0);
   });
 });
@@ -48,7 +48,7 @@ describe("Corporate", () => {
 describe("Landing Finanzas", () => {
   it("renders finanzas landing", () => {
     render(<FinanzasPage />);
-    expect(screen.getAllByText(/Asistente Financiero/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Financial Advisor/).length).toBeGreaterThan(0);
   });
   it("shows precio de lanzamiento en landing", () => {
     render(<FinanzasPage />);

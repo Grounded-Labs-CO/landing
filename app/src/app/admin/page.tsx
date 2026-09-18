@@ -279,7 +279,7 @@ function AdminPanel() {
                       <input
                         value={editTitle}
                         onChange={(e) => setEditTitle(e.target.value)}
-                        placeholder="Ej: Asistente Financiero con IA"
+                        placeholder="Ej: Aprende IA construyendo tu Financial Advisor"
                         className="border border-[#262E31] bg-[#0E1214] px-3 py-2 font-mono text-[12px] text-[#F1F3F2] outline-none focus:border-[#B4552B]"
                       />
                     </label>

@@ -28,7 +28,8 @@ export default function FinanzasPage() {
             className="m-0 max-w-[760px] text-[76px] max-[900px]:text-[48px] font-extralight leading-[0.98] tracking-[-0.04em] text-[#F1F3F2] text-balance"
             style={{ fontFamily: "var(--font-sans)" }}
           >
-            Tu <span className="text-[#F1F3F2]">Asistente Financiero</span> con IA
+            Aprende IA construyendo tu{" "}
+            <span className="text-[#F1F3F2]">Financial Advisor</span>
           </h1>
           <p className="m-0 max-w-[52ch] text-[20px] leading-[1.6] text-[#DDE2E0]">
             Una sesión práctica para aprender a trabajar con información financiera y explorar

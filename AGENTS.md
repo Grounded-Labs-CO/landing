@@ -4,7 +4,7 @@ Guía para que cualquier agente/IA retome este repo rápidamente. Fuente de verd
 
 ## Qué hay aquí
 
-Landing comercial + **zona de estudiantes** (login → perfil → recursos del curso) para el workshop "Tu Asistente Financiero con IA". Stack: **Next.js 16 (App Router) + Convex + Convex Auth (Password) + Tailwind v4** (estilo mono/oscuro, acento `#B4552B`; sin shadcn visible en las páginas nuevas — marcado propio con `font-mono` y `[brackets]`).
+Landing comercial + **zona de estudiantes** (login → perfil → recursos del curso) para el workshop "Aprende IA construyendo tu Financial Advisor". Stack: **Next.js 16 (App Router) + Convex + Convex Auth (Password) + Tailwind v4** (estilo mono/oscuro, acento `#B4552B`; sin shadcn visible en las páginas nuevas — marcado propio con `font-mono` y `[brackets]`).
 
 - `app/` = raíz Next.js. Todo el código vive acá.
 - `app/src/app/page.tsx` = landing. `workshops/finanzas-personales-ia/` = landing del workshop.
