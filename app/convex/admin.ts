@@ -324,7 +324,10 @@ export const updateCourse = mutation({
       slug: v.optional(v.string()),
       schedule: v.optional(v.string()),
       price: v.optional(v.string()),
-      eventInfo: v.optional(v.array(v.object({ label: v.string(), value: v.string() }))),
+      eventInfo: v.optional(
+        v.array(v.object({ label: v.string(), value: v.string(), url: v.optional(v.string()) })),
+      ),
+      calendarUrl: v.optional(v.string()),
     }),
   },
   handler: async (ctx, args) => {

@@ -48,6 +48,7 @@ function AdminPanel() {
   const [editSchedule, setEditSchedule] = useState("");
   const [editPrice, setEditPrice] = useState("");
   const [editEventInfo, setEditEventInfo] = useState("");
+  const [editCalendarUrl, setEditCalendarUrl] = useState("");
 
   // Invitar
   const [inviteEmail, setInviteEmail] = useState("");
@@ -333,6 +334,16 @@ function AdminPanel() {
                       />
                       <span className="font-mono text-[10px] text-[#565F62]">formato: array de {"{label, value}"} — deja vacío para no cambiar</span>
                     </label>
+                    <label className="flex flex-col gap-1">
+                      <span className="font-mono text-[10px] tracking-[0.08em] uppercase text-[#6C7573]">calendario (url)</span>
+                      <input
+                        value={editCalendarUrl}
+                        onChange={(e) => setEditCalendarUrl(e.target.value)}
+                        placeholder="https://calendar.google.com/… (vacío = quitarlo)"
+                        className="border border-[#262E31] bg-[#0E1214] px-3 py-2 font-mono text-[12px] text-[#F1F3F2] outline-none focus:border-[#B4552B]"
+                      />
+                      <span className="font-mono text-[10px] text-[#565F62]">link &quot;agregar al calendario&quot; del pase de abordar</span>
+                    </label>
                     <div className="flex flex-col gap-2 border-t border-[#262E31] pt-3">
                       <span className="font-mono text-[10px] tracking-[0.08em] uppercase text-[#6C7573]">
                         brochure (PDF de la landing)
@@ -405,6 +416,7 @@ function AdminPanel() {
                               schedule: editSchedule || undefined,
                               price: priceStr,
                               eventInfo,
+                              calendarUrl: editCalendarUrl.trim() || undefined,
                             } as any,
                           });
                           setEditCourseId(null);
@@ -438,6 +450,7 @@ function AdminPanel() {
                         setEditPrice(String((c.price ?? "").replace(/[^0-9]/g, "")));
                         setEditSchedule(c.schedule);
                         setEditEventInfo(JSON.stringify((c as any).eventInfo ?? [], null, 2));
+                        setEditCalendarUrl((c as any).calendarUrl ?? "");
                       }}
                       className="border border-[#262E31] px-3 py-1.5 font-mono text-[11px] uppercase text-[#9AA3A1] hover:text-[#F1F3F2]"
                     >
