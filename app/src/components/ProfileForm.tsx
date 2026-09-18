@@ -37,6 +37,7 @@ export type ProfileData = {
   aiLevel: string | null;
   aiTool: string | null;
   contactMethod: string | null;
+  motivation: string | null;
   hasPassword: boolean;
 };
 
@@ -68,6 +69,7 @@ export function ProfileForm({ profile, professions, aiTools, mode }: ProfileForm
   const [aiToolSel, setAiToolSel] = useState(tInit.sel);
   const [aiToolCustom, setAiToolCustom] = useState(tInit.custom);
   const [contactMethod, setContactMethod] = useState(profile.contactMethod ?? "");
+  const [motivation, setMotivation] = useState(profile.motivation ?? "");
   const [phone, setPhone] = useState(profile.phone ?? "");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -106,6 +108,7 @@ export function ProfileForm({ profile, professions, aiTools, mode }: ProfileForm
         aiTool,
         contactMethod: contactMethod as "whatsapp" | "correo" | "ambos",
         phone: phone.trim() || undefined,
+        motivation: motivation.trim() || undefined,
       });
       router.replace("/estudiantes");
     } catch (err) {
@@ -216,6 +219,21 @@ export function ProfileForm({ profile, professions, aiTools, mode }: ProfileForm
         {aiToolSel === "otro" && (
           <input required value={aiToolCustom} onChange={(e) => setAiToolCustom(e.target.value)} className={input} placeholder="escribe la herramienta" />
         )}
+      </label>
+
+      <label className="flex flex-col gap-2">
+        <span className={label}>qué quieres resolver con ia</span>
+        <textarea
+          value={motivation}
+          onChange={(e) => setMotivation(e.target.value)}
+          rows={3}
+          maxLength={400}
+          className={input + " resize-y"}
+          placeholder="Ej: ordenar mis finanzas, entender mis deudas, automatizar reportes…"
+        />
+        <span className="font-mono text-[10px] tracking-[0.08em] uppercase text-[#565F62]">
+          {"// opcional — lo leemos para preparar el workshop"}
+        </span>
       </label>
 
       {error && (

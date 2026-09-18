@@ -43,6 +43,7 @@ export const getMyProfile = query({
       aiLevel: p.aiLevel ?? null,
       aiTool: p.aiTool ?? null,
       contactMethod: p.contactMethod ?? null,
+      motivation: p.motivation ?? null,
       completed: p.completed === true,
       hasPassword: accounts.length > 0,
     };
@@ -57,6 +58,7 @@ export const updateMyProfile = mutation({
     aiTool: v.string(),
     contactMethod: v.union(v.literal("whatsapp"), v.literal("correo"), v.literal("ambos")),
     phone: v.optional(v.string()),
+    motivation: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -76,6 +78,7 @@ export const updateMyProfile = mutation({
       aiTool: args.aiTool,
       contactMethod: args.contactMethod,
       phone: args.phone,
+      motivation: args.motivation?.trim() || undefined,
       completed: true,
     };
     if (existing) {

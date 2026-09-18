@@ -111,7 +111,7 @@ export default defineSchema({
     storageId: v.id("_storage"),
   }).index("by_profile", ["profileId"]),
 
-  // Perfil extendido del usuario (nombre, teléfono, profesión y segmentación IA)
+  // Perfil extendido del usuario (nombre, teléfono, profesión, segmentación IA y motivación)
   user_profiles: defineTable({
     userId: v.id("users"),
     displayName: v.optional(v.string()),
@@ -122,6 +122,8 @@ export default defineSchema({
     ),
     aiTool: v.optional(v.string()),
     contactMethod: v.optional(v.union(v.literal("whatsapp"), v.literal("correo"), v.literal("ambos"))),
+    // Qué quiere resolver o aprender con IA (opcional, editable en el perfil).
+    motivation: v.optional(v.string()),
     completed: v.optional(v.boolean()),
   }).index("by_userId", ["userId"]),
 
