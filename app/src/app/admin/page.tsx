@@ -23,7 +23,7 @@ function AdminPanel() {
   // Estudiantes
   const allStudents = useQuery(api.admin.listAllStudents);
   const registrations = useQuery(api.admin.listRegistrations);
-  const markPaid = useMutation(api.admin.markRegistrationPaid);
+  const setPaid = useMutation(api.admin.setRegistrationPaid);
   const inviteStudent = useMutation(api.admin.inviteStudent);
   const deleteUser = useMutation(api.admin.deleteUser);
   const removeInvite = useMutation(api.admin.removeInvite);
@@ -205,9 +205,10 @@ function AdminPanel() {
                     {s.workshopStatus === "pending" && (
                       <button
                         onClick={() =>
-                          void markPaid({
+                          void setPaid({
                             email: s.email!,
                             workshopSlug: s.workshopSlug ?? "finanzas-personales-ia",
+                            paid: true,
                           })
                         }
                         className="border border-[#5D4A2F] px-3 py-1.5 font-mono text-[11px] tracking-[0.08em] uppercase text-[#E2C084] hover:bg-[#5D4A2F] hover:text-[#F1F3F2]"
@@ -216,7 +217,21 @@ function AdminPanel() {
                       </button>
                     )}
                     {s.workshopStatus === "paid" && (
-                      <span className="px-2 py-1 font-mono text-[11px] text-[#7FC7A3]">✓ pagado</span>
+                      <>
+                        <span className="px-2 py-1 font-mono text-[11px] text-[#7FC7A3]">✓ pagado</span>
+                        <button
+                          onClick={() =>
+                            void setPaid({
+                              email: s.email!,
+                              workshopSlug: s.workshopSlug ?? "finanzas-personales-ia",
+                              paid: false,
+                            })
+                          }
+                          className="border border-[#2F3A3D] px-3 py-1.5 font-mono text-[11px] tracking-[0.08em] uppercase text-[#9AA3A1] hover:border-[#9AA3A1] hover:text-[#F1F3F2]"
+                        >
+                          quitar pago
+                        </button>
+                      </>
                     )}
                     {isSelf(s.userId) ? null : (
                       <button

@@ -171,8 +171,10 @@ export const promoteByEmail = mutation({
   },
 });
 
-export const markRegistrationPaid = mutation({
-  args: { email: v.string(), workshopSlug: v.string() },
+// Activa o desactiva el pago de una inscripción (paid ↔ pending).
+// Quitar el pago revoca el acceso al material del estudiante.
+export const setRegistrationPaid = mutation({
+  args: { email: v.string(), workshopSlug: v.string(), paid: v.boolean() },
   handler: async (ctx, args) => {
     await requireActiveAdmin(ctx);
     const email = args.email.toLowerCase();
@@ -184,7 +186,7 @@ export const markRegistrationPaid = mutation({
     if (!registration) {
       throw new Error(`No existe registro de ${email} en ${args.workshopSlug}`);
     }
-    await ctx.db.patch(registration._id, { status: "paid" });
+    await ctx.db.patch(registration._id, { status: args.paid ? "paid" : "pending" });
     return registration._id;
   },
 });
