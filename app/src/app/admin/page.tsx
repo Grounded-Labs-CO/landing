@@ -264,23 +264,29 @@ function AdminPanel() {
   return (
     <>
       {/* TABS */}
-      <div className="mt-8 flex border border-[#262E31] max-w-[640px]">
+      <div className="mt-8 grid grid-cols-2 border border-[#262E31] sm:flex sm:max-w-[640px]">
         {[
           ["estudiantes", "estudiantes"],
           ["cursos", "cursos"],
           ["invitar", "invitar"],
           ["resumen", "resumen"],
-        ].map(([id, label]) => (
-          <button
-            key={id}
-            onClick={() => setTab(id as any)}
-            className={`flex-1 px-4 py-3 font-mono text-[11px] tracking-[0.12em] uppercase transition-colors ${
-              tab === id ? "bg-[#1C2427] text-[#F1F3F2]" : "text-[#6C7573] hover:text-[#9AA3A1]"
-            } ${id !== "estudiantes" ? "border-l border-[#262E31]" : ""}`}
-          >
-            {label}
-          </button>
-        ))}
+        ].map(([id, label], i) => {
+          const secondCol = i % 2 === 1;
+          const secondRow = i >= 2;
+          return (
+            <button
+              key={id}
+              onClick={() => setTab(id as any)}
+              className={`px-3 py-3 font-mono text-[10px] tracking-[0.1em] uppercase transition-colors sm:flex-1 sm:px-4 sm:text-[11px] sm:tracking-[0.12em] ${
+                tab === id ? "bg-[#1C2427] text-[#F1F3F2]" : "text-[#6C7573] hover:text-[#9AA3A1]"
+              } ${secondCol ? "border-l border-[#262E31]" : ""} ${
+                secondRow ? "border-t border-[#262E31] sm:border-t-0" : ""
+              } ${i > 0 && !secondCol ? "sm:border-l sm:border-[#262E31]" : ""}`}
+            >
+              {label}
+            </button>
+          );
+        })}
       </div>
 
       {tab === "estudiantes" && (
