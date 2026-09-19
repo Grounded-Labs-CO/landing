@@ -160,6 +160,10 @@ export const getCourse = query({
                 ? await ctx.storage.getUrl(profile.photoStorageId)
                 : null,
               photoName: profile.photoFileName ?? null,
+              zipUrl: profile.zipStorageId
+                ? await ctx.storage.getUrl(profile.zipStorageId)
+                : null,
+              zipFileName: profile.zipFileName ?? null,
               categories,
               fileCount: filesOut.length,
             };

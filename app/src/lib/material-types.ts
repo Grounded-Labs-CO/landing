@@ -37,6 +37,9 @@ export type SampleProfile = {
   introName: string | null;
   photoUrl: string | null;
   photoName: string | null;
+  /** ZIP listo del expediente (opcional: si falta, se arma en vivo). */
+  zipUrl: string | null;
+  zipFileName: string | null;
   categories: SampleCategory[];
   fileCount: number;
 };

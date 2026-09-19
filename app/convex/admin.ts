@@ -432,6 +432,44 @@ export const removeCourseBrochure = mutation({
   },
 });
 
+// --- ZIP del expediente de un perfil de datos de prueba ---
+// Mismo patrón que el brochure: se sube el archivo con la URL firmada y
+// después setSampleProfileZip guarda la referencia. Si hay ZIP, la plataforma
+// lo entrega directo; si no, el Next arma el .zip en vivo desde sample_files.
+export const generateSampleZipUploadUrl = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireActiveAdmin(ctx);
+    return await ctx.storage.generateUploadUrl();
+  },
+});
+
+export const setSampleProfileZip = mutation({
+  args: {
+    profileId: v.id("sample_profiles"),
+    storageId: v.id("_storage"),
+    fileName: v.string(),
+  },
+  handler: async (ctx, args) => {
+    await requireActiveAdmin(ctx);
+    const profile = await ctx.db.get(args.profileId);
+    if (!profile) throw new Error("Perfil no encontrado");
+    if (!(await ctx.storage.getUrl(args.storageId))) {
+      throw new Error("El archivo no llegó a storage");
+    }
+    const previous = profile.zipStorageId ?? null;
+    await ctx.db.patch(args.profileId, {
+      zipStorageId: args.storageId,
+      zipFileName: args.fileName.trim() || `${profile.slug}.zip`,
+    });
+    // Sin esto el ZIP anterior queda huérfano en storage.
+    if (previous && previous !== args.storageId) {
+      await ctx.storage.delete(previous);
+    }
+    return args.storageId;
+  },
+});
+
 // --- Ítems de una sección (los "sellos" del curso) ---
 export const createItem = mutation({
   args: {

@@ -99,6 +99,10 @@ export default defineSchema({
     introFileName: v.optional(v.string()),
     photoStorageId: v.optional(v.id("_storage")),
     photoFileName: v.optional(v.string()),
+    // ZIP del expediente (opcional). Si existe, el botón "descargar datos de
+    // prueba" lo entrega directo; si no, se arma en vivo desde sample_files.
+    zipStorageId: v.optional(v.id("_storage")),
+    zipFileName: v.optional(v.string()),
   }).index("by_course", ["courseId"]),
 
   // Documentos de cada perfil (archivo vive en Convex storage)

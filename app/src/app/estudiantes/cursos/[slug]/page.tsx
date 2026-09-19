@@ -70,6 +70,20 @@ async function downloadZip(fileName: string, files: { name: string; url: string 
   URL.revokeObjectURL(href);
 }
 
+// Descarga directa de un archivo ya alojado (ej. el ZIP del expediente que se
+// sube desde el admin/CLI). Se pasa por blob para conservar el nombre.
+async function downloadUrl(fileName: string, url: string) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error("download");
+  const blob = await res.blob();
+  const href = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = href;
+  a.download = fileName;
+  a.click();
+  URL.revokeObjectURL(href);
+}
+
 function CourseMaterial() {
   const params = useParams<{ slug: string }>();
   const courseSlug = params.slug ?? "";
@@ -437,7 +451,11 @@ function SectionDetail({
                   onZip={async () => {
                     setZipping(profile.slug);
                     try {
-                      await downloadZip(`${profile.slug}.zip`, zipFiles);
+                      if (profile.zipUrl) {
+                        await downloadUrl(profile.zipFileName ?? `${profile.slug}.zip`, profile.zipUrl);
+                      } else {
+                        await downloadZip(`${profile.slug}.zip`, zipFiles);
+                      }
                     } finally {
                       setZipping(null);
                     }
