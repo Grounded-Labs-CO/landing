@@ -408,9 +408,14 @@ export const setCourseBrochure = mutation({
       brochureStorageId: args.storageId,
       brochureFileName: args.fileName.trim() || "brochure.pdf",
     });
-    // Sin esto el PDF anterior queda huérfano en storage.
+    // Sin esto el PDF anterior queda huérfano en storage. Si ya no existe
+    // (borrado a mano en el dashboard), no bloqueamos el cambio.
     if (previous && previous !== args.storageId) {
-      await ctx.storage.delete(previous);
+      try {
+        await ctx.storage.delete(previous);
+      } catch {
+        // ya no existe: nada que borrar
+      }
     }
     return args.storageId;
   },
@@ -427,7 +432,13 @@ export const removeCourseBrochure = mutation({
       brochureStorageId: undefined,
       brochureFileName: undefined,
     });
-    if (previous) await ctx.storage.delete(previous);
+    if (previous) {
+      try {
+        await ctx.storage.delete(previous);
+      } catch {
+        // ya no existe: nada que borrar
+      }
+    }
     return null;
   },
 });
@@ -462,9 +473,14 @@ export const setSampleProfileZip = mutation({
       zipStorageId: args.storageId,
       zipFileName: args.fileName.trim() || `${profile.slug}.zip`,
     });
-    // Sin esto el ZIP anterior queda huérfano en storage.
+    // Sin esto el ZIP anterior queda huérfano en storage. Si ya no existe
+    // (borrado a mano en el dashboard), no bloqueamos el cambio.
     if (previous && previous !== args.storageId) {
-      await ctx.storage.delete(previous);
+      try {
+        await ctx.storage.delete(previous);
+      } catch {
+        // ya no existe: nada que borrar
+      }
     }
     return args.storageId;
   },
@@ -529,7 +545,13 @@ export const deleteItem = mutation({
     const item = await ctx.db.get(args.itemId);
     if (!item) throw new Error("Ítem no encontrado");
     // El archivo vive en storage: sin esto queda huérfano.
-    if (item.storageId) await ctx.storage.delete(item.storageId);
+    if (item.storageId) {
+      try {
+        await ctx.storage.delete(item.storageId);
+      } catch {
+        // ya no existe: nada que borrar
+      }
+    }
     await ctx.db.delete(args.itemId);
     return null;
   },
