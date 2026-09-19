@@ -265,11 +265,14 @@ function SectionDetail({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-1">
-        <span className="font-mono text-[11px] tracking-[0.14em] text-[#6C7573]">
-          {num} · {section.title.toLowerCase()}
+      <header className="flex flex-col gap-2 border-b border-[#262E31] pb-5">
+        <span className="font-mono text-[10px] tracking-[0.18em] uppercase text-[#B4552B]">
+          [{num}]
         </span>
-      </div>
+        <h2 className="max-w-[46ch] text-balance font-sans text-[24px] font-light leading-[1.2] tracking-[-0.02em] text-[#F1F3F2] max-[640px]:text-[21px]">
+          {section.title}
+        </h2>
+      </header>
 
       {section.kind === "info" && (
         <>
