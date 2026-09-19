@@ -48,7 +48,7 @@ npx convex env set X valor          # variables del deployment (JWT_PRIVATE_KEY 
 - **Nuevo estudiante**: crea cuenta en /signin → queda pending → admin entra a `/admin` → "aprobar" + "marcar pagado" → material desbloqueado (y "quitar pago" si hay que revertirlo).
 - **Cambiar contenido del curso**: la BD es la fuente de verdad. Título, tagline, slug, horario, precio, eventInfo, link de calendario, **estado** y **brochure** desde `/admin` → *cursos*; secciones, ítems, links y sample data desde el dashboard de Convex. El título alimenta además el hero de la landing del workshop (query en vivo) y el `<title>` SEO (ISR ~5 min).
 - **Publicar un artículo/doc real** (pasa de "próximamente" a descargable): hoy solo por dashboard (`course_items`: `storageId` + `status: published`). Falta UI en `/admin`.
-- **Cambiar sample data**: hoy por dashboard de Convex (tablas `sample_profiles`/`sample_files` + storage) — el flujo viejo de `sample-data` + re-sembrar ya no existe.
+- **Cambiar sample data**: hoy por dashboard de Convex (tablas `sample_profiles`/`sample_files` + storage) — el flujo viejo de `sample-data` + re-sembrar ya no existe. Atajos admin: `admin:setSampleProfileZip` (ZIP del expediente) y `admin:replaceSampleFiles` (reemplaza el set de archivos; se suben con `admin:generateSampleFileUploadUrls`).
 
 ## Gotchas de Convex (aprendidos aquí)
 

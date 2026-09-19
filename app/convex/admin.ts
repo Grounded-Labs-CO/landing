@@ -486,6 +486,80 @@ export const setSampleProfileZip = mutation({
   },
 });
 
+// --- Archivos de un perfil de datos de prueba ---
+// Reemplaza el set completo de sample_files del perfil. Los archivos se suben
+// aparte con generateSampleFileUploadUrls (una URL firmada por archivo).
+// Borra el set anterior (best-effort) y limpia el "intro" del perfil: cuando
+// el ZIP subido es el paquete completo, perfil.md ya no suma al conteo.
+export const generateSampleFileUploadUrls = mutation({
+  args: { count: v.number() },
+  handler: async (ctx, args) => {
+    await requireActiveAdmin(ctx);
+    const n = Math.min(Math.max(1, Math.floor(args.count)), 60);
+    const urls = [];
+    for (let i = 0; i < n; i++) {
+      urls.push(await ctx.storage.generateUploadUrl());
+    }
+    return urls;
+  },
+});
+
+export const replaceSampleFiles = mutation({
+  args: {
+    profileId: v.id("sample_profiles"),
+    files: v.array(
+      v.object({
+        category: v.string(),
+        label: v.string(),
+        fileName: v.string(),
+        storageId: v.id("_storage"),
+      }),
+    ),
+  },
+  handler: async (ctx, args) => {
+    await requireActiveAdmin(ctx);
+    const profile = await ctx.db.get(args.profileId);
+    if (!profile) throw new Error("Perfil no encontrado");
+    for (const f of args.files) {
+      if (!(await ctx.storage.getUrl(f.storageId))) {
+        throw new Error(`El archivo ${f.fileName} no llegó a storage`);
+      }
+    }
+    const previous = await ctx.db
+      .query("sample_files")
+      .withIndex("by_profile", (q) => q.eq("profileId", args.profileId))
+      .collect();
+    let order = 1;
+    for (const f of args.files) {
+      await ctx.db.insert("sample_files", {
+        profileId: args.profileId,
+        category: f.category,
+        order: order++,
+        label: f.label,
+        fileName: f.fileName,
+        storageId: f.storageId,
+      });
+    }
+    for (const old of previous) {
+      await ctx.db.delete(old._id);
+      try {
+        await ctx.storage.delete(old.storageId);
+      } catch {
+        // ya no existe: nada que borrar
+      }
+    }
+    if (profile.introStorageId) {
+      try {
+        await ctx.storage.delete(profile.introStorageId);
+      } catch {
+        // ya no existe
+      }
+      await ctx.db.patch(args.profileId, { introStorageId: undefined, introFileName: undefined });
+    }
+    return { inserted: args.files.length, removed: previous.length };
+  },
+});
+
 // --- Ítems de una sección (los "sellos" del curso) ---
 export const createItem = mutation({
   args: {
