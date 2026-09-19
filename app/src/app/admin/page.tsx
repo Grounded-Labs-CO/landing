@@ -68,6 +68,8 @@ function AdminPanel() {
   >(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [editError, setEditError] = useState<string | null>(null);
+  // "✓ pagado" es un link: al tocarlo se confirma quitar el pago inline.
+  const [confirmUnpay, setConfirmUnpay] = useState<string | null>(null);
 
   const isSelf = (userId: any) => userId != null && userId === meId;
 
@@ -216,23 +218,45 @@ function AdminPanel() {
                         marcar pagado
                       </button>
                     )}
-                    {s.workshopStatus === "paid" && (
-                      <>
-                        <span className="px-2 py-1 font-mono text-[11px] text-[#7FC7A3]">✓ pagado</span>
+                    {s.workshopStatus === "paid" &&
+                      (confirmUnpay === s.email ? (
+                        <span className="flex items-center gap-2 font-mono text-[11px] text-[#9AA3A1]">
+                          ¿quitar el pago?
+                          <button
+                            onClick={() => {
+                              setConfirmUnpay(null);
+                              void setPaid({
+                                email: s.email!,
+                                workshopSlug: s.workshopSlug ?? "finanzas-personales-ia",
+                                paid: false,
+                              }).catch((e) =>
+                                setActionError(e instanceof Error ? e.message : "// no pudimos quitar el pago"),
+                              );
+                            }}
+                            className="uppercase tracking-[0.08em] text-[#E2A084] hover:text-[#F1F3F2]"
+                          >
+                            sí
+                          </button>
+                          <button
+                            onClick={() => setConfirmUnpay(null)}
+                            className="uppercase tracking-[0.08em] text-[#6C7573] hover:text-[#9AA3A1]"
+                          >
+                            no
+                          </button>
+                        </span>
+                      ) : (
                         <button
-                          onClick={() =>
-                            void setPaid({
-                              email: s.email!,
-                              workshopSlug: s.workshopSlug ?? "finanzas-personales-ia",
-                              paid: false,
-                            })
-                          }
-                          className="border border-[#2F3A3D] px-3 py-1.5 font-mono text-[11px] tracking-[0.08em] uppercase text-[#9AA3A1] hover:border-[#9AA3A1] hover:text-[#F1F3F2]"
+                          type="button"
+                          title="quitar el pago"
+                          onClick={() => {
+                            setActionError(null);
+                            setConfirmUnpay(s.email ?? "");
+                          }}
+                          className="font-mono text-[11px] text-[#7FC7A3] underline-offset-4 transition-colors hover:text-[#F1F3F2] hover:underline"
                         >
-                          quitar pago
+                          ✓ pagado
                         </button>
-                      </>
-                    )}
+                      ))}
                     {isSelf(s.userId) ? null : (
                       <button
                         onClick={() => {
