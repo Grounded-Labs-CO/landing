@@ -560,6 +560,55 @@ export const replaceSampleFiles = mutation({
   },
 });
 
+// --- Mantenimiento: purgar archivos huérfanos de storage ---
+// Borra archivos de _storage que ya no referencia ninguna tabla del curso
+// (sample_files, sample_profiles, courses, course_items). Los archivos fuente
+// se pueden regenerar desde el repo, por eso el borrado es seguro.
+// Correr primero con { dryRun: true } para revisar cuántos son.
+export const purgeOrphanStorage = mutation({
+  args: { dryRun: v.optional(v.boolean()), limit: v.optional(v.number()) },
+  handler: async (ctx, args) => {
+    await requireActiveAdmin(ctx);
+    const used = new Set();
+    for (const f of await ctx.db.query("sample_files").collect()) used.add(f.storageId);
+    for (const p of await ctx.db.query("sample_profiles").collect()) {
+      if (p.photoStorageId) used.add(p.photoStorageId);
+      if (p.introStorageId) used.add(p.introStorageId);
+      if (p.zipStorageId) used.add(p.zipStorageId);
+    }
+    for (const c of await ctx.db.query("courses").collect()) {
+      if (c.brochureStorageId) used.add(c.brochureStorageId);
+    }
+    for (const i of await ctx.db.query("course_items").collect()) {
+      if (i.storageId) used.add(i.storageId);
+      if (i.imageStorageId) used.add(i.imageStorageId);
+    }
+    const all = await ctx.db.system.query("_storage").collect();
+    const orphans = all.filter((s) => !used.has(s._id));
+    const limit = Math.min(Math.max(1, Math.floor(args.limit ?? 200)), 500);
+    const toDelete = orphans.slice(0, limit);
+    let freedBytes = 0;
+    if (!args.dryRun) {
+      for (const o of toDelete) {
+        try {
+          await ctx.storage.delete(o._id);
+          freedBytes += o.size ?? 0;
+        } catch {
+          // ya no existe
+        }
+      }
+    }
+    return {
+      total: all.length,
+      referenciados: used.size,
+      huerfanos: orphans.length,
+      borrados: args.dryRun ? 0 : toDelete.length,
+      restantes: orphans.length - toDelete.length,
+      freedKB: Math.round(freedBytes / 1024),
+    };
+  },
+});
+
 // --- Ítems de una sección (los "sellos" del curso) ---
 export const createItem = mutation({
   args: {
