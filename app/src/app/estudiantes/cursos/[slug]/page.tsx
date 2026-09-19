@@ -32,10 +32,10 @@ function BackToResources({ targetRef }: { targetRef: RefObject<HTMLElement | nul
         const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
         targetRef.current?.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
       }}
-      className="fixed bottom-5 right-5 z-40 inline-flex items-center gap-2 border border-[#2F3A3D] bg-[#111719]/95 px-4 py-3 font-mono text-[10px] tracking-[0.12em] uppercase text-[#9AA3A1] shadow-lg backdrop-blur transition-colors hover:border-[#9AA3A1] hover:text-[#F1F3F2]"
+      className="fixed bottom-5 right-5 z-40 inline-flex items-center gap-2 bg-[#B4552B] px-4 py-3 font-mono text-[10px] font-medium tracking-[0.12em] uppercase text-[#0E1214] shadow-xl transition-colors hover:bg-[#C96A3C]"
     >
       <ArrowUpIcon aria-hidden className="h-3.5 w-3.5" />
-      recursos
+      volver a recursos
     </button>
   );
 }
