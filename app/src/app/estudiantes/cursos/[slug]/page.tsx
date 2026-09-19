@@ -7,8 +7,38 @@ import { useQuery } from "convex/react";
 import { api } from "../../../../../convex/_generated/api";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-import { CalendarIcon } from "lucide-react";
+import { useEffect, useRef, useState, type RefObject } from "react";
+import { CalendarIcon, ArrowUpIcon } from "lucide-react";
+
+function BackToResources({ targetRef }: { targetRef: RefObject<HTMLElement | null> }) {
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    function onScroll() {
+      const el = targetRef.current;
+      if (!el) return;
+      setShow(el.getBoundingClientRect().bottom < 0);
+    }
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [targetRef]);
+
+  if (!show) return null;
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        targetRef.current?.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+      }}
+      className="fixed bottom-5 right-5 z-40 inline-flex items-center gap-2 border border-[#2F3A3D] bg-[#111719]/95 px-4 py-3 font-mono text-[10px] tracking-[0.12em] uppercase text-[#9AA3A1] shadow-lg backdrop-blur transition-colors hover:border-[#9AA3A1] hover:text-[#F1F3F2]"
+    >
+      <ArrowUpIcon aria-hidden className="h-3.5 w-3.5" />
+      recursos
+    </button>
+  );
+}
 
 function Barcode() {
   return (
@@ -59,6 +89,7 @@ function CourseMaterial() {
   const [openSection, setOpenSection] = useState<number | null>(null);
   const [zipping, setZipping] = useState<string | null>(null);
   const detailRef = useRef<HTMLElement | null>(null);
+  const resourcesRef = useRef<HTMLElement | null>(null);
 
   // En móvil el detalle queda debajo de la grilla: al tocar un recurso lo
   // llevamos a la vista (si ya está visible, no movemos nada).
@@ -152,7 +183,7 @@ function CourseMaterial() {
           </section>
 
           {/* RECURSOS */}
-          <section className="mt-10">
+          <section ref={resourcesRef} className="mt-10 scroll-mt-20">
             <span className="font-mono text-[11px] tracking-[0.16em] uppercase text-[#B4552B]">
               [recursos]
             </span>
@@ -211,6 +242,8 @@ function CourseMaterial() {
           <div className="mt-8">
             <SupportLine />
           </div>
+
+          <BackToResources targetRef={resourcesRef} />
         </>
       )}
     </div>
