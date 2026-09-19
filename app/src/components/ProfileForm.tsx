@@ -142,7 +142,7 @@ export function ProfileForm({ profile, professions, aiTools, mode }: ProfileForm
         <PhoneInput value={phone ?? ""} onChange={(v) => setPhone(v)} placeholder="300 123 4567" />
       </label>
 
-      <label className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2">
         <span className={label}>método de contacto</span>
         <RadioGroup
           value={contactMethod}
@@ -169,7 +169,7 @@ export function ProfileForm({ profile, professions, aiTools, mode }: ProfileForm
             );
           })}
         </RadioGroup>
-      </label>
+      </div>
 
       <label className="flex flex-col gap-2">
         <span className={label}>
@@ -178,7 +178,7 @@ export function ProfileForm({ profile, professions, aiTools, mode }: ProfileForm
         <input type="password" required={passwordRequired} value={password} onChange={(e) => setPassword(e.target.value)} className={input} placeholder={passwordRequired ? "mínimo 8 caracteres" : "dejar vacío para no cambiar"} />
       </label>
 
-      <label className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2">
         <span className={label}>profesión</span>
         <DropdownSelect
           options={[
@@ -193,9 +193,9 @@ export function ProfileForm({ profile, professions, aiTools, mode }: ProfileForm
         {professionSel === "otro" && (
           <input required value={professionCustom} onChange={(e) => setProfessionCustom(e.target.value)} className={input} placeholder="escribe tu profesión" />
         )}
-      </label>
+      </div>
 
-      <label className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2">
         <span className={label}>nivel de IA</span>
         <DropdownSelect
           options={AI_LEVELS.map((l) => ({ value: l, label: l }))}
@@ -203,9 +203,9 @@ export function ProfileForm({ profile, professions, aiTools, mode }: ProfileForm
           onChange={(v) => setAiLevel(v)}
           placeholder="elige…"
         />
-      </label>
+      </div>
 
-      <label className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2">
         <span className={label}>herramienta de IA que usas</span>
         <DropdownSelect
           options={[
@@ -219,7 +219,7 @@ export function ProfileForm({ profile, professions, aiTools, mode }: ProfileForm
         {aiToolSel === "otro" && (
           <input required value={aiToolCustom} onChange={(e) => setAiToolCustom(e.target.value)} className={input} placeholder="escribe la herramienta" />
         )}
-      </label>
+      </div>
 
       <label className="flex flex-col gap-2">
         <span className={label}>qué quieres resolver con ia</span>

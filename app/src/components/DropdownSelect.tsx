@@ -29,15 +29,20 @@ export function DropdownSelect({
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const ref = useRef<HTMLDivElement>(null);
+  // En touch, abrir el teclado al desplegar hace que el primer tap sobre una
+  // opción solo cierre el teclado y la lista quede abierta. Solo autofoco con mouse.
+  const [autoFocusSearch] = useState(
+    () => typeof window !== "undefined" && window.matchMedia("(pointer: fine)").matches,
+  );
 
   const selected = options.find((o) => o.value === value);
 
   useEffect(() => {
-    function onDoc(e: MouseEvent) {
+    function onDoc(e: PointerEvent) {
       if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
     }
-    document.addEventListener("mousedown", onDoc);
-    return () => document.removeEventListener("mousedown", onDoc);
+    document.addEventListener("pointerdown", onDoc);
+    return () => document.removeEventListener("pointerdown", onDoc);
   }, []);
 
   const filtered = useMemo(() => {
@@ -84,7 +89,7 @@ export function DropdownSelect({
             <div className="flex items-center gap-2 border-b border-[#262E31] px-3 py-2">
               <SearchIcon className="size-3.5 text-[#565F62]" />
               <input
-                autoFocus
+                autoFocus={autoFocusSearch}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="buscar…"

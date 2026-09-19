@@ -7,7 +7,7 @@ import { useQuery } from "convex/react";
 import { api } from "../../../../../convex/_generated/api";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CalendarIcon } from "lucide-react";
 
 function Barcode() {
@@ -58,6 +58,22 @@ function CourseMaterial() {
 
   const [openSection, setOpenSection] = useState<number | null>(null);
   const [zipping, setZipping] = useState<string | null>(null);
+  const detailRef = useRef<HTMLElement | null>(null);
+
+  // En móvil el detalle queda debajo de la grilla: al tocar un recurso lo
+  // llevamos a la vista (si ya está visible, no movemos nada).
+  function revealDetail() {
+    requestAnimationFrame(() => {
+      const el = detailRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const headerPx = 72; // header sticky (64px) + aire
+      const visible = rect.top >= headerPx && rect.bottom <= window.innerHeight;
+      if (visible) return;
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+    });
+  }
 
   // Sección activa derivada (sin efectos): si el estado aún no apunta a algo
   // válido, cae a la primera.
@@ -147,7 +163,10 @@ function CourseMaterial() {
                 return (
                   <button
                     key={section.order}
-                    onClick={() => setOpenSection(section.order)}
+                    onClick={() => {
+                      setOpenSection(section.order);
+                      revealDetail();
+                    }}
                     className={`flex flex-col gap-2 border p-5 text-left transition-colors ${
                       active
                         ? "border-[#B4552B] bg-[#1C2427]"
@@ -174,7 +193,10 @@ function CourseMaterial() {
           </section>
 
           {/* DETALLE DE LA SECCIÓN SELECCIONADA */}
-          <section className="mt-8 border border-[#262E31] bg-[#111719] p-7">
+          <section
+            ref={detailRef}
+            className="mt-8 scroll-mt-20 border border-[#262E31] bg-[#111719] p-7"
+          >
             {activeSection && (
               <SectionDetail
                 key={activeSection.order}

@@ -501,7 +501,7 @@ function AdminPanel() {
               className="border border-[#262E31] bg-[#0E1214] px-3 py-2 font-mono text-[13px] text-[#F1F3F2]"
             />
           </label>
-          <label className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2">
             <span className="font-mono text-[11px] uppercase text-[#6C7573]">workshop</span>
             <DropdownSelect
               size="sm"
@@ -520,7 +520,7 @@ function AdminPanel() {
                 no hay cursos disponibles para invitar (solo se ocultan los desactivados)
               </span>
             )}
-          </label>
+          </div>
           <label className="flex items-center gap-2 font-mono text-[11px] text-[#9AA3A1]">
             <input
               type="checkbox"
