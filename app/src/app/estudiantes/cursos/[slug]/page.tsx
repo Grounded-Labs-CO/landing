@@ -8,7 +8,7 @@ import { api } from "../../../../../convex/_generated/api";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useRef, useState, type RefObject } from "react";
-import { CalendarIcon, ArrowUpIcon } from "lucide-react";
+import { CalendarIcon, ArrowUpIcon, ChevronDownIcon } from "lucide-react";
 
 function BackToResources({ targetRef }: { targetRef: RefObject<HTMLElement | null> }) {
   const [show, setShow] = useState(false);
@@ -452,6 +452,94 @@ function SectionDetail({
 // Sección tipo checklist: documentos agrupados por categoría (agrupación por
 // `item.group`, en el orden en que llegan los ítems). Las marcas viven en
 // localStorage (sin BD): cada navegador recuerda lo que el estudiante ya tiene.
+function ChecklistGroup({
+  group,
+  done,
+  onToggle,
+}: {
+  group: { label: string; items: CourseItem[] };
+  done: Record<string, boolean>;
+  onToggle: (key: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const total = group.items.length;
+  const doneCount = group.items.filter((item) => done[item.title]).length;
+  const complete = total > 0 && doneCount === total;
+  return (
+    <div className="border-t border-[#262E31] bg-[#0E1214] first:border-t-0">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        className="flex w-full items-center justify-between gap-3 px-5 py-4 text-left"
+      >
+        <span className="font-mono text-[10px] tracking-[0.16em] uppercase text-[#B4552B]">
+          {group.label}
+        </span>
+        <span className="flex shrink-0 items-center gap-3">
+          <span
+            className={`font-mono text-[10px] tracking-[0.08em] ${complete ? "text-[#7FC7A3]" : "text-[#6C7573]"}`}
+          >
+            {doneCount}/{total}
+          </span>
+          <ChevronDownIcon
+            aria-hidden
+            className={`h-3.5 w-3.5 text-[#6C7573] transition-transform ${open ? "rotate-180" : ""}`}
+          />
+        </span>
+      </button>
+      {open && (
+        <ul className="flex flex-col gap-4 px-5 pb-5">
+          {group.items.map((item) => {
+            const isDone = !!done[item.title];
+            return (
+              <li key={item.title}>
+                <button
+                  type="button"
+                  role="checkbox"
+                  aria-checked={isDone}
+                  onClick={() => onToggle(item.title)}
+                  className="group flex w-full items-start gap-3 text-left"
+                >
+                  <span
+                    className={`mt-[3px] grid h-3 w-3 shrink-0 place-items-center border transition-colors ${
+                      isDone
+                        ? "border-[#B4552B] bg-[#B4552B]"
+                        : "border-[#2F3A3D] group-hover:border-[#9AA3A1]"
+                    }`}
+                  >
+                    {isDone && (
+                      <svg width="8" height="8" viewBox="0 0 10 10" aria-hidden>
+                        <path d="M1 5.2 3.8 8 9 2" fill="none" stroke="#0E1214" strokeWidth="1.8" />
+                      </svg>
+                    )}
+                  </span>
+                  <span className="flex flex-col gap-1">
+                    <span
+                      className={`font-mono text-[12px] leading-[1.5] transition-colors ${
+                        isDone
+                          ? "text-[#6C7573] line-through decoration-[#2F3A3D]"
+                          : "text-[#DDE2E0]"
+                      }`}
+                    >
+                      {item.title}
+                    </span>
+                    {item.description && (
+                      <span className="font-mono text-[10px] leading-[1.6] text-[#6C7573]">
+                        {item.description}
+                      </span>
+                    )}
+                  </span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 function ChecklistSection({ items, storageKey }: { items: CourseItem[]; storageKey: string }) {
   const groups: { label: string; items: CourseItem[] }[] = [];
   for (const item of items) {
@@ -513,64 +601,9 @@ function ChecklistSection({ items, storageKey }: { items: CourseItem[]; storageK
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-px border border-[#262E31] bg-[#262E31] sm:grid-cols-2 lg:grid-cols-3">
+      <div className="border border-[#262E31]">
         {groups.map((group) => (
-          <div key={group.label} className="flex flex-col gap-4 bg-[#0E1214] p-5">
-            <span className="font-mono text-[10px] tracking-[0.16em] uppercase text-[#B4552B]">
-              {group.label}
-            </span>
-            <ul className="flex flex-col gap-4">
-              {group.items.map((item) => {
-                const isDone = !!done[item.title];
-                return (
-                  <li key={item.title}>
-                    <button
-                      type="button"
-                      role="checkbox"
-                      aria-checked={isDone}
-                      onClick={() => toggle(item.title)}
-                      className="group flex w-full items-start gap-3 text-left"
-                    >
-                      <span
-                        className={`mt-[3px] grid h-3 w-3 shrink-0 place-items-center border transition-colors ${
-                          isDone
-                            ? "border-[#B4552B] bg-[#B4552B]"
-                            : "border-[#2F3A3D] group-hover:border-[#9AA3A1]"
-                        }`}
-                      >
-                        {isDone && (
-                          <svg width="8" height="8" viewBox="0 0 10 10" aria-hidden>
-                            <path
-                              d="M1 5.2 3.8 8 9 2"
-                              fill="none"
-                              stroke="#0E1214"
-                              strokeWidth="1.8"
-                            />
-                          </svg>
-                        )}
-                      </span>
-                      <span className="flex flex-col gap-1">
-                        <span
-                          className={`font-mono text-[12px] leading-[1.5] transition-colors ${
-                            isDone
-                              ? "text-[#6C7573] line-through decoration-[#2F3A3D]"
-                              : "text-[#DDE2E0]"
-                          }`}
-                        >
-                          {item.title}
-                        </span>
-                        {item.description && (
-                          <span className="font-mono text-[10px] leading-[1.6] text-[#6C7573]">
-                            {item.description}
-                          </span>
-                        )}
-                      </span>
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
+          <ChecklistGroup key={group.label} group={group} done={done} onToggle={toggle} />
         ))}
       </div>
 
@@ -701,6 +734,38 @@ function ParkingCard() {
   );
 }
 
+function DossierAccordion({
+  title,
+  hint,
+  children,
+}: {
+  title: string;
+  hint?: string;
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="border-t border-dashed border-[#2F3A3D]">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        className="flex w-full items-center justify-between gap-3 py-3 text-left"
+      >
+        <span className="font-mono text-[10px] tracking-[0.16em] uppercase text-[#6C7573]">
+          {title}
+          {hint ? <span className="text-[#565F62]"> · {hint}</span> : null}
+        </span>
+        <ChevronDownIcon
+          aria-hidden
+          className={`h-3.5 w-3.5 shrink-0 text-[#6C7573] transition-transform ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+      {open && <div className="pb-4">{children}</div>}
+    </div>
+  );
+}
+
 function ProfileDossier({
   profile,
   index,
@@ -754,24 +819,28 @@ function ProfileDossier({
           </div>
 
           {profile.bio && (
-            <p className="max-w-[62ch] whitespace-pre-line font-sans text-[14px] leading-[1.75] text-[#9AA3A1]">
-              {profile.bio}
-            </p>
+            <DossierAccordion title="sobre el caso">
+              <p className="max-w-[62ch] whitespace-pre-line font-sans text-[14px] leading-[1.75] text-[#9AA3A1]">
+                {profile.bio}
+              </p>
+            </DossierAccordion>
           )}
 
           {facts.length > 0 && (
-            <dl className="grid grid-cols-1 gap-x-6 gap-y-4 border-t border-dashed border-[#2F3A3D] pt-5 sm:grid-cols-2 lg:grid-cols-3">
-              {facts.map((fact) => (
-                <div key={fact.label} className="flex flex-col gap-0.5">
-                  <dt className="font-mono text-[9px] tracking-[0.16em] uppercase text-[#6C7573]">
-                    {fact.label}
-                  </dt>
-                  <dd className="font-mono text-[11px] leading-[1.55] text-[#DDE2E0]">
-                    {fact.value}
-                  </dd>
-                </div>
-              ))}
-            </dl>
+            <DossierAccordion title="ficha del caso" hint={`${facts.length} datos`}>
+              <dl className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">
+                {facts.map((fact) => (
+                  <div key={fact.label} className="flex flex-col gap-0.5">
+                    <dt className="font-mono text-[9px] tracking-[0.16em] uppercase text-[#6C7573]">
+                      {fact.label}
+                    </dt>
+                    <dd className="font-mono text-[11px] leading-[1.55] text-[#DDE2E0]">
+                      {fact.value}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </DossierAccordion>
           )}
         </div>
       </header>
