@@ -15,10 +15,155 @@ const STATUS_META: Record<string, { label: string; className: string }> = {
   disabled: { label: "desactivado", className: "bg-[#5D2F2F] text-[#E2A084] border border-[#5D2F2F]" },
 };
 
+type StudentRow = {
+  userId: string | null;
+  email: string | null;
+  name: string | null;
+  phone: string | null;
+  motivation: string | null;
+  profession: string | null;
+  aiLevel: string | null;
+  completed: boolean;
+  workshopSlug: string | null;
+  workshopStatus: string | null;
+};
+
+function Kpi({ label, value, hint }: { label: string; value: number; hint?: string }) {
+  return (
+    <div className="border border-[#262E31] bg-[#111719] p-5">
+      <span className="font-mono text-[10px] tracking-[0.14em] uppercase text-[#6C7573]">{label}</span>
+      <p className="mt-2 font-sans text-[34px] font-light leading-none text-[#F1F3F2]">{value}</p>
+      {hint && <p className="mt-2 font-mono text-[10px] text-[#565F62]">{hint}</p>}
+    </div>
+  );
+}
+
+function BarList({ title, entries, total }: { title: string; entries: [string, number][]; total: number }) {
+  return (
+    <div className="border border-[#262E31] bg-[#111719] p-5">
+      <span className="font-mono text-[10px] tracking-[0.14em] uppercase text-[#6C7573]">{title}</span>
+      <div className="mt-4 flex flex-col gap-3">
+        {entries.length === 0 ? (
+          <span className="font-mono text-[11px] text-[#565F62]">{"// sin datos todavía"}</span>
+        ) : (
+          entries.map(([label, count]) => (
+            <div key={label} className="flex flex-col gap-1">
+              <div className="flex items-baseline justify-between gap-3">
+                <span className="min-w-0 truncate font-mono text-[12px] text-[#DDE2E0]">{label}</span>
+                <span className="shrink-0 font-mono text-[11px] text-[#9AA3A1]">{count}</span>
+              </div>
+              <div className="h-[6px] w-full bg-[#1C2427]">
+                <div
+                  className="h-full bg-[#B4552B]"
+                  style={{ width: `${total ? Math.round((count / total) * 100) : 0}%` }}
+                />
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
+function PendingList({ title, rows }: { title: string; rows: StudentRow[] }) {
+  return (
+    <div className="border border-[#262E31] bg-[#111719] p-5">
+      <span className="font-mono text-[10px] tracking-[0.14em] uppercase text-[#6C7573]">
+        {title} · {rows.length}
+      </span>
+      {rows.length === 0 ? (
+        <p className="mt-3 font-mono text-[11px] text-[#565F62]">{"// nada pendiente"}</p>
+      ) : (
+        <ul className="mt-4 flex flex-col gap-3">
+          {rows.map((s) => (
+            <li key={s.email ?? String(s.userId)} className="flex items-center justify-between gap-3">
+              <span className="flex min-w-0 flex-col">
+                <span className="truncate font-mono text-[12px] text-[#DDE2E0]">{s.name ?? s.email}</span>
+                {s.name && <span className="truncate font-mono text-[10px] text-[#6C7573]">{s.email}</span>}
+              </span>
+              {s.phone ? (
+                <a
+                  href={`https://wa.me/${s.phone.replace(/\D/g, "")}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="shrink-0 border border-[#2F5D43] px-3 py-1 font-mono text-[10px] uppercase tracking-[0.12em] text-[#7FC7A3] hover:bg-[#2F5D43] hover:text-[#F1F3F2]"
+                >
+                  whatsapp
+                </a>
+              ) : null}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+function countBy(values: (string | null)[]): [string, number][] {
+  const map = new Map<string, number>();
+  for (const v of values) {
+    const k = v ?? "sin dato";
+    map.set(k, (map.get(k) ?? 0) + 1);
+  }
+  return [...map.entries()].sort((a, b) => b[1] - a[1]);
+}
+
+function ResumenTab({ students }: { students: StudentRow[] }) {
+  const cohort = students.filter((s) => s.workshopSlug != null);
+  const paid = cohort.filter((s) => s.workshopStatus === "paid");
+  const pending = cohort.filter((s) => s.workshopStatus === "pending");
+  const completed = cohort.filter((s) => s.completed);
+  const missingProfile = cohort.filter((s) => !s.completed);
+  const motivations = cohort.filter((s) => s.motivation);
+
+  return (
+    <div className="mt-6 flex flex-col gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <Kpi label="pagados" value={paid.length} hint="acceso al material activo" />
+        <Kpi label="por pagar" value={pending.length} hint="pendientes de confirmar" />
+        <Kpi label="perfil completo" value={completed.length} hint={`de ${cohort.length} registrados`} />
+      </div>
+
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+        <BarList title="por profesión" entries={countBy(cohort.map((s) => s.profession))} total={cohort.length} />
+        <BarList title="por nivel de IA" entries={countBy(cohort.map((s) => s.aiLevel))} total={cohort.length} />
+      </div>
+
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+        <PendingList title="por confirmar pago" rows={pending} />
+        <PendingList title="perfil sin completar" rows={missingProfile} />
+      </div>
+
+      <div className="border border-[#262E31] bg-[#111719] p-5">
+        <span className="font-mono text-[10px] tracking-[0.14em] uppercase text-[#6C7573]">
+          qué quieren resolver con IA · {motivations.length}
+        </span>
+        {motivations.length === 0 ? (
+          <p className="mt-3 font-mono text-[11px] text-[#565F62]">
+            {"// todavía no hay motivaciones — se capturan al completar el perfil"}
+          </p>
+        ) : (
+          <ul className="mt-4 flex flex-col gap-4">
+            {motivations.map((s) => (
+              <li key={s.email ?? String(s.userId)} className="border-l border-[#262E31] pl-3">
+                <span className="font-mono text-[10px] tracking-[0.08em] uppercase text-[#6C7573]">
+                  {s.name ?? s.email}
+                </span>
+                <p className="mt-1 font-sans text-[14px] leading-[1.6] text-[#DDE2E0]">«{s.motivation}»</p>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function AdminPanel() {
   const { isAdmin, isLoading, role } = useRole();
   const meId = role?.userId;
-  const [tab, setTab] = useState<"estudiantes" | "cursos" | "invitar">("estudiantes");
+  const [tab, setTab] = useState<"estudiantes" | "cursos" | "invitar" | "resumen">("estudiantes");
 
   // Estudiantes
   const allStudents = useQuery(api.admin.listAllStudents);
@@ -124,6 +269,7 @@ function AdminPanel() {
           ["estudiantes", "estudiantes"],
           ["cursos", "cursos"],
           ["invitar", "invitar"],
+          ["resumen", "resumen"],
         ].map(([id, label]) => (
           <button
             key={id}
@@ -605,6 +751,8 @@ function AdminPanel() {
           {inviteMsg && <p className="font-mono text-[11px] text-[#DDE2E0]">{inviteMsg}</p>}
         </div>
       )}
+
+      {tab === "resumen" && <ResumenTab students={(allStudents ?? []) as unknown as StudentRow[]} />}
 
       <ConfirmDialog
         open={confirmTarget !== null}
