@@ -109,8 +109,17 @@ function countBy(values: (string | null)[]): [string, number][] {
   return [...map.entries()].sort((a, b) => b[1] - a[1]);
 }
 
-function ResumenTab({ students }: { students: StudentRow[] }) {
-  const cohort = students.filter((s) => s.workshopSlug != null);
+function DashboardTab({
+  students,
+  courses,
+}: {
+  students: StudentRow[];
+  courses: { slug: string; title: string }[];
+}) {
+  const [courseFilter, setCourseFilter] = useState<string>("todos");
+  const cohort = students.filter(
+    (s) => s.workshopSlug != null && (courseFilter === "todos" || s.workshopSlug === courseFilter),
+  );
   const paid = cohort.filter((s) => s.workshopStatus === "paid");
   const pending = cohort.filter((s) => s.workshopStatus === "pending");
   const completed = cohort.filter((s) => s.completed);
@@ -119,6 +128,23 @@ function ResumenTab({ students }: { students: StudentRow[] }) {
 
   return (
     <div className="mt-6 flex flex-col gap-3">
+      {/* Filtro por workshop (hoy hay uno; queda listo para más cohortes) */}
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="font-mono text-[10px] tracking-[0.14em] uppercase text-[#6C7573]">workshop</span>
+        {[{ slug: "todos", title: "todos" }, ...courses].map((c) => (
+          <button
+            key={c.slug}
+            onClick={() => setCourseFilter(c.slug)}
+            className={`max-w-[260px] truncate border px-3 py-1.5 font-mono text-[11px] tracking-[0.08em] uppercase transition-colors ${
+              courseFilter === c.slug
+                ? "border-[#B4552B] bg-[#1C2427] text-[#F1F3F2]"
+                : "border-[#262E31] text-[#6C7573] hover:border-[#9AA3A1] hover:text-[#F1F3F2]"
+            }`}
+          >
+            {c.slug === "todos" ? "todos" : c.title}
+          </button>
+        ))}
+      </div>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <Kpi label="pagados" value={paid.length} hint="acceso al material activo" />
         <Kpi label="por pagar" value={pending.length} hint="pendientes de confirmar" />
@@ -163,7 +189,7 @@ function ResumenTab({ students }: { students: StudentRow[] }) {
 function AdminPanel() {
   const { isAdmin, isLoading, role } = useRole();
   const meId = role?.userId;
-  const [tab, setTab] = useState<"estudiantes" | "cursos" | "invitar" | "resumen">("estudiantes");
+  const [tab, setTab] = useState<"estudiantes" | "cursos" | "invitar" | "dashboard">("estudiantes");
 
   // Estudiantes
   const allStudents = useQuery(api.admin.listAllStudents);
@@ -269,7 +295,7 @@ function AdminPanel() {
           ["estudiantes", "estudiantes"],
           ["cursos", "cursos"],
           ["invitar", "invitar"],
-          ["resumen", "resumen"],
+          ["dashboard", "dashboard"],
         ].map(([id, label], i) => {
           const secondCol = i % 2 === 1;
           const secondRow = i >= 2;
@@ -758,7 +784,12 @@ function AdminPanel() {
         </div>
       )}
 
-      {tab === "resumen" && <ResumenTab students={(allStudents ?? []) as unknown as StudentRow[]} />}
+      {tab === "dashboard" && (
+        <DashboardTab
+          students={(allStudents ?? []) as unknown as StudentRow[]}
+          courses={(courses ?? []) as { slug: string; title: string }[]}
+        />
+      )}
 
       <ConfirmDialog
         open={confirmTarget !== null}
