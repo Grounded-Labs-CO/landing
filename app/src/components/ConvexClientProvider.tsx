@@ -43,7 +43,13 @@ export function ConvexClientProvider({ children }: { children: ReactNode }) {
     return new ConvexReactClient(url);
   }, []);
   return (
-    <ConvexAuthProvider client={convex}>
+    <ConvexAuthProvider
+      client={convex}
+      // En /signin manejamos el `code` del magic link nosotros mismos para
+      // poder mostrar "verificando…" y avisar cuando el link expiró; el
+      // provider solo lo procesa en el resto de rutas.
+      shouldHandleCode={() => !window.location.pathname.startsWith("/signin")}
+    >
       <AuthErrorRecovery />
       {children}
     </ConvexAuthProvider>

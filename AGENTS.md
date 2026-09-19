@@ -66,7 +66,7 @@ npx convex env set X valor          # variables del deployment (JWT_PRIVATE_KEY 
 
 1. **Artículos "Antes de"** (Configurar Claude Code / Claude Desktop): sin escribir — están como "próximamente".
 2. **Presentación y artículos del workshop**: publicar después de la sesión (sello 05).
-3. ~~Sede y hora exactas~~ → resuelto: **Tinkko Coworking · Milla de Oro** (Cra 42 #3 Sur 81, piso 15), 8:00 a.m.
+3. ~~Sede y hora exactas~~ → resuelto: **Tinkko Coworking · Milla de Oro** (Cra 42 #3 Sur 81, torre 1, piso 8), 8:00 a.m.
 4. **`SITE_URL`** en Convex: verificar que apunta al dominio real en prod (`careful-spaniel-774`).
 5. **Deployment de producción**: Convex ya está deployado y con la data; falta `git push origin main` para que Vercel producción reconstruya el Next.
 6. No hay E2E automatizado del flujo (solo verificación manual en navegador; se usó una cuenta de prueba en dev que ya se limpió).

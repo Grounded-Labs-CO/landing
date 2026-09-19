@@ -5,13 +5,14 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useRole } from "@/hooks/useRole";
 
-function SignInForm() {
+function SignInForm({ code }: { code: string | null }) {
   const { signIn } = useAuthActions();
   const { isAuthenticated } = useConvexAuth();
   const { isAdmin, isLoading: roleLoading } = useRole();
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirected = useRef(false);
+  const handledCode = useRef(false);
   const [authMethod, setAuthMethod] = useState<"email" | "password">("email");
   const [mode, setMode] = useState<"signIn" | "signUp">(
     searchParams.get("mode") === "signup" ? "signUp" : "signIn",
@@ -22,6 +23,25 @@ function SignInForm() {
   const [submitting, setSubmitting] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
   const [verificationSent, setVerificationSent] = useState(false);
+  const [verifyingLink, setVerifyingLink] = useState(!!code);
+
+  // Magic link: el code viene de la URL (?code=…). Lo procesamos acá para
+  // mostrar un estado claro mientras verifica y avisar si el link ya expiró.
+  useEffect(() => {
+    if (!code || handledCode.current || isAuthenticated) return;
+    handledCode.current = true;
+    // Sin el code en la URL, un refresh no reintenta un link ya consumido.
+    window.history.replaceState(null, "", "/signin");
+    setVerifyingLink(true);
+    // Mismo llamado que hace el provider internamente para este flujo.
+    void signIn(undefined as unknown as string, { code }).catch(() => {
+      setVerifyingLink(false);
+      setAuthMethod("email");
+      setError(
+        "Ese link ya expiró o ya fue usado. Pide uno nuevo con tu correo — dura 1 hora y funciona una sola vez.",
+      );
+    });
+  }, [code, isAuthenticated, signIn]);
 
   useEffect(() => {
     if (!isAuthenticated || roleLoading || redirected.current) return;
@@ -81,6 +101,20 @@ function SignInForm() {
     return (
       <div className="mx-auto max-w-md px-6 py-16">
         <p className="font-mono text-[12px] text-[#6C7573]">ingresando…</p>
+      </div>
+    );
+  }
+
+  if (verifyingLink) {
+    return (
+      <div className="mx-auto max-w-md px-6 py-16">
+        <span className="font-mono text-[11px] tracking-[0.18em] uppercase text-[#B4552B]">Estudiantes</span>
+        <h1 className="mt-3 font-sans text-[32px] font-light tracking-[-0.02em] text-[#F1F3F2]">
+          Verificando tu link…
+        </h1>
+        <p className="mt-2 font-sans text-[14px] leading-[1.6] text-[#9AA3A1]">
+          Un segundo — estamos validando tu enlace de acceso.
+        </p>
       </div>
     );
   }
@@ -255,10 +289,16 @@ function SignInForm() {
   );
 }
 
-export default function SignInPage() {
+export default async function SignInPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const sp = await searchParams;
+  const code = typeof sp.code === "string" && sp.code ? sp.code : null;
   return (
     <Suspense fallback={<div className="mx-auto max-w-md px-6 py-16" />}>
-      <SignInForm />
+      <SignInForm code={code} />
     </Suspense>
   );
 }
