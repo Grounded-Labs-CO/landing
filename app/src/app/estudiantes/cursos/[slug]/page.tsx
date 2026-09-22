@@ -348,14 +348,19 @@ function SectionDetail({
 
       {(section.kind === "articles" || section.kind === "docs") && (
         <>
-          <p className="font-sans text-[15px] leading-[1.7] text-[#DDE2E0]">
-            {section.kind === "articles"
-              ? "Lecturas cortas para llegar con todo listo al sábado."
-              : "El material de la sesión se publica aquí después del taller — te avisamos por correo."}
-          </p>
+          {section.kind === "docs" && (
+            <p className="font-sans text-[15px] leading-[1.7] text-[#DDE2E0]">
+              El material de la sesión se publica aquí después del taller — te avisamos por
+              correo.
+            </p>
+          )}
           <div
-            className={`grid grid-cols-1 gap-3 ${
-              section.items.length >= 3 ? "md:grid-cols-3" : "md:grid-cols-2"
+            className={`grid gap-3 ${
+              section.items.length >= 3
+                ? "md:grid-cols-3"
+                : section.items.length === 1
+                  ? "grid-cols-1"
+                  : "md:grid-cols-2"
             }`}
           >
             {section.items.map((item) => (
