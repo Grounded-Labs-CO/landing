@@ -191,6 +191,14 @@ export const setRegistrationPaid = mutation({
   },
 });
 
+// Sesión admin o secreto de bootstrap (para operar los ítems por CLI/automatización,
+// igual que addStudent/promoteByEmail).
+async function requireAdminOrSecret(ctx, secret) {
+  const expected = process.env.ADMIN_BOOTSTRAP_SECRET;
+  if (expected && typeof secret === "string" && secret === expected) return;
+  await requireActiveAdmin(ctx);
+}
+
 async function isActiveAdmin(ctx) {
   const callerId = await getAuthUserId(ctx);
   if (!callerId) return false;
@@ -618,11 +626,18 @@ export const createItem = mutation({
     url: v.optional(v.string()),
     note: v.optional(v.string()),
     status: v.optional(v.union(v.literal("proximo"), v.literal("published"))),
+    // Archivo descargable (PDF/guía) que vive en storage. Opcional: sin él el
+    // ítem es solo texto/link.
+    storageId: v.optional(v.id("_storage")),
+    secret: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    await requireActiveAdmin(ctx);
+    await requireAdminOrSecret(ctx, args.secret);
     const section = await ctx.db.get(args.sectionId);
     if (!section) throw new Error("Sección no encontrada");
+    if (args.storageId && !(await ctx.storage.getUrl(args.storageId))) {
+      throw new Error("storageId inválido: el archivo no existe en storage");
+    }
     const siblings = await ctx.db
       .query("course_items")
       .withIndex("by_section", (q) => q.eq("sectionId", args.sectionId))
@@ -636,6 +651,7 @@ export const createItem = mutation({
       url: args.url,
       note: args.note,
       status: args.status ?? "proximo",
+      storageId: args.storageId,
     });
   },
 });
@@ -650,21 +666,27 @@ export const updateItem = mutation({
       note: v.optional(v.string()),
       order: v.optional(v.number()),
       status: v.optional(v.union(v.literal("proximo"), v.literal("published"))),
+      storageId: v.optional(v.id("_storage")),
     }),
+    secret: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    await requireActiveAdmin(ctx);
+    await requireAdminOrSecret(ctx, args.secret);
     const item = await ctx.db.get(args.itemId);
     if (!item) throw new Error("Ítem no encontrado");
+    const storageId = (args.patch as any).storageId;
+    if (storageId && !(await ctx.storage.getUrl(storageId))) {
+      throw new Error("storageId inválido: el archivo no existe en storage");
+    }
     await ctx.db.patch(args.itemId, args.patch as any);
     return args.itemId;
   },
 });
 
 export const deleteItem = mutation({
-  args: { itemId: v.id("course_items") },
+  args: { itemId: v.id("course_items"), secret: v.optional(v.string()) },
   handler: async (ctx, args) => {
-    await requireActiveAdmin(ctx);
+    await requireAdminOrSecret(ctx, args.secret);
     const item = await ctx.db.get(args.itemId);
     if (!item) throw new Error("Ítem no encontrado");
     // El archivo vive en storage: sin esto queda huérfano.
