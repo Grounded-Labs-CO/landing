@@ -248,10 +248,10 @@ function MaterialTab({ courses }: { courses: { slug: string; title: string }[] }
   return (
     <div className="mt-6 flex flex-col gap-4">
       <p className="font-mono text-[11px] leading-[1.7] text-[#6C7573]">
-        Estados: <span className="text-[#7FC7A3]">publicado</span> se ve y se descarga ·{" "}
+        En documentos: <span className="text-[#7FC7A3]">publicado</span> se ve y se descarga ·{" "}
         <span className="text-[#E2C084]">próximamente</span> muestra el título pero sin abrir ·{" "}
-        <span className="text-[#9AA3A1]">deshabilitado</span> no se muestra (no se borra). Subir
-        archivo deja el ítem en publicado.
+        <span className="text-[#9AA3A1]">deshabilitado</span> no se muestra (no se borra). En
+        listas y links solo aplica ocultar.
       </p>
       <div className="flex flex-col gap-2">
         <span className="font-mono text-[11px] uppercase text-[#6C7573]">workshop</span>
@@ -273,7 +273,13 @@ function MaterialTab({ courses }: { courses: { slug: string; title: string }[] }
       ) : content === null ? (
         <p className="font-mono text-[12px] text-[#565F62]">{"// sin contenido (¿slug válido?)"}</p>
       ) : (
-        content.sections.map((section: any) => (
+        content.sections.map((section: any) => {
+          // Solo documentos (articles/docs) llevan archivo y estados de
+          // publicación. Checklist/links/info son contenido directo: la lista
+          // la llena el estudiante, los links siempre se ven.
+          const isFileSection = section.kind === "docs" || section.kind === "articles";
+          const canAddItems = ["docs", "articles", "checklist", "links"].includes(section.kind);
+          return (
           <div key={String(section._id)} className="border border-[#262E31] bg-[#111719] p-5">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
@@ -371,21 +377,27 @@ function MaterialTab({ courses }: { courses: { slug: string; title: string }[] }
                     <span className="font-mono text-[11px] text-[#DDE2E0]">
                       <span className="text-[#6C7573]">{idx + 1}.</span> {item.title}
                     </span>
-                    <span
-                      className={`px-2 py-0.5 font-mono text-[10px] uppercase ${
-                        item.status === "published"
-                          ? "bg-[#1C2427] text-[#7FC7A3] border border-[#262E31]"
+                    {isFileSection ? (
+                      <span
+                        className={`px-2 py-0.5 font-mono text-[10px] uppercase ${
+                          item.status === "published"
+                            ? "bg-[#1C2427] text-[#7FC7A3] border border-[#262E31]"
+                            : item.status === "disabled"
+                              ? "bg-[#2F3A3D] text-[#6C7573] border border-[#2F3A3D]"
+                              : "bg-[#5D4A2F] text-[#E2C084] border border-[#5D4A2F]"
+                        }`}
+                      >
+                        {item.status === "published"
+                          ? "publicado"
                           : item.status === "disabled"
-                            ? "bg-[#2F3A3D] text-[#6C7573] border border-[#2F3A3D]"
-                            : "bg-[#5D4A2F] text-[#E2C084] border border-[#5D4A2F]"
-                      }`}
-                    >
-                      {item.status === "published"
-                        ? "publicado"
-                        : item.status === "disabled"
-                          ? "deshabilitado"
-                          : "próximamente"}
-                    </span>
+                            ? "deshabilitado"
+                            : "próximamente"}
+                      </span>
+                    ) : item.status === "disabled" ? (
+                      <span className="px-2 py-0.5 font-mono text-[10px] uppercase bg-[#2F3A3D] text-[#6C7573] border border-[#2F3A3D]">
+                        deshabilitado
+                      </span>
+                    ) : null}
                   </div>
                   {item.description && (
                     <p className="mt-1 font-mono text-[11px] leading-[1.6] text-[#9AA3A1]">
@@ -395,6 +407,12 @@ function MaterialTab({ courses }: { courses: { slug: string; title: string }[] }
                   <p className="mt-1 font-mono text-[10px] text-[#565F62]">
                     {item.status === "disabled" ? (
                       "// oculto al estudiante (no borrado)"
+                    ) : !isFileSection ? (
+                      section.kind === "checklist"
+                        ? `// punto de la lista${item.group ? ` · grupo: ${item.group}` : ""} — lo marca el estudiante`
+                        : section.kind === "links"
+                          ? "// enlace visible al estudiante"
+                          : null
                     ) : item.hasFile ? (
                       item.status === "published" ? (
                         <a
@@ -455,38 +473,58 @@ function MaterialTab({ courses }: { courses: { slug: string; title: string }[] }
                     </div>
                   ) : newFor === null ? (
                     <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-[#262E31] pt-3">
-                      <label className="cursor-pointer border border-[#2F5D43] px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.1em] text-[#7FC7A3] hover:bg-[#2F5D43] hover:text-[#F1F3F2]">
-                        {busyItem === String(item._id) ? "subiendo…" : "subir archivo"}
-                        <input
-                          type="file"
-                          className="hidden"
-                          disabled={busyItem === String(item._id)}
-                          onChange={(e) => {
-                            const f = e.target.files?.[0];
-                            e.target.value = "";
-                            if (f) void uploadFile(item._id, f);
-                          }}
-                        />
-                      </label>
-                      <span className="inline-block w-[180px]">
-                        <DropdownSelect
-                          size="sm"
-                          options={[
-                            { value: "published", label: "publicado" },
-                            { value: "proximo", label: "próximamente" },
-                            { value: "disabled", label: "deshabilitado" },
-                          ]}
-                          value={item.status ?? "proximo"}
-                          onChange={(v) =>
+                      {isFileSection && (
+                        <label className="cursor-pointer border border-[#2F5D43] px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.1em] text-[#7FC7A3] hover:bg-[#2F5D43] hover:text-[#F1F3F2]">
+                          {busyItem === String(item._id) ? "subiendo…" : "subir archivo"}
+                          <input
+                            type="file"
+                            className="hidden"
+                            disabled={busyItem === String(item._id)}
+                            onChange={(e) => {
+                              const f = e.target.files?.[0];
+                              e.target.value = "";
+                              if (f) void uploadFile(item._id, f);
+                            }}
+                          />
+                        </label>
+                      )}
+                      {isFileSection ? (
+                        <span className="inline-block w-[180px]">
+                          <DropdownSelect
+                            size="sm"
+                            options={[
+                              { value: "published", label: "publicado" },
+                              { value: "proximo", label: "próximamente" },
+                              { value: "disabled", label: "deshabilitado" },
+                            ]}
+                            value={item.status ?? "proximo"}
+                            onChange={(v) =>
+                              void updateItem({
+                                itemId: item._id,
+                                patch: { status: v as any },
+                              }).catch((e) =>
+                                setError(e instanceof Error ? `// ${e.message}` : "// no se pudo cambiar el estado"),
+                              )
+                            }
+                          />
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() =>
                             void updateItem({
                               itemId: item._id,
-                              patch: { status: v as any },
+                              patch: {
+                                status: item.status === "disabled" ? "published" : "disabled",
+                              } as any,
                             }).catch((e) =>
                               setError(e instanceof Error ? `// ${e.message}` : "// no se pudo cambiar el estado"),
                             )
                           }
-                        />
-                      </span>
+                          className="border border-[#262E31] px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.1em] text-[#9AA3A1] hover:text-[#F1F3F2]"
+                        >
+                          {item.status === "disabled" ? "mostrar" : "ocultar"}
+                        </button>
+                      )}
                       <span className="flex gap-1">
                         <button
                           disabled={idx === 0}
@@ -550,7 +588,7 @@ function MaterialTab({ courses }: { courses: { slug: string; title: string }[] }
               ))}
             </div>
 
-            {newFor === String(section._id) ? (
+            {canAddItems && (newFor === String(section._id) ? (
               <div className="mt-3 flex flex-col gap-2 border border-dashed border-[#2F3A3D] p-4">
                 <input
                   value={newTitle}
@@ -597,9 +635,15 @@ function MaterialTab({ courses }: { courses: { slug: string; title: string }[] }
               >
                 + nuevo ítem
               </button>
+            ))}
+            {section.kind === "sample-data" && (
+              <p className="mt-3 font-mono text-[10px] text-[#565F62]">
+                {"// los expedientes se gestionan en el dashboard de Convex (sample_profiles / sample_files)"}
+              </p>
             )}
           </div>
-        ))
+          );
+        })
       )}
 
       {error && (

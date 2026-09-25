@@ -802,6 +802,7 @@ export const listCourseContent = query({
           status: item.status ?? "proximo",
           hasFile: !!item.storageId,
           downloadUrl: item.storageId ? ((await ctx.storage.getUrl(item.storageId)) ?? null) : null,
+          group: item.group ?? null,
         });
       }
       out.push({
