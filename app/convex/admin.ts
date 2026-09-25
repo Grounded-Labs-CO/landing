@@ -764,6 +764,87 @@ export const listCoursesAdmin = query({
   },
 });
 
+// --- Contenido del curso para el tab "material" del /admin ---
+// Devuelve secciones + ítems con IDs y flags de archivo para poder
+// subir, publicar, reordenar y renombrar sin pasar por el dashboard.
+export const listCourseContent = query({
+  args: { courseSlug: v.string() },
+  handler: async (ctx, args) => {
+    if (!(await isActiveAdmin(ctx))) return null;
+    const course = await ctx.db
+      .query("courses")
+      .withIndex("by_slug", (q) => q.eq("slug", args.courseSlug))
+      .unique();
+    if (!course) return null;
+    const sections = (
+      await ctx.db
+        .query("course_sections")
+        .withIndex("by_course", (q) => q.eq("courseId", course._id))
+        .collect()
+    ).sort((a, b) => a.order - b.order);
+    const out = [];
+    for (const section of sections) {
+      const items = (
+        await ctx.db
+          .query("course_items")
+          .withIndex("by_section", (q) => q.eq("sectionId", section._id))
+          .collect()
+      ).sort((a, b) => a.order - b.order);
+      const itemsOut = [];
+      for (const item of items) {
+        itemsOut.push({
+          _id: item._id,
+          order: item.order,
+          title: item.title,
+          description: item.description ?? null,
+          url: item.url ?? null,
+          note: item.note ?? null,
+          status: item.status ?? "proximo",
+          hasFile: !!item.storageId,
+          downloadUrl: item.storageId ? ((await ctx.storage.getUrl(item.storageId)) ?? null) : null,
+        });
+      }
+      out.push({
+        _id: section._id,
+        order: section.order,
+        kind: section.kind,
+        title: section.title,
+        hint: section.hint,
+        items: itemsOut,
+      });
+    }
+    return { courseId: course._id, slug: course.slug, title: course.title, sections: out };
+  },
+});
+
+// URL firmada genérica para subir el archivo de un ítem (PDF/ZIP/guía).
+// El navegador hace POST del File y luego llama updateItem con el storageId.
+export const generateItemUploadUrl = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireActiveAdmin(ctx);
+    return await ctx.storage.generateUploadUrl();
+  },
+});
+
+export const updateSection = mutation({
+  args: {
+    sectionId: v.id("course_sections"),
+    patch: v.object({
+      title: v.optional(v.string()),
+      hint: v.optional(v.string()),
+      order: v.optional(v.number()),
+    }),
+  },
+  handler: async (ctx, args) => {
+    await requireActiveAdmin(ctx);
+    const section = await ctx.db.get(args.sectionId);
+    if (!section) throw new Error("Sección no encontrada");
+    await ctx.db.patch(args.sectionId, args.patch as any);
+    return args.sectionId;
+  },
+});
+
 // Limpieza total de un email en TODAS las tablas (uso operativo con bootstrap secret).
 export const clearUserByEmail = mutation({
   args: { email: v.string(), secret: v.string() },

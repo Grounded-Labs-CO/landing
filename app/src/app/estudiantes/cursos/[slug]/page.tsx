@@ -350,8 +350,8 @@ function SectionDetail({
         <>
           {section.kind === "docs" && (
             <p className="font-sans text-[15px] leading-[1.7] text-[#DDE2E0]">
-              El material de la sesión se publica aquí después del taller — te avisamos por
-              correo.
+              Material que vamos a usar durante el workshop — descárgalo antes de llegar o
+              ábrelo en sala.
             </p>
           )}
           <div

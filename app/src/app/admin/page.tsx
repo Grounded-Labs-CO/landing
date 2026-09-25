@@ -186,10 +186,395 @@ function DashboardTab({
   );
 }
 
+function MaterialTab({ courses }: { courses: { slug: string; title: string }[] }) {
+  const [slug, setSlug] = useState("finanzas-personales-ia");
+  const content = useQuery(
+    api.admin.listCourseContent,
+    slug ? { courseSlug: slug } : "skip",
+  );
+  const generateItemUploadUrl = useMutation(api.admin.generateItemUploadUrl);
+  const updateItem = useMutation(api.admin.updateItem);
+  const createItem = useMutation(api.admin.createItem);
+  const deleteItem = useMutation(api.admin.deleteItem);
+  const updateSection = useMutation(api.admin.updateSection);
+
+  const [busyItem, setBusyItem] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [editDesc, setEditDesc] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [newFor, setNewFor] = useState<string | null>(null);
+  const [newTitle, setNewTitle] = useState("");
+  const [newDesc, setNewDesc] = useState("");
+  const [editingSection, setEditingSection] = useState<string | null>(null);
+  const [editSecTitle, setEditSecTitle] = useState("");
+  const [editSecHint, setEditSecHint] = useState("");
+
+  const uploadFile = async (itemId: any, file: File) => {
+    setError(null);
+    setBusyItem(String(itemId));
+    try {
+      const postUrl = await generateItemUploadUrl();
+      const res = await fetch(postUrl, {
+        method: "POST",
+        headers: { "content-type": file.type || "application/octet-stream" },
+        body: file,
+      });
+      if (!res.ok) throw new Error("subida falló");
+      const { storageId } = await res.json();
+      if (!storageId) throw new Error("sin storageId");
+      await updateItem({ itemId, patch: { storageId, status: "published" } });
+    } catch (e) {
+      setError(e instanceof Error ? `// ${e.message}` : "// no pudimos subir el archivo");
+    } finally {
+      setBusyItem(null);
+    }
+  };
+
+  const swapOrder = async (a: any, b: any) => {
+    setError(null);
+    setBusyItem(String(a._id));
+    try {
+      await updateItem({ itemId: a._id, patch: { order: b.order } });
+      await updateItem({ itemId: b._id, patch: { order: a.order } });
+    } catch (e) {
+      setError(e instanceof Error ? `// ${e.message}` : "// no pudimos reordenar");
+    } finally {
+      setBusyItem(null);
+    }
+  };
+
+  return (
+    <div className="mt-6 flex flex-col gap-4">
+      <p className="font-mono text-[11px] leading-[1.7] text-[#6C7573]">
+        Sube aquí el .zip y la presentación del sello 05. Al subir archivo el ítem pasa a{" "}
+        <span className="text-[#7FC7A3]">publicado</span> y el estudiante ve{" "}
+        <span className="text-[#DDE2E0]">abrir ⬇</span> en vez de próximamente. Con ↑ ↓ dejas
+        Artículos primero y Presentación después.
+      </p>
+      <div className="flex flex-col gap-2">
+        <span className="font-mono text-[11px] uppercase text-[#6C7573]">workshop</span>
+        <DropdownSelect
+          size="sm"
+          options={(courses ?? []).map((c: any) => ({
+            value: c.slug,
+            label: `${c.title} · ${c.slug}`,
+          }))}
+          value={slug}
+          onChange={setSlug}
+          placeholder="— elige curso —"
+          className="w-full"
+        />
+      </div>
+
+      {content === undefined ? (
+        <p className="font-mono text-[12px] text-[#6C7573]">cargando…</p>
+      ) : content === null ? (
+        <p className="font-mono text-[12px] text-[#565F62]">{"// sin contenido (¿slug válido?)"}</p>
+      ) : (
+        content.sections.map((section: any) => (
+          <div key={String(section._id)} className="border border-[#262E31] bg-[#111719] p-5">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <span className="font-mono text-[10px] tracking-[0.14em] uppercase text-[#B4552B]">
+                  {String(section.order).padStart(2, "0")} · {section.kind}
+                </span>
+                {editingSection === String(section._id) ? (
+                  <div className="mt-2 flex flex-col gap-2">
+                    <input
+                      value={editSecTitle}
+                      onChange={(e) => setEditSecTitle(e.target.value)}
+                      placeholder="título de la sección"
+                      className="border border-[#262E31] bg-[#0E1214] px-3 py-1.5 font-mono text-[12px] text-[#F1F3F2] outline-none focus:border-[#B4552B]"
+                    />
+                    <input
+                      value={editSecHint}
+                      onChange={(e) => setEditSecHint(e.target.value)}
+                      placeholder="hint (subtítulo de la tarjeta)"
+                      className="border border-[#262E31] bg-[#0E1214] px-3 py-1.5 font-mono text-[12px] text-[#F1F3F2] outline-none focus:border-[#B4552B]"
+                    />
+                    <div className="flex gap-2">
+                      <button
+                        onClick={async () => {
+                          await updateSection({
+                            sectionId: section._id,
+                            patch: {
+                              ...(editSecTitle.trim() ? { title: editSecTitle.trim() } : {}),
+                              ...(editSecHint.trim() ? { hint: editSecHint.trim() } : {}),
+                            } as any,
+                          });
+                          setEditingSection(null);
+                        }}
+                        className="bg-[#B4552B] px-3 py-1.5 font-mono text-[11px] uppercase text-[#0E1214] hover:bg-[#9A4A24]"
+                      >
+                        guardar
+                      </button>
+                      <button
+                        onClick={() => setEditingSection(null)}
+                        className="border border-[#262E31] px-3 py-1.5 font-mono text-[11px] uppercase text-[#6C7573] hover:text-[#F1F3F2]"
+                      >
+                        cancelar
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <h3 className="mt-1 font-sans text-[17px] font-light text-[#F1F3F2]">
+                      {section.title}
+                    </h3>
+                    <p className="font-mono text-[11px] text-[#6C7573]">{section.hint}</p>
+                  </>
+                )}
+              </div>
+              {editingSection !== String(section._id) && (
+                <button
+                  onClick={() => {
+                    setEditingSection(String(section._id));
+                    setEditSecTitle(section.title);
+                    setEditSecHint(section.hint);
+                  }}
+                  className="font-mono text-[10px] uppercase tracking-[0.1em] text-[#6C7573] hover:text-[#F1F3F2]"
+                >
+                  renombrar
+                </button>
+              )}
+            </div>
+
+            <div className="mt-4 flex flex-col gap-2">
+              {section.items.map((item: any, idx: number) => (
+                <div
+                  key={String(item._id)}
+                  className="border border-[#262E31] bg-[#0E1214] p-4"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="font-mono text-[11px] text-[#DDE2E0]">
+                      <span className="text-[#6C7573]">{idx + 1}.</span> {item.title}
+                    </span>
+                    <span
+                      className={`px-2 py-0.5 font-mono text-[10px] uppercase ${
+                        item.status === "published"
+                          ? "bg-[#1C2427] text-[#7FC7A3] border border-[#262E31]"
+                          : "bg-[#5D4A2F] text-[#E2C084] border border-[#5D4A2F]"
+                      }`}
+                    >
+                      {item.status === "published" ? "publicado" : "próximamente"}
+                    </span>
+                  </div>
+                  {item.description && (
+                    <p className="mt-1 font-mono text-[11px] leading-[1.6] text-[#9AA3A1]">
+                      {item.description}
+                    </p>
+                  )}
+                  <p className="mt-1 font-mono text-[10px] text-[#565F62]">
+                    {item.hasFile ? (
+                      <a
+                        href={item.downloadUrl ?? "#"}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-[#7FC7A3] underline hover:text-[#F1F3F2]"
+                      >
+                        archivo subido ✓ ver
+                      </a>
+                    ) : (
+                      "// sin archivo — muestra próximamente"
+                    )}
+                  </p>
+
+                  {editingId === String(item._id) ? (
+                    <div className="mt-3 flex flex-col gap-2 border-t border-[#262E31] pt-3">
+                      <input
+                        value={editTitle}
+                        onChange={(e) => setEditTitle(e.target.value)}
+                        placeholder="título"
+                        className="border border-[#262E31] bg-[#0E1214] px-3 py-1.5 font-mono text-[12px] text-[#F1F3F2] outline-none focus:border-[#B4552B]"
+                      />
+                      <input
+                        value={editDesc}
+                        onChange={(e) => setEditDesc(e.target.value)}
+                        placeholder="descripción (ej: Material que vamos a usar durante el workshop)"
+                        className="border border-[#262E31] bg-[#0E1214] px-3 py-1.5 font-mono text-[12px] text-[#F1F3F2] outline-none focus:border-[#B4552B]"
+                      />
+                      <div className="flex gap-2">
+                        <button
+                          onClick={async () => {
+                            await updateItem({
+                              itemId: item._id,
+                              patch: {
+                                ...(editTitle.trim() ? { title: editTitle.trim() } : {}),
+                                description: editDesc.trim() || undefined,
+                              } as any,
+                            });
+                            setEditingId(null);
+                          }}
+                          className="bg-[#B4552B] px-3 py-1.5 font-mono text-[11px] uppercase text-[#0E1214] hover:bg-[#9A4A24]"
+                        >
+                          guardar
+                        </button>
+                        <button
+                          onClick={() => setEditingId(null)}
+                          className="border border-[#262E31] px-3 py-1.5 font-mono text-[11px] uppercase text-[#6C7573] hover:text-[#F1F3F2]"
+                        >
+                          cancelar
+                        </button>
+                      </div>
+                    </div>
+                  ) : newFor === null ? (
+                    <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-[#262E31] pt-3">
+                      <label className="cursor-pointer border border-[#2F5D43] px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.1em] text-[#7FC7A3] hover:bg-[#2F5D43] hover:text-[#F1F3F2]">
+                        {busyItem === String(item._id) ? "subiendo…" : "subir archivo"}
+                        <input
+                          type="file"
+                          className="hidden"
+                          disabled={busyItem === String(item._id)}
+                          onChange={(e) => {
+                            const f = e.target.files?.[0];
+                            e.target.value = "";
+                            if (f) void uploadFile(item._id, f);
+                          }}
+                        />
+                      </label>
+                      <button
+                        onClick={() =>
+                          void updateItem({
+                            itemId: item._id,
+                            patch: {
+                              status: item.status === "published" ? "proximo" : "published",
+                            } as any,
+                          })
+                        }
+                        className="border border-[#262E31] px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.1em] text-[#9AA3A1] hover:text-[#F1F3F2]"
+                      >
+                        {item.status === "published" ? "a próximo" : "publicar"}
+                      </button>
+                      <span className="flex gap-1">
+                        <button
+                          disabled={idx === 0}
+                          onClick={() => void swapOrder(item, section.items[idx - 1])}
+                          className="border border-[#262E31] px-2 py-1.5 font-mono text-[11px] text-[#9AA3A1] hover:text-[#F1F3F2] disabled:opacity-30"
+                          title="subir (va primero)"
+                        >
+                          ↑
+                        </button>
+                        <button
+                          disabled={idx === section.items.length - 1}
+                          onClick={() => void swapOrder(item, section.items[idx + 1])}
+                          className="border border-[#262E31] px-2 py-1.5 font-mono text-[11px] text-[#9AA3A1] hover:text-[#F1F3F2] disabled:opacity-30"
+                          title="bajar (va después)"
+                        >
+                          ↓
+                        </button>
+                      </span>
+                      <button
+                        onClick={() => {
+                          setEditingId(String(item._id));
+                          setEditTitle(item.title);
+                          setEditDesc(item.description ?? "");
+                        }}
+                        className="font-mono text-[10px] uppercase tracking-[0.1em] text-[#6C7573] hover:text-[#F1F3F2]"
+                      >
+                        editar
+                      </button>
+                      {confirmDelete === String(item._id) ? (
+                        <span className="flex items-center gap-2 font-mono text-[10px] text-[#9AA3A1]">
+                          ¿borrar?
+                          <button
+                            onClick={() => {
+                              setConfirmDelete(null);
+                              void deleteItem({ itemId: item._id }).catch((e) =>
+                                setError(e instanceof Error ? `// ${e.message}` : "// no se pudo borrar"),
+                              );
+                            }}
+                            className="uppercase text-[#E2A084] hover:text-[#F1F3F2]"
+                          >
+                            sí
+                          </button>
+                          <button
+                            onClick={() => setConfirmDelete(null)}
+                            className="uppercase text-[#6C7573] hover:text-[#9AA3A1]"
+                          >
+                            no
+                          </button>
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() => setConfirmDelete(String(item._id))}
+                          className="font-mono text-[10px] uppercase tracking-[0.1em] text-[#6C7573] hover:text-[#E2A084]"
+                        >
+                          borrar
+                        </button>
+                      )}
+                    </div>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+
+            {newFor === String(section._id) ? (
+              <div className="mt-3 flex flex-col gap-2 border border-dashed border-[#2F3A3D] p-4">
+                <input
+                  value={newTitle}
+                  onChange={(e) => setNewTitle(e.target.value)}
+                  placeholder="título del nuevo ítem (ej: Material del workshop .zip)"
+                  className="border border-[#262E31] bg-[#0E1214] px-3 py-1.5 font-mono text-[12px] text-[#F1F3F2] outline-none focus:border-[#B4552B]"
+                />
+                <input
+                  value={newDesc}
+                  onChange={(e) => setNewDesc(e.target.value)}
+                  placeholder="descripción (ej: Material que vamos a usar durante el workshop)"
+                  className="border border-[#262E31] bg-[#0E1214] px-3 py-1.5 font-mono text-[12px] text-[#F1F3F2] outline-none focus:border-[#B4552B]"
+                />
+                <div className="flex gap-2">
+                  <button
+                    onClick={async () => {
+                      if (!newTitle.trim()) return;
+                      await createItem({
+                        sectionId: section._id,
+                        title: newTitle.trim(),
+                        description: newDesc.trim() || undefined,
+                        status: "proximo",
+                      } as any);
+                      setNewFor(null);
+                      setNewTitle("");
+                      setNewDesc("");
+                    }}
+                    className="bg-[#B4552B] px-3 py-1.5 font-mono text-[11px] uppercase text-[#0E1214] hover:bg-[#9A4A24]"
+                  >
+                    crear
+                  </button>
+                  <button
+                    onClick={() => setNewFor(null)}
+                    className="border border-[#262E31] px-3 py-1.5 font-mono text-[11px] uppercase text-[#6C7573] hover:text-[#F1F3F2]"
+                  >
+                    cancelar
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                onClick={() => setNewFor(String(section._id))}
+                className="mt-3 border border-dashed border-[#2F3A3D] px-3 py-2 font-mono text-[10px] uppercase tracking-[0.1em] text-[#6C7573] hover:border-[#9AA3A1] hover:text-[#F1F3F2]"
+              >
+                + nuevo ítem
+              </button>
+            )}
+          </div>
+        ))
+      )}
+
+      {error && (
+        <p className="border border-[#3A1C0C] bg-[#1C2427] px-4 py-3 font-mono text-[12px] text-[#E2A084]">
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}
+
 function AdminPanel() {
   const { isAdmin, isLoading, role } = useRole();
   const meId = role?.userId;
-  const [tab, setTab] = useState<"estudiantes" | "cursos" | "invitar" | "dashboard">("estudiantes");
+  const [tab, setTab] = useState<"estudiantes" | "cursos" | "material" | "invitar" | "dashboard">("estudiantes");
 
   // Estudiantes
   const allStudents = useQuery(api.admin.listAllStudents);
@@ -290,10 +675,11 @@ function AdminPanel() {
   return (
     <>
       {/* TABS */}
-      <div className="mt-8 grid grid-cols-2 border border-[#262E31] sm:flex sm:max-w-[640px]">
+      <div className="mt-8 grid grid-cols-2 border border-[#262E31] sm:flex sm:max-w-[720px]">
         {[
           ["estudiantes", "estudiantes"],
           ["cursos", "cursos"],
+          ["material", "material"],
           ["invitar", "invitar"],
           ["dashboard", "dashboard"],
         ].map(([id, label], i) => {
@@ -698,6 +1084,10 @@ function AdminPanel() {
             ))
           )}
         </div>
+      )}
+
+      {tab === "material" && (
+        <MaterialTab courses={(courses ?? []) as { slug: string; title: string }[]} />
       )}
 
       {tab === "invitar" && (
