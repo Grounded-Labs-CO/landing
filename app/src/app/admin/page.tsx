@@ -341,6 +341,26 @@ function MaterialTab({ courses }: { courses: { slug: string; title: string }[] }
               )}
             </div>
 
+            {/* La sección info (01) no usa ítems: su contenido es el eventInfo
+                del curso (fecha, sede, qué llevar), que se edita en el tab cursos. */}
+            {section.kind === "info" && (
+              <div className="mt-3 border border-dashed border-[#2F3A3D] p-4">
+                <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-[#6C7573]">
+                  {"// esta sección se alimenta del eventInfo del curso — no lleva ítems"}
+                </p>
+                <ul className="mt-2 flex flex-col gap-1">
+                  {((content as any).eventInfo ?? []).map((e: any) => (
+                    <li key={e.label} className="font-mono text-[11px] text-[#9AA3A1]">
+                      <span className="text-[#B4552B]">{e.label}:</span> {e.value}
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-2 font-mono text-[10px] text-[#565F62]">
+                  {"// para cambiarlo: tab cursos → editar → eventInfo (JSON)"}
+                </p>
+              </div>
+            )}
+
             <div className="mt-4 flex flex-col gap-2">
               {section.items.map((item: any, idx: number) => (
                 <div

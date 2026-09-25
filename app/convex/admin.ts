@@ -813,7 +813,7 @@ export const listCourseContent = query({
         items: itemsOut,
       });
     }
-    return { courseId: course._id, slug: course.slug, title: course.title, sections: out };
+    return { courseId: course._id, slug: course.slug, title: course.title, sections: out, eventInfo: course.eventInfo ?? [] };
   },
 });
 
