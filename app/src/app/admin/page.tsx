@@ -248,10 +248,10 @@ function MaterialTab({ courses }: { courses: { slug: string; title: string }[] }
   return (
     <div className="mt-6 flex flex-col gap-4">
       <p className="font-mono text-[11px] leading-[1.7] text-[#6C7573]">
-        Sube aquí el .zip y la presentación del sello 05. Al subir archivo el ítem pasa a{" "}
-        <span className="text-[#7FC7A3]">publicado</span> y el estudiante ve{" "}
-        <span className="text-[#DDE2E0]">abrir ⬇</span> en vez de próximamente. Con ↑ ↓ dejas
-        Artículos primero y Presentación después.
+        Estados: <span className="text-[#7FC7A3]">publicado</span> se ve y se descarga ·{" "}
+        <span className="text-[#E2C084]">próximamente</span> muestra el título pero sin abrir ·{" "}
+        <span className="text-[#9AA3A1]">deshabilitado</span> no se muestra (no se borra). Subir
+        archivo deja el ítem en publicado.
       </p>
       <div className="flex flex-col gap-2">
         <span className="font-mono text-[11px] uppercase text-[#6C7573]">workshop</span>
@@ -355,10 +355,16 @@ function MaterialTab({ courses }: { courses: { slug: string; title: string }[] }
                       className={`px-2 py-0.5 font-mono text-[10px] uppercase ${
                         item.status === "published"
                           ? "bg-[#1C2427] text-[#7FC7A3] border border-[#262E31]"
-                          : "bg-[#5D4A2F] text-[#E2C084] border border-[#5D4A2F]"
+                          : item.status === "disabled"
+                            ? "bg-[#2F3A3D] text-[#6C7573] border border-[#2F3A3D]"
+                            : "bg-[#5D4A2F] text-[#E2C084] border border-[#5D4A2F]"
                       }`}
                     >
-                      {item.status === "published" ? "publicado" : "próximamente"}
+                      {item.status === "published"
+                        ? "publicado"
+                        : item.status === "disabled"
+                          ? "deshabilitado"
+                          : "próximamente"}
                     </span>
                   </div>
                   {item.description && (
@@ -367,15 +373,23 @@ function MaterialTab({ courses }: { courses: { slug: string; title: string }[] }
                     </p>
                   )}
                   <p className="mt-1 font-mono text-[10px] text-[#565F62]">
-                    {item.hasFile ? (
-                      <a
-                        href={item.downloadUrl ?? "#"}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-[#7FC7A3] underline hover:text-[#F1F3F2]"
-                      >
-                        archivo subido ✓ ver
-                      </a>
+                    {item.status === "disabled" ? (
+                      "// oculto al estudiante (no borrado)"
+                    ) : item.hasFile ? (
+                      item.status === "published" ? (
+                        <a
+                          href={item.downloadUrl ?? "#"}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-[#7FC7A3] underline hover:text-[#F1F3F2]"
+                        >
+                          archivo subido ✓ ver
+                        </a>
+                      ) : (
+                        <span className="text-[#E2C084]">
+                          {"// archivo listo pero sin abrir — cambia el estado a publicado"}
+                        </span>
+                      )
                     ) : (
                       "// sin archivo — muestra próximamente"
                     )}
@@ -434,19 +448,25 @@ function MaterialTab({ courses }: { courses: { slug: string; title: string }[] }
                           }}
                         />
                       </label>
-                      <button
-                        onClick={() =>
-                          void updateItem({
-                            itemId: item._id,
-                            patch: {
-                              status: item.status === "published" ? "proximo" : "published",
-                            } as any,
-                          })
-                        }
-                        className="border border-[#262E31] px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.1em] text-[#9AA3A1] hover:text-[#F1F3F2]"
-                      >
-                        {item.status === "published" ? "a próximo" : "publicar"}
-                      </button>
+                      <span className="inline-block w-[180px]">
+                        <DropdownSelect
+                          size="sm"
+                          options={[
+                            { value: "published", label: "publicado" },
+                            { value: "proximo", label: "próximamente" },
+                            { value: "disabled", label: "deshabilitado" },
+                          ]}
+                          value={item.status ?? "proximo"}
+                          onChange={(v) =>
+                            void updateItem({
+                              itemId: item._id,
+                              patch: { status: v as any },
+                            }).catch((e) =>
+                              setError(e instanceof Error ? `// ${e.message}` : "// no se pudo cambiar el estado"),
+                            )
+                          }
+                        />
+                      </span>
                       <span className="flex gap-1">
                         <button
                           disabled={idx === 0}

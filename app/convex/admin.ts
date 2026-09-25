@@ -625,7 +625,7 @@ export const createItem = mutation({
     description: v.optional(v.string()),
     url: v.optional(v.string()),
     note: v.optional(v.string()),
-    status: v.optional(v.union(v.literal("proximo"), v.literal("published"))),
+    status: v.optional(v.union(v.literal("proximo"), v.literal("published"), v.literal("disabled"))),
     // Archivo descargable (PDF/guía) que vive en storage. Opcional: sin él el
     // ítem es solo texto/link.
     storageId: v.optional(v.id("_storage")),
@@ -665,7 +665,7 @@ export const updateItem = mutation({
       url: v.optional(v.string()),
       note: v.optional(v.string()),
       order: v.optional(v.number()),
-      status: v.optional(v.union(v.literal("proximo"), v.literal("published"))),
+      status: v.optional(v.union(v.literal("proximo"), v.literal("published"), v.literal("disabled"))),
       storageId: v.optional(v.id("_storage")),
     }),
     secret: v.optional(v.string()),

@@ -93,14 +93,23 @@ export const getCourse = query({
       ).sort((a, b) => a.order - b.order);
 
       const itemsOut = [];
+      // Visibilidad por estado:
+      // - publicado: se muestra y se puede descargar/abrir.
+      // - proximo: se muestra el título ("próximamente") pero sin archivo
+      //   en docs/articles (en links/checklist el flag no esconde nada).
+      // - disabled: no se muestra nada (el ítem se conserva en la BD).
+      const gated = section.kind === "docs" || section.kind === "articles";
       for (const item of items) {
+        if (item.status === "disabled") continue;
+        const withFile = !gated || item.status === "published";
         itemsOut.push({
           title: item.title,
           description: item.description ?? null,
-          url: item.url ?? null,
+          url: withFile ? (item.url ?? null) : null,
           note: item.note ?? null,
           status: item.status ?? null,
-          downloadUrl: item.storageId ? await ctx.storage.getUrl(item.storageId) : null,
+          downloadUrl:
+            withFile && item.storageId ? await ctx.storage.getUrl(item.storageId) : null,
           imageUrl: item.imageStorageId ? await ctx.storage.getUrl(item.imageStorageId) : null,
           group: item.group ?? null,
         });

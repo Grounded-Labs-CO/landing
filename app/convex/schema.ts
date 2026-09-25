@@ -73,7 +73,7 @@ export default defineSchema({
     description: v.optional(v.string()),
     url: v.optional(v.string()),
     note: v.optional(v.string()),
-    status: v.optional(v.union(v.literal("proximo"), v.literal("published"))),
+    status: v.optional(v.union(v.literal("proximo"), v.literal("published"), v.literal("disabled"))),
     storageId: v.optional(v.id("_storage")),
     // Imagen (foto de sede, tarifas del parqueadero…) que se muestra como
     // figura en el detalle de la sección.

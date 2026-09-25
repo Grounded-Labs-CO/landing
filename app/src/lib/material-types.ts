@@ -8,7 +8,7 @@ export type CourseItem = {
   description: string | null;
   url: string | null;
   note: string | null;
-  status: "proximo" | "published" | null;
+  status: "proximo" | "published" | "disabled" | null;
   downloadUrl: string | null;
   /** Imagen opcional que se muestra como figura en el detalle. */
   imageUrl?: string | null;
