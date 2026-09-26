@@ -7,6 +7,7 @@ import type { Id } from "../../../convex/_generated/dataModel";
 import { useState } from "react";
 import { DropdownSelect } from "@/components/DropdownSelect";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { ChevronDownIcon } from "lucide-react";
 
 const STATUS_META: Record<string, { label: string; className: string }> = {
   active: { label: "activo", className: "bg-[#1C2427] text-[#7FC7A3] border border-[#262E31]" },
@@ -209,6 +210,12 @@ function MaterialTab({ courses }: { courses: { slug: string; title: string }[] }
   const [newFor, setNewFor] = useState<string | null>(null);
   const [newTitle, setNewTitle] = useState("");
   const [newDesc, setNewDesc] = useState("");
+  const [newUrl, setNewUrl] = useState("");
+  const [newNote, setNewNote] = useState("");
+  // Secciones colapsadas (ids). Todo cerrado por defecto para no scrollear.
+  const [openSecs, setOpenSecs] = useState<string[]>([]);
+  const toggleSec = (id: string) =>
+    setOpenSecs((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   const [editingSection, setEditingSection] = useState<string | null>(null);
   const [editSecTitle, setEditSecTitle] = useState("");
   const [editSecHint, setEditSecHint] = useState("");
@@ -281,15 +288,22 @@ function MaterialTab({ courses }: { courses: { slug: string; title: string }[] }
           // la llena el estudiante, los links siempre se ven.
           const isFileSection = section.kind === "docs" || section.kind === "articles";
           const canAddItems = ["docs", "articles", "checklist", "links"].includes(section.kind);
+          const secId = String(section._id);
+          const secOpen = openSecs.includes(secId);
+          const secSummary =
+            section.kind === "info"
+              ? `${((content as any).eventInfo ?? []).length} datos`
+              : section.kind === "sample-data"
+                ? "expedientes"
+                : `${section.items.length} ítem${section.items.length === 1 ? "" : "s"}`;
           return (
-          <div key={String(section._id)} className="border border-[#262E31] bg-[#111719] p-5">
+          <div key={secId} className="border border-[#262E31] bg-[#111719] p-5">
             <div className="flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <span className="font-mono text-[10px] tracking-[0.14em] uppercase text-[#B4552B]">
-                  {String(section.order).padStart(2, "0")} · {section.kind}
-                </span>
-                {editingSection === String(section._id) ? (
-                  <div className="mt-2 flex flex-col gap-2">
+              {editingSection === secId ? (
+                  <div className="flex min-w-0 flex-1 flex-col gap-2">
+                    <span className="font-mono text-[10px] tracking-[0.14em] uppercase text-[#B4552B]">
+                      {String(section.order).padStart(2, "0")} · {section.kind}
+                    </span>
                     <input
                       value={editSecTitle}
                       onChange={(e) => setEditSecTitle(e.target.value)}
@@ -327,28 +341,44 @@ function MaterialTab({ courses }: { courses: { slug: string; title: string }[] }
                     </div>
                   </div>
                 ) : (
-                  <>
-                    <h3 className="mt-1 font-sans text-[17px] font-light text-[#F1F3F2]">
-                      {section.title}
-                    </h3>
-                    <p className="font-mono text-[11px] text-[#6C7573]">{section.hint}</p>
-                  </>
+                  <button
+                    onClick={() => toggleSec(secId)}
+                    aria-expanded={secOpen}
+                    className="flex min-w-0 flex-1 items-center gap-3 text-left"
+                  >
+                    <span className="min-w-0 flex-1">
+                      <span className="font-mono text-[10px] tracking-[0.14em] uppercase text-[#B4552B]">
+                        {String(section.order).padStart(2, "0")} · {section.kind}
+                      </span>
+                      <span className="mt-1 block truncate font-sans text-[17px] font-light text-[#F1F3F2]">
+                        {section.title}
+                      </span>
+                      <span className="block truncate font-mono text-[11px] text-[#6C7573]">
+                        {section.hint} · {secSummary}
+                      </span>
+                    </span>
+                    <ChevronDownIcon
+                      aria-hidden
+                      className={`h-4 w-4 shrink-0 text-[#6C7573] transition-transform ${secOpen ? "rotate-180" : ""}`}
+                    />
+                  </button>
                 )}
-              </div>
-              {editingSection !== String(section._id) && (
+              {editingSection !== secId && (
                 <button
                   onClick={() => {
-                    setEditingSection(String(section._id));
+                    setEditingSection(secId);
                     setEditSecTitle(section.title);
                     setEditSecHint(section.hint);
                   }}
-                  className="font-mono text-[10px] uppercase tracking-[0.1em] text-[#6C7573] hover:text-[#F1F3F2]"
+                  className="shrink-0 font-mono text-[10px] uppercase tracking-[0.1em] text-[#6C7573] hover:text-[#F1F3F2]"
                 >
                   renombrar
                 </button>
               )}
             </div>
 
+            {secOpen && (
+            <>
             {/* La sección info (01) no usa ítems: su contenido es el eventInfo
                 del curso (fecha, sede, qué llevar), que se edita en el tab cursos. */}
             {section.kind === "info" && (
@@ -644,6 +674,22 @@ function MaterialTab({ courses }: { courses: { slug: string; title: string }[] }
                   placeholder="descripción (ej: Material que vamos a usar durante el workshop)"
                   className="border border-[#262E31] bg-[#0E1214] px-3 py-1.5 font-mono text-[12px] text-[#F1F3F2] outline-none focus:border-[#B4552B]"
                 />
+                {section.kind === "links" && (
+                  <>
+                    <input
+                      value={newUrl}
+                      onChange={(e) => setNewUrl(e.target.value)}
+                      placeholder="URL del link (https://…)"
+                      className="border border-[#262E31] bg-[#0E1214] px-3 py-1.5 font-mono text-[12px] text-[#F1F3F2] outline-none focus:border-[#B4552B]"
+                    />
+                    <input
+                      value={newNote}
+                      onChange={(e) => setNewNote(e.target.value)}
+                      placeholder="nota (ej: Requiere plan de pago)"
+                      className="border border-[#262E31] bg-[#0E1214] px-3 py-1.5 font-mono text-[12px] text-[#F1F3F2] outline-none focus:border-[#B4552B]"
+                    />
+                  </>
+                )}
                 <div className="flex gap-2">
                   <button
                     onClick={async () => {
@@ -652,11 +698,19 @@ function MaterialTab({ courses }: { courses: { slug: string; title: string }[] }
                         sectionId: section._id,
                         title: newTitle.trim(),
                         description: newDesc.trim() || undefined,
+                        ...(section.kind === "links"
+                          ? {
+                              url: newUrl.trim() || undefined,
+                              note: newNote.trim() || undefined,
+                            }
+                          : {}),
                         status: "proximo",
                       } as any);
                       setNewFor(null);
                       setNewTitle("");
                       setNewDesc("");
+                      setNewUrl("");
+                      setNewNote("");
                     }}
                     className="bg-[#B4552B] px-3 py-1.5 font-mono text-[11px] uppercase text-[#0E1214] hover:bg-[#9A4A24]"
                   >
@@ -682,6 +736,8 @@ function MaterialTab({ courses }: { courses: { slug: string; title: string }[] }
               <p className="mt-3 font-mono text-[10px] text-[#565F62]">
                 {"// los expedientes se gestionan en el dashboard de Convex (sample_profiles / sample_files)"}
               </p>
+            )}
+            </>
             )}
           </div>
           );
