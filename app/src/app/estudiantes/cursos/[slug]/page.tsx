@@ -7,8 +7,38 @@ import { useQuery } from "convex/react";
 import { api } from "../../../../../convex/_generated/api";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import { CalendarIcon, ChevronDownIcon } from "lucide-react";
+import { useEffect, useRef, useState, type RefObject } from "react";
+import { CalendarIcon, ArrowUpIcon, ChevronDownIcon } from "lucide-react";
+
+function BackToResources({ targetRef }: { targetRef: RefObject<HTMLElement | null> }) {
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    function onScroll() {
+      const el = targetRef.current;
+      if (!el) return;
+      setShow(el.getBoundingClientRect().bottom < 0);
+    }
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [targetRef]);
+
+  if (!show) return null;
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        targetRef.current?.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+      }}
+      className="fixed bottom-5 right-5 z-40 inline-flex items-center gap-2 bg-[#B4552B] px-4 py-3 font-mono text-[10px] font-medium tracking-[0.12em] uppercase text-[#0E1214] shadow-xl transition-colors hover:bg-[#C96A3C]"
+    >
+      <ArrowUpIcon aria-hidden className="h-3.5 w-3.5" />
+      volver a recursos
+    </button>
+  );
+}
 
 function Barcode() {
   return (
@@ -70,13 +100,30 @@ function CourseMaterial() {
     unlocked ? { courseSlug } : "skip",
   );
 
-  const [openOrder, setOpenOrder] = useState<number | null | undefined>(undefined);
+  const [openSection, setOpenSection] = useState<number | null>(null);
   const [zipping, setZipping] = useState<string | null>(null);
+  const detailRef = useRef<HTMLElement | null>(null);
+  const resourcesRef = useRef<HTMLElement | null>(null);
 
-  // Acordeón de un solo abierto: por defecto abre la primera sección.
+  // En móvil el detalle queda debajo de la grilla: al tocar un recurso lo
+  // llevamos a la vista (si ya está visible, no movemos nada).
+  function revealDetail() {
+    requestAnimationFrame(() => {
+      const el = detailRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const headerPx = 72; // header sticky (64px) + aire
+      const visible = rect.top >= headerPx && rect.bottom <= window.innerHeight;
+      if (visible) return;
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+    });
+  }
+
+  // Sección activa derivada (sin efectos): si el estado aún no apunta a algo
+  // válido, cae a la primera.
   const sections = material?.sections ?? [];
-  const firstOrder = sections[0]?.order ?? null;
-  const effectiveOpen = openOrder === undefined ? firstOrder : openOrder;
+  const activeSection = sections.find((s) => s.order === openSection) ?? sections[0];
 
   return (
     <div className="mx-auto max-w-[960px] px-6 py-12">
@@ -149,72 +196,68 @@ function CourseMaterial() {
             </div>
           </section>
 
-          {/* RECURSOS — acordeón: cada sello se abre en su sitio, sin scroll */}
-          <section className="mt-10">
+          {/* RECURSOS */}
+          <section ref={resourcesRef} className="mt-10 scroll-mt-20">
             <span className="font-mono text-[11px] tracking-[0.16em] uppercase text-[#B4552B]">
               [recursos]
             </span>
-            <div className="mt-4 flex flex-col gap-3">
+            <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {material.sections.map((section) => {
                 const num = String(section.order).padStart(2, "0");
-                const open = effectiveOpen === section.order;
+                const active = activeSection?.order === section.order;
                 return (
-                  <div
+                  <button
                     key={section.order}
-                    className={`border bg-[#111719] transition-colors ${
-                      open ? "border-[#B4552B]" : "border-dashed border-[#2F3A3D]"
+                    onClick={() => {
+                      setOpenSection(section.order);
+                      revealDetail();
+                    }}
+                    className={`flex flex-col gap-2 border p-5 text-left transition-colors ${
+                      active
+                        ? "border-[#B4552B] bg-[#1C2427]"
+                        : "border-dashed border-[#2F3A3D] bg-[#111719] hover:border-[#9AA3A1]"
                     }`}
                   >
-                    <button
-                      onClick={() => {
-                        setOpenOrder((prev) => {
-                          const eff = prev === undefined ? firstOrder : prev;
-                          return eff === section.order ? null : section.order;
-                        });
-                      }}
-                      aria-expanded={open}
-                      className="flex w-full items-center gap-4 p-5 text-left"
+                    <span
+                      className={`font-mono text-[11px] tracking-[0.14em] ${
+                        active ? "text-[#B4552B]" : "text-[#6C7573]"
+                      }`}
                     >
-                      <span
-                        className={`font-mono text-[11px] tracking-[0.14em] ${
-                          open ? "text-[#B4552B]" : "text-[#6C7573]"
-                        }`}
-                      >
-                        {num}
-                      </span>
-                      <span className="flex min-w-0 flex-1 flex-col gap-1">
-                        <span className="font-sans text-[17px] font-light text-[#F1F3F2]">
-                          {section.title}
-                        </span>
-                        <span className="truncate font-mono text-[11px] leading-[1.5] text-[#9AA3A1]">
-                          {section.hint}
-                        </span>
-                      </span>
-                      <ChevronDownIcon
-                        aria-hidden
-                        className={`h-4 w-4 shrink-0 text-[#6C7573] transition-transform ${open ? "rotate-180" : ""}`}
-                      />
-                    </button>
-                    {open && (
-                      <div className="border-t border-[#262E31] p-6 sm:p-7">
-                        <SectionDetail
-                          key={section.order}
-                          section={section}
-                          material={material}
-                          zipping={zipping}
-                          setZipping={setZipping}
-                        />
-                      </div>
-                    )}
-                  </div>
+                      {num}
+                    </span>
+                    <span className="font-sans text-[17px] font-light text-[#F1F3F2]">
+                      {section.title}
+                    </span>
+                    <span className="font-mono text-[11px] leading-[1.5] text-[#9AA3A1]">
+                      {section.hint}
+                    </span>
+                  </button>
                 );
               })}
             </div>
           </section>
 
+          {/* DETALLE DE LA SECCIÓN SELECCIONADA */}
+          <section
+            ref={detailRef}
+            className="mt-8 scroll-mt-20 border border-[#262E31] bg-[#111719] p-7"
+          >
+            {activeSection && (
+              <SectionDetail
+                key={activeSection.order}
+                section={activeSection}
+                material={material}
+                zipping={zipping}
+                setZipping={setZipping}
+              />
+            )}
+          </section>
+
           <div className="mt-8">
             <SupportLine />
           </div>
+
+          <BackToResources targetRef={resourcesRef} />
         </>
       )}
     </div>

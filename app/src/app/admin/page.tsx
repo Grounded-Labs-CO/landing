@@ -203,6 +203,8 @@ function MaterialTab({ courses }: { courses: { slug: string; title: string }[] }
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [editDesc, setEditDesc] = useState("");
+  const [editUrl, setEditUrl] = useState("");
+  const [editNote, setEditNote] = useState("");
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [newFor, setNewFor] = useState<string | null>(null);
   const [newTitle, setNewTitle] = useState("");
@@ -404,6 +406,22 @@ function MaterialTab({ courses }: { courses: { slug: string; title: string }[] }
                       {item.description}
                     </p>
                   )}
+                  {section.kind === "links" && (
+                    <div className="mt-1 flex flex-col gap-0.5 font-mono text-[11px]">
+                      {item.url && (
+                        <a
+                          href={item.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="truncate text-[#7FC7A3] underline hover:text-[#F1F3F2]"
+                        >
+                          {item.url}
+                        </a>
+                      )}
+                      {item.note && <span className="text-[#9AA3A1]">{item.note}</span>}
+                      {!item.url && <span className="text-[#E2C084]">{"// sin URL"}</span>}
+                    </div>
+                  )}
                   <p className="mt-1 font-mono text-[10px] text-[#565F62]">
                     {item.status === "disabled" ? (
                       "// oculto al estudiante (no borrado)"
@@ -447,6 +465,22 @@ function MaterialTab({ courses }: { courses: { slug: string; title: string }[] }
                         placeholder="descripción (ej: Material que vamos a usar durante el workshop)"
                         className="border border-[#262E31] bg-[#0E1214] px-3 py-1.5 font-mono text-[12px] text-[#F1F3F2] outline-none focus:border-[#B4552B]"
                       />
+                      {section.kind === "links" && (
+                        <>
+                          <input
+                            value={editUrl}
+                            onChange={(e) => setEditUrl(e.target.value)}
+                            placeholder="URL (https://…)"
+                            className="border border-[#262E31] bg-[#0E1214] px-3 py-1.5 font-mono text-[12px] text-[#F1F3F2] outline-none focus:border-[#B4552B]"
+                          />
+                          <input
+                            value={editNote}
+                            onChange={(e) => setEditNote(e.target.value)}
+                            placeholder="nota (ej: Requiere plan de pago)"
+                            className="border border-[#262E31] bg-[#0E1214] px-3 py-1.5 font-mono text-[12px] text-[#F1F3F2] outline-none focus:border-[#B4552B]"
+                          />
+                        </>
+                      )}
                       <div className="flex gap-2">
                         <button
                           onClick={async () => {
@@ -455,6 +489,12 @@ function MaterialTab({ courses }: { courses: { slug: string; title: string }[] }
                               patch: {
                                 ...(editTitle.trim() ? { title: editTitle.trim() } : {}),
                                 description: editDesc.trim() || undefined,
+                                ...(section.kind === "links"
+                                  ? {
+                                      url: editUrl.trim() || undefined,
+                                      note: editNote.trim() || undefined,
+                                    }
+                                  : {}),
                               } as any,
                             });
                             setEditingId(null);
@@ -548,6 +588,8 @@ function MaterialTab({ courses }: { courses: { slug: string; title: string }[] }
                           setEditingId(String(item._id));
                           setEditTitle(item.title);
                           setEditDesc(item.description ?? "");
+                          setEditUrl(item.url ?? "");
+                          setEditNote(item.note ?? "");
                         }}
                         className="font-mono text-[10px] uppercase tracking-[0.1em] text-[#6C7573] hover:text-[#F1F3F2]"
                       >
