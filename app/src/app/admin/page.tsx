@@ -7,6 +7,7 @@ import type { Id } from "../../../convex/_generated/dataModel";
 import { useState } from "react";
 import { DropdownSelect } from "@/components/DropdownSelect";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { SurveyTab } from "@/components/SurveyTab";
 import { ChevronDownIcon } from "lucide-react";
 
 const STATUS_META: Record<string, { label: string; className: string }> = {
@@ -183,6 +184,7 @@ function DashboardTab({
           </ul>
         )}
       </div>
+
     </div>
   );
 }
@@ -756,7 +758,7 @@ function MaterialTab({ courses }: { courses: { slug: string; title: string }[] }
 function AdminPanel() {
   const { isAdmin, isLoading, role } = useRole();
   const meId = role?.userId;
-  const [tab, setTab] = useState<"estudiantes" | "cursos" | "material" | "invitar" | "dashboard">("estudiantes");
+  const [tab, setTab] = useState<"estudiantes" | "cursos" | "material" | "invitar" | "encuesta" | "dashboard">("estudiantes");
 
   // Estudiantes
   const allStudents = useQuery(api.admin.listAllStudents);
@@ -863,6 +865,7 @@ function AdminPanel() {
           ["cursos", "cursos"],
           ["material", "material"],
           ["invitar", "invitar"],
+          ["encuesta", "encuesta"],
           ["dashboard", "dashboard"],
         ].map(([id, label], i) => {
           const secondCol = i % 2 === 1;
@@ -1360,6 +1363,17 @@ function AdminPanel() {
         <DashboardTab
           students={(allStudents ?? []) as unknown as StudentRow[]}
           courses={(courses ?? []) as { slug: string; title: string }[]}
+        />
+      )}
+
+      {tab === "encuesta" && (
+        <SurveyTab
+          students={(allStudents ?? []) as unknown as {
+            email: string | null;
+            name: string | null;
+            workshopSlug: string | null;
+            workshopStatus: string | null;
+          }[]}
         />
       )}
 

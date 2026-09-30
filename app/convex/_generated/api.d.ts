@@ -8,15 +8,19 @@
  * @module
  */
 
+import type * as _tmpBtn from "../_tmpBtn.js";
 import type * as admin from "../admin.js";
 import type * as auth from "../auth.js";
 import type * as courses from "../courses.js";
 import type * as email from "../email.js";
 import type * as http from "../http.js";
+import type * as mailer from "../mailer.js";
 import type * as material from "../material.js";
 import type * as mutations from "../mutations.js";
 import type * as profile from "../profile.js";
 import type * as queries from "../queries.js";
+import type * as survey from "../survey.js";
+import type * as templates from "../templates.js";
 
 import type {
   ApiFromModules,
@@ -25,15 +29,19 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  _tmpBtn: typeof _tmpBtn;
   admin: typeof admin;
   auth: typeof auth;
   courses: typeof courses;
   email: typeof email;
   http: typeof http;
+  mailer: typeof mailer;
   material: typeof material;
   mutations: typeof mutations;
   profile: typeof profile;
   queries: typeof queries;
+  survey: typeof survey;
+  templates: typeof templates;
 }>;
 
 /**

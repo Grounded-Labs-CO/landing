@@ -5,12 +5,18 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useRole } from "@/hooks/useRole";
 
-function SignInForm({ code }: { code: string | null }) {
+function SignInForm() {
   const { signIn } = useAuthActions();
   const { isAuthenticated } = useConvexAuth();
   const { isAdmin, isLoading: roleLoading } = useRole();
   const router = useRouter();
   const searchParams = useSearchParams();
+  // El magic link trae el code en la URL (?code=…). Se lee acá, y no en el
+  // default export, porque este archivo es "use client" y en Next 16 solo los
+  // Server Components pueden ser async. El <Suspense> de abajo es justamente
+  // lo que permite usar useSearchParams en una página.
+  const rawCode = searchParams.get("code");
+  const code = typeof rawCode === "string" && rawCode ? rawCode : null;
   const redirected = useRef(false);
   const handledCode = useRef(false);
   const [authMethod, setAuthMethod] = useState<"email" | "password">("email");
@@ -289,16 +295,13 @@ function SignInForm({ code }: { code: string | null }) {
   );
 }
 
-export default async function SignInPage({
-  searchParams,
-}: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-}) {
-  const sp = await searchParams;
-  const code = typeof sp.code === "string" && sp.code ? sp.code : null;
+// Sync a propósito: es una Client Component (use client arriba) y Next 16 no
+// permite `export default async` en el client. El `?code=` se lee dentro de
+// SignInForm, que va envuelto en <Suspense>.
+export default function SignInPage() {
   return (
     <Suspense fallback={<div className="mx-auto max-w-md px-6 py-16" />}>
-      <SignInForm code={code} />
+      <SignInForm />
     </Suspense>
   );
 }

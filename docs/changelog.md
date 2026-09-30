@@ -1,5 +1,52 @@
 # Changelog
 
+## 2026-09-30 — Encuesta de cierre y sesión de follow-up
+
+Mide lo que el piloto del 26-sep dejó sin medir: NPS, finalización, percepción de precio,
+origen de la venta, señal B2B y demanda de lo que sigue.
+
+### Encuesta (`/encuesta`)
+- Pública y sin login (`noindex`). Una pregunta por pantalla, un toque avanza, `atrás` siempre,
+  autoguardado en `localStorage`, paso de **revisión** antes de enviar y botón de enviar bloqueado
+  mientras falte una obligatoria (las 2 abiertas son opcionales).
+- **Link con token por persona** (`?t=<token>`): nombre y correo ya vienen puestos, así nadie los
+  escribe mal. Un token que no sea hex de 16–64 caracteres cae a modo anónimo en vez de romperse.
+- Las 11 preguntas del documento (`encuesta-cierre.md`), con campo "¿cuál?" cuando el origen es
+  *Otro*. El servidor revalida `nps` y los códigos: una respuesta incompleta no entra a la BD.
+- Volver a enviar **actualiza la misma fila**, no duplica.
+
+### Correos
+- Dos correos con el shell de marca. El **#1** pide el favor (agradecimiento primero, salida libre
+  por WhatsApp) y es dinámico: asunto, preheader y la frase de la sesión se arman desde la fecha y
+  la agenda. El **#2** entrega fecha, hora, link y agenda; sale solo la primera vez y solo si hay
+  sesión fechada.
+- `convex/templates.ts` es **puro** y lo comparten el servidor y el preview de `/admin`, así que lo
+  que se ve en el panel es exactamente lo que sale por Resend.
+
+### Admin (`/admin` → *encuesta*)
+- Tres sub-tabs: **sesión** (fecha, hora, link, agenda — una sola por workshop), **invitar**
+  (los inscritos reales con casillas, estado por persona y reenvío) y **respuestas** (NPS con los
+  umbrales de §6, conteos por pregunta y export CSV).
+- Preview del correo de confirmación, colapsado.
+- Sin fecha de sesión **no se puede invitar**: el bloqueo va en el panel y en `survey:sendInvites`.
+
+### Recordatorio
+- `SurveyNudge` en "mis cursos": aparece solo si ya se envió, sigue sin responder y la sesión no
+  pasó. "ahora no" es un **snooze de 7 días**, no un borrado permanente.
+
+### Arreglos de paso
+- `src/app/signin/page.tsx`: `"use client"` + `export default async` rompía la página — y **solo en
+  runtime**, porque el build y `tsc` pasaban. En Next 16 solo los Server Components pueden ser
+  async. El `?code=` se lee ahora con `useSearchParams`, y la página pasa a estática.
+- `convex/survey.ts` queda **sin `@ts-nocheck`**: quitarlo hizo que `tsc` volviera a validar el
+  archivo (con él, una función borrada por error llegaba hasta producción).
+
+### Pendiente
+- **`SITE_URL` en `flippant-dog-457` sigue en `http://localhost:3000`**: es el link que va en los
+  correos, hay que apuntarlo al dominio real antes de mandar invitaciones.
+- El flujo no se ha verificado en navegador: se probó por CLI contra el deployment, más tests,
+  tipos y build.
+
 ## 2026-09-08 — Landing y marca visual
 
 ### Landing corporativa

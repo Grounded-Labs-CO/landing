@@ -2,6 +2,7 @@
 import { AuthGuard } from "@/components/AuthGuard";
 import { ProfileGuard } from "@/components/ProfileGuard";
 import { SupportLine } from "@/components/SupportLine";
+import { SurveyNudge } from "@/components/SurveyNudge";
 import type { CourseSummary } from "@/lib/material-types";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useQuery } from "convex/react";
@@ -67,6 +68,11 @@ function StudentHome() {
 
           return (
             <div className="mt-10 flex flex-col gap-10">
+              {/* Recordatorio suave de la encuesta (solo si aplica) */}
+              {enrolled.map((r) => (
+                <SurveyNudge key={r.workshopSlug} courseSlug={r.workshopSlug} />
+              ))}
+
               {/* Tus cursos */}
               <section className="flex flex-col gap-3">
                 <span className="font-mono text-[11px] tracking-[0.16em] uppercase text-[#9AA3A1]">

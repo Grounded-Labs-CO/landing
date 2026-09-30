@@ -20,6 +20,71 @@ export default defineSchema({
     createdAt: v.number(),
   }).index("by_email", ["email"]),
 
+  // --- Encuesta de cierre (NPS, resultado, precio, origen, B2B, demanda) ---
+  //
+  // El flujo es: el admin genera una invitación por persona (con token único en
+  // la URL, para que nadie escriba mal su correo) → la persona la llena → al
+  // enviarla recibe el correo con los datos de la sesión virtual de follow-up.
+  // El link de la encuesta es también el comprobante de asistencia.
+
+  // Invitación = una persona con su link propio.
+  survey_invites: defineTable({
+    token: v.string(),
+    courseSlug: v.string(),
+    email: v.string(),
+    name: v.optional(v.string()),
+    createdAt: v.number(),
+    sentAt: v.optional(v.number()),
+  })
+    .index("by_token", ["token"])
+    .index("by_email", ["email"])
+    .index("by_course", ["courseSlug"]),
+
+  // Respuesta = una fila por invitación (si se vuelve a enviar, se actualiza).
+  survey_responses: defineTable({
+    token: v.string(),
+    courseSlug: v.string(),
+    email: v.string(),
+    name: v.string(),
+    // 0–10 (NPS). Las cerradas van como código corto para que la hoja de
+    // análisis pueda agrupar sin depender del texto de la opción.
+    nps: v.number(),
+    npsWhy: v.optional(v.string()),
+    channelOther: v.optional(v.string()),
+    assistant: v.string(),
+    pace: v.string(),
+    price: v.string(),
+    channel: v.string(),
+    knewHosts: v.string(),
+    b2b: v.string(),
+    interests: v.array(v.string()),
+    changeOne: v.optional(v.string()),
+    consent: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_token", ["token"])
+    .index("by_course", ["courseSlug"]),
+
+  // Sesión virtual de follow-up. **Una sola por workshop**: las
+  // fechas cambian y se edita la misma fila. Sin estado ni varias fechas — lo que
+  // decide si la sesión existe es que tenga `date`, y sin `date` no se pueden
+  // mandar invitaciones. La encuesta es siempre sobre el workshop, no sobre la
+  // sesión, así que `survey_responses` cuelga de la invitación.
+  followup_sessions: defineTable({
+    courseSlug: v.string(),
+    title: v.string(),
+    // ISO `YYYY-MM-DD` y `HH:MM` en 24h: son tipos, no texto libre, para no
+    // estar escribiendo "jueves 8 de octubre" a mano (que es justo donde se
+    // equivoca uno). Todo lo legible para el correo —"jueves, 8 de octubre",
+    // "7:00 p. m."— se formatea desde acá, y el link de "agendar" se arma solo.
+    date: v.optional(v.string()),
+    startTime: v.optional(v.string()),
+    joinUrl: v.optional(v.string()),
+    agenda: v.array(v.string()),
+    updatedAt: v.number(),
+  }).index("by_course", ["courseSlug"]),
+
   workshop_registrations: defineTable({
     email: v.string(),
     workshopSlug: v.string(),
