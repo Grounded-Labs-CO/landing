@@ -24,7 +24,7 @@ export default defineSchema({
   //
   // El flujo es: el admin genera una invitación por persona (con token único en
   // la URL, para que nadie escriba mal su correo) → la persona la llena → al
-  // enviarla recibe el correo con los datos de la sesión virtual de follow-up.
+  // enviarla recibe el correo con los datos de la sesión virtual de seguimiento.
   // El link de la encuesta es también el comprobante de asistencia.
 
   // Invitación = una persona con su link propio.
@@ -51,6 +51,7 @@ export default defineSchema({
     nps: v.number(),
     npsWhy: v.optional(v.string()),
     channelOther: v.optional(v.string()),
+    interestsOther: v.optional(v.string()),
     assistant: v.string(),
     pace: v.string(),
     price: v.string(),
@@ -66,7 +67,7 @@ export default defineSchema({
     .index("by_token", ["token"])
     .index("by_course", ["courseSlug"]),
 
-  // Sesión virtual de follow-up. **Una sola por workshop**: las
+  // Sesión virtual de seguimiento. **Una sola por workshop**: las
   // fechas cambian y se edita la misma fila. Sin estado ni varias fechas — lo que
   // decide si la sesión existe es que tenga `date`, y sin `date` no se pueden
   // mandar invitaciones. La encuesta es siempre sobre el workshop, no sobre la

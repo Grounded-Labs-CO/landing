@@ -8,7 +8,6 @@
  * @module
  */
 
-import type * as _tmpBtn from "../_tmpBtn.js";
 import type * as admin from "../admin.js";
 import type * as auth from "../auth.js";
 import type * as courses from "../courses.js";
@@ -29,7 +28,6 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
-  _tmpBtn: typeof _tmpBtn;
   admin: typeof admin;
   auth: typeof auth;
   courses: typeof courses;

@@ -29,7 +29,7 @@ import {
 //   3. La persona abre /encuesta?t=<token> (nombre y correo ya prellenados) y
 //      contesta una pregunta por pantalla.
 //   4. `submit` guarda la respuesta y manda el correo #2 con toda la info de
-//      la sesión virtual de follow-up.
+//      la sesión virtual de seguimiento.
 //
 // Los códigos de las opciones (`completo`, `justo`, `si`…) están en
 // `src/lib/survey.ts`; acá solo se valida que sean de la lista permitida, para
@@ -58,7 +58,7 @@ const CODES = {
   channel: ["linkedin", "instagram", "whatsapp", "recomendacion", "otro"],
   knewHosts: ["personal", "redes", "no"],
   b2b: ["si", "tal_vez", "no", "no_aplica"],
-  interests: ["avanzado", "adaptado", "empresa", "nada"],
+  interests: ["avanzado", "adaptado", "empresa", "nada", "otro"],
   consent: ["con_nombre", "sin_nombre", "no"],
 };
 
@@ -81,7 +81,7 @@ function clean(value: string | undefined, max: number) {
 }
 
 /**
- * La sesión de follow-up del curso: una sola fila (una sesión por workshop).
+ * La sesión de seguimiento del curso: una sola fila (una por workshop).
  * Cambiar la fecha es editar esta misma fila.
  */
 async function findSession(ctx: QueryCtx | MutationCtx, courseSlug: string) {
@@ -144,7 +144,7 @@ async function requireActiveAdmin(ctx: QueryCtx | MutationCtx) {
 
 /**
  * Datos que necesita el formulario: nombre/correo prellenados desde el token,
- * si ya respondió antes, y la info de la sesión de follow-up.
+ * si ya respondió antes, y la info de la sesión de seguimiento.
  */
 export const getByToken = query({
   args: { token: v.optional(v.string()), courseSlug: v.optional(v.string()) },
@@ -189,6 +189,7 @@ const answerArgs = {
   nps: v.number(),
   npsWhy: v.optional(v.string()),
   channelOther: v.optional(v.string()),
+  interestsOther: v.optional(v.string()),
   assistant: v.string(),
   pace: v.string(),
   price: v.string(),
@@ -220,6 +221,7 @@ export const saveResponseInternal = internalMutation({
       nps: args.nps,
       npsWhy: args.npsWhy,
       channelOther: args.channelOther,
+      interestsOther: args.interestsOther,
       assistant: args.assistant,
       pace: args.pace,
       price: args.price,
@@ -283,6 +285,7 @@ export const submit = action({
       nps,
       npsWhy: clean(args.npsWhy, 2000),
       channelOther: clean(args.channelOther, 200),
+      interestsOther: clean(args.interestsOther, 200),
       assistant: oneOf(CODES.assistant, args.assistant, "assistant"),
       pace: oneOf(CODES.pace, args.pace, "pace"),
       price: oneOf(CODES.price, args.price, "price"),
@@ -525,7 +528,7 @@ export const sendInvites = action({
     // lo bloquea, pero la red de seguridad va aquí).
     if (!hasDate(session)) {
       throw new Error(
-        "Falta la fecha de la sesión de follow-up. Configúrala antes de invitar.",
+        "Falta la fecha de la sesión de seguimiento. Configúrala antes de invitar.",
       );
     }
 
@@ -595,7 +598,7 @@ export const resendConfirmation = action({
   },
 });
 
-/** La sesión de follow-up del curso, para editarla en /admin. */
+/** La sesión de seguimiento del curso, para editarla en /admin. */
 export const getSession = query({
   args: { courseSlug: v.string() },
   handler: async (ctx, args) => {
@@ -636,6 +639,28 @@ export const saveSession = mutation({
   },
 });
 
+
+/**
+ * Borra la respuesta de una persona. La invitación NO se toca: queda con su
+ * token, así que la persona puede volver a responder con el mismo link si el
+ * admin se lo reenvía (o si vuelve a abrir el correo que le llegó).
+ *
+ * Ojo: si vuelve a responder, el correo #2 (datos de la sesión) se le manda
+ * otra vez, porque `submit` lo considera una respuesta nueva.
+ */
+export const deleteResponse = mutation({
+  args: { token: v.string() },
+  handler: async (ctx, args) => {
+    await requireActiveAdmin(ctx);
+    const row = await ctx.db
+      .query("survey_responses")
+      .withIndex("by_token", (q) => q.eq("token", args.token))
+      .unique();
+    if (!row) return null;
+    await ctx.db.delete(row._id);
+    return { deleted: true, email: row.email };
+  },
+});
 
 /** Respuestas crudas; el NPS y los conteos los calcula el panel. */
 export const listResponses = query({

@@ -12,10 +12,11 @@ import {
   responsesToCsv,
 } from "@/lib/survey";
 import { SurveyEmailPreview } from "@/components/SurveyEmailPreview";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { ChevronDownIcon } from "lucide-react";
 
 // Pestaña "encuesta" del admin. Tres bloques, en el orden en que se usan:
-//   1. Datos de la sesión virtual de follow-up (contenido del correo #2).
+//   1. Datos de la sesión virtual de seguimiento (contenido del correo #2).
 //   2. Los inscritos al curso: se seleccionan y se les manda el correo #1.
 //   3. Respuestas + NPS + CSV.
 //
@@ -94,6 +95,7 @@ export function SurveyTab({ students }: { students: StudentLite[] }) {
   const responses = useQuery(api.survey.listResponses, { courseSlug });
 
   const createInvites = useMutation(api.survey.createInvites);
+  const deleteResponse = useMutation(api.survey.deleteResponse);
   const sendInvites = useAction(api.survey.sendInvites);
   const resendConfirmation = useAction(api.survey.resendConfirmation);
 
@@ -159,6 +161,14 @@ export function SurveyTab({ students }: { students: StudentLite[] }) {
 
   const [filter, setFilter] = useState<FilterKey>("faltan");
   const [selected, setSelected] = useState<Set<string>>(() => new Set());
+
+  // Borrar una respuesta pide DOS confirmaciones: es destructivo y no se puede
+  // deshacer, así que un solo clic no puede bastar.
+  const [borrar, setBorrar] = useState<{
+    paso: 1 | 2;
+    token: string;
+    nombre: string;
+  } | null>(null);
   const [sendBusy, setSendBusy] = useState(false);
   const seeded = useRef(false);
 
@@ -195,7 +205,7 @@ export function SurveyTab({ students }: { students: StudentLite[] }) {
     // Misma regla que aplica `sendInvites` en el servidor: sin fecha de sesión
     // el correo #1 promete datos que no existen, así que no se manda.
     if (!hasDate) {
-      say("bad", "primero ponle la fecha a la sesión de follow-up (pestaña “sesión”).");
+      say("bad", "primero ponle la fecha a la sesión de seguimiento (pestaña “sesión”).");
       setView("sesion");
       return;
     }
@@ -308,7 +318,7 @@ export function SurveyTab({ students }: { students: StudentLite[] }) {
 
       {view === "sesion" && (
         <Panel
-          title="1 · sesión de follow-up"
+          title="1 · sesión de seguimiento"
           hint="Una sola por workshop. Lo que pongas aquí es lo que llega en el correo cuando alguien responde la encuesta. La fecha es lo único obligatorio: sin ella no se puede invitar."
         >
           <SessionForm
@@ -538,6 +548,12 @@ export function SurveyTab({ students }: { students: StudentLite[] }) {
                         : ""}
                     </span>
                   </div>
+                  <button
+                    onClick={() => setBorrar({ paso: 1, token: r.token, nombre: r.name })}
+                    className="mt-2 font-mono text-[10px] tracking-[0.1em] uppercase text-[#6C7573] underline decoration-current/30 underline-offset-4 transition-colors hover:text-[#E2A084]"
+                  >
+                    borrar encuesta
+                  </button>
                   <p className="mt-2 font-mono text-[10px] leading-[1.7] text-[#6C7573]">
                     {[
                       labelFor(r.assistant),
@@ -562,6 +578,36 @@ export function SurveyTab({ students }: { students: StudentLite[] }) {
         )}
       </Panel>
       )}
+
+      {/* Doble confirmación para borrar una respuesta. El segundo diálogo
+          repite el nombre para que no se borre a quien no era. */}
+      <ConfirmDialog
+        open={borrar !== null}
+        onClose={() => setBorrar(null)}
+        danger
+        title={borrar?.paso === 1 ? "¿Borrar esta encuesta?" : "¿Seguro? No se puede deshacer"}
+        description={
+          borrar?.paso === 1
+            ? `Se borran las respuestas de ${borrar?.nombre || "esta persona"}. La invitación queda, así que puede volver a responder con el mismo link.`
+            : `Última confirmación: se borra la encuesta de ${borrar?.nombre || "esta persona"} y no hay forma de recuperarla. Si vuelve a responder, se le manda otra vez el correo con los datos de la sesión.`
+        }
+        confirmLabel={borrar?.paso === 1 ? "borrar" : "sí, borrar"}
+        cancelLabel="mejor no"
+        onConfirm={async () => {
+          if (!borrar) return;
+          if (borrar.paso === 1) {
+            setBorrar({ ...borrar, paso: 2 });
+            return;
+          }
+          try {
+            const res = await deleteResponse({ token: borrar.token });
+            say("ok", res ? `encuesta de ${res.email} borrada.` : "esa encuesta ya no existía.");
+          } catch (e: unknown) {
+            say("bad", errText(e));
+          }
+          setBorrar(null);
+        }}
+      />
     </div>
   );
 }
@@ -695,7 +741,7 @@ function DateField({
 }
 
 /**
- * Formulario de una sesión de follow-up.
+ * Formulario de una sesión de seguimiento.
  *
  * Vive en su propio componente y el padre lo remonta con `key` al cambiar de
  * sesión: así los campos salen del `session` en el inicializador del estado, sin
@@ -714,7 +760,7 @@ function SessionForm({
 }) {
   const saveSession = useMutation(api.survey.saveSession);
 
-  const [title, setTitle] = useState(session?.title || "Sesión virtual de follow-up");
+  const [title, setTitle] = useState(session?.title || "Sesión virtual de seguimiento");
   const [date, setDate] = useState(session?.date ?? "");
   const [startTime, setStartTime] = useState(session?.startTime ?? "");
   const [joinUrl, setJoinUrl] = useState(session?.joinUrl ?? "");
@@ -729,7 +775,7 @@ function SessionForm({
     try {
       await saveSession({
         courseSlug,
-        title: title.trim() || "Sesión virtual de follow-up",
+        title: title.trim() || "Sesión virtual de seguimiento",
         date,
         startTime,
         joinUrl,

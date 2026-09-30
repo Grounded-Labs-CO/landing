@@ -78,6 +78,25 @@ se le mandó el correo, sigue sin responder y la sesión está en `confirmada`. 
 Tablas: `survey_invites` (token + email + `sentAt`), `survey_responses` (una por token, se
 actualiza si reenvían), `followup_sessions` (uno por curso).
 
+## Despliegue — el orden importa
+
+`convex/` y el Next **se despliegan por caminos separados**:
+
+- **Convex**: `npx convex dev --once` (dev) · `CONVEX_DEPLOYMENT=careful-spaniel-774 npx convex deploy` (prod).
+- **Next**: Vercel, al hacer `git push` a `main`.
+
+**El dominio de producción es `https://www.grounded-labs.com/`** (`SITE_URL` de prod). Ojo:
+`grounded-labs.vercel.app` también responde, pero es un deploy viejo y **no** es el que se usa.
+
+**Regla: primero Convex, después el frontend.** Si el frontend llega antes, queda llamando
+funciones que el backend no conoce — y `useQuery` **lanza** el error en render, así que no degrada:
+rompe la página entera. Pasó el 2026-09-30: `/estudiantes` cayó para todos los alumnos porque
+`SurveyNudge` pedía `survey:mySurveyStatus` y prod todavía no la tenía.
+
+Y al revés: un `convex deploy` empuja **todo** `convex/`, incluido lo que esté sin commitear. Antes
+de deployar a prod, sacar del medio lo que no sea de ese cambio
+(`git stash push -- app/convex/<archivo>`) y devolverlo después con `git stash pop`.
+
 ## Estado (2026-08-22)
 
 - **Deployment activo: `dev:flippant-dog-457`** (Convex nube, equipo `grounded-labs`). `.env.local` (gitignored) apunta ahí. Verificado end-to-end: signup → admin aprueba + marca pago → material → descargas → zip.

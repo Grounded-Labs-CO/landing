@@ -93,6 +93,7 @@ describe("parseInviteList", () => {
 
 describe("responsesToCsv", () => {
   const row = {
+    token: "tok-1",
     _id: "r1",
     email: "ana@correo.com",
     name: "Ana Rueda",
@@ -346,7 +347,7 @@ describe("SurveyFlow", () => {
     fireEvent.click(screen.getByText("siguiente →"));
     await waitFor(() => expect(screen.getByText(/cambiar una sola cosa/)).toBeTruthy());
     fireEvent.click(screen.getByText("siguiente →"));
-    await waitFor(() => expect(screen.getByText(/usar tu comentario/)).toBeTruthy());
+    await waitFor(() => expect(screen.getByText(/usar tus respuestas/)).toBeTruthy());
     fireEvent.click(screen.getByText("Sí, pero sin mi nombre"));
 
     // Paso de revisión: aparecen todas las respuestas y se pueden corregir.
@@ -371,6 +372,8 @@ describe("SurveyFlow", () => {
     expect(args.knewHosts).toBe("redes");
     expect(args.b2b).toBe("si");
     expect(args.interests).toEqual(["adaptado"]);
+    // El "otro" de intereses se envía aparte; si no, se pierde lo que escriben.
+    expect(args).toHaveProperty("interestsOther");
     expect(args.consent).toBe("sin_nombre");
 
     // La pantalla de gracias muestra la sesión aunque el correo no salga.
@@ -385,6 +388,86 @@ describe("SurveyFlow", () => {
     info.session = null;
     render(<SurveyFlow token={"f".repeat(32)} />);
     expect(screen.getByText(/probable es que recomiendes/)).toBeTruthy();
+  });
+
+  it("al elegir 'Otro' NO avanza: muestra el campo para llenar", async () => {
+    render(<SurveyFlow token={"a1".repeat(16)} />);
+    // NPS -> avanza sola
+    fireEvent.click(screen.getByRole("button", { name: "9" }));
+    await waitFor(() => expect(screen.getByText(/más pesó/)).toBeTruthy());
+    fireEvent.click(screen.getByText("siguiente →"));
+    await waitFor(() => expect(screen.getByText(/Saliste con tu asistente/)).toBeTruthy());
+    fireEvent.click(screen.getByText("Sí, funcionando con mis propios documentos"));
+    await waitFor(() => expect(screen.getByText(/ritmo del workshop/)).toBeTruthy());
+    fireEvent.click(screen.getByText("Adecuado"));
+    await waitFor(() => expect(screen.getByText(/el precio te pareció/)).toBeTruthy());
+    fireEvent.click(screen.getByText("Justo"));
+    await waitFor(() => expect(screen.getByText(/Cómo te enteraste/)).toBeTruthy());
+
+    fireEvent.click(screen.getByText("Otro"));
+
+    // Lo que importa: se queda en la pregunta y aparece el campo "¿Cuál?".
+    expect(screen.getByText(/Cómo te enteraste/)).toBeTruthy();
+    const cual = screen.getByLabelText("¿Cuál? (una línea)");
+    expect(cual).toBeTruthy();
+    fireEvent.change(cual, { target: { value: "un grupo de Telegram" } });
+
+    // Y desde ahí sí se puede seguir con el botón.
+    fireEvent.click(screen.getByText("siguiente →"));
+    await waitFor(() => expect(screen.getByText(/conocías a Eduardo/)).toBeTruthy());
+  });
+
+  it("corregir desde la revisión vuelve a la revisión (no obliga a re-responder)", async () => {
+    render(<SurveyFlow token={"b1".repeat(16)} />);
+    // Camino corto hasta la revisión.
+    fireEvent.click(screen.getByRole("button", { name: "10" }));
+    await waitFor(() => expect(screen.getByText(/más pesó/)).toBeTruthy());
+    fireEvent.click(screen.getByText("siguiente →"));
+    await waitFor(() => expect(screen.getByText(/Saliste con tu asistente/)).toBeTruthy());
+    fireEvent.click(screen.getByText("Sí, funcionando con mis propios documentos"));
+    await waitFor(() => expect(screen.getByText(/ritmo del workshop/)).toBeTruthy());
+    fireEvent.click(screen.getByText("Adecuado"));
+    await waitFor(() => expect(screen.getByText(/el precio te pareció/)).toBeTruthy());
+    fireEvent.click(screen.getByText("Justo"));
+    await waitFor(() => expect(screen.getByText(/Cómo te enteraste/)).toBeTruthy());
+    fireEvent.click(screen.getByText("LinkedIn"));
+    await waitFor(() => expect(screen.getByText(/conocías a Eduardo/)).toBeTruthy());
+    fireEvent.click(screen.getByText("No"));
+    await waitFor(() => expect(screen.getByText(/tu empresa o equipo/)).toBeTruthy());
+    fireEvent.click(screen.getByText("Sí"));
+    await waitFor(() => expect(screen.getByText(/Qué te interesaría/)).toBeTruthy());
+    fireEvent.click(screen.getByText("Un workshop adaptado a mi profesión"));
+    fireEvent.click(screen.getByText("siguiente →"));
+    await waitFor(() => expect(screen.getByText(/cambiar una sola cosa/)).toBeTruthy());
+    fireEvent.click(screen.getByText("siguiente →"));
+    await waitFor(() => expect(screen.getByText(/usar tus respuestas/)).toBeTruthy());
+    fireEvent.click(screen.getByText("Sí, pero sin mi nombre"));
+    await waitFor(() => expect(screen.getByText("Revisa y envía")).toBeTruthy());
+
+    // Corregir el NPS (una pregunta de un toque que ya tiene respuesta).
+    const cambiar = screen.getAllByText("cambiar");
+    fireEvent.click(cambiar[0]);
+    await waitFor(() => expect(screen.getByText(/probable es que recomiendes/)).toBeTruthy());
+
+    // Sin tocar nada, el botón ya sirve y dice "listo" (no "siguiente").
+    const listo = screen.getByText("listo →");
+    expect(listo.closest("button")?.disabled).toBe(false);
+    fireEvent.click(listo);
+
+    // Vuelve a la revisión, no a la pregunta siguiente.
+    await waitFor(() => expect(screen.getByText("Revisa y envía")).toBeTruthy());
+    // Y el cambio se puede aplicar sin haber re-tocado la calificación.
+    fireEvent.click(screen.getByText("enviar →"));
+    await waitFor(() => expect(screen.getByText(/Gracias/)).toBeTruthy());
+    expect(submitMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("'Qué te interesaría' tiene Otro con campo para llenar", async () => {
+    // Se verifica sobre la definición: la pregunta trae la opción y su campo.
+    const interests = STEPS.find((s) => s.id === "interests");
+    expect(interests?.choices?.map((c) => c.value)).toContain("otro");
+    expect(interests?.extraFor).toBe("otro");
+    expect(interests?.extraId).toBe("interestsOther");
   });
 
   it("define las 11 preguntas del documento, con las 2 abiertas opcionales", () => {

@@ -31,16 +31,16 @@ export const STEPS: Step[] = [
     kind: "nps",
     title: "¿Qué tan probable es que recomiendes este workshop a un amigo o colega?",
     hint: "0 = nada probable · 10 = muy probable",
-    short: "NPS",
+    short: "Calificación general",
   },
   {
     id: "npsWhy",
     kind: "text",
-    title: "¿Qué fue lo que más pesó en tu nota?",
-    hint: "Lo que te lleva a marcar esa nota. Con dos líneas basta.",
+    title: "¿Qué fue lo que más pesó en tu calificación anterior?",
+    hint: "Lo que te lleva a marcarla. Con dos líneas basta.",
     placeholder: "Lo que me sirvió fue… lo que faltó fue…",
     optional: true,
-    short: "Por qué esa nota",
+    short: "Por qué esa calificación",
   },
   {
     id: "assistant",
@@ -90,19 +90,18 @@ export const STEPS: Step[] = [
     extraFor: "otro",
     extraId: "channelOther",
     extraLabel: "¿Cuál? (una línea)",
-    short: "Origen",
+    short: "Cómo nos encontraste",
   },
   {
     id: "knewHosts",
     kind: "single",
     title: "¿Antes de inscribirte, ¿conocías a Eduardo o a Francisco?",
-    hint: "Nos sirve para separar la demanda real de la confianza en la red cercana.",
     choices: [
       { value: "personal", label: "Sí, personalmente" },
       { value: "redes", label: "Solo de redes" },
       { value: "no", label: "No" },
     ],
-    short: "Red cercana",
+    short: "¿Nos conocías?"
   },
   {
     id: "b2b",
@@ -126,7 +125,11 @@ export const STEPS: Step[] = [
       { value: "adaptado", label: "Un workshop adaptado a mi profesión" },
       { value: "empresa", label: "Ayuda para montar un asistente en mi empresa o equipo" },
       { value: "nada", label: "Nada por ahora" },
+      { value: "otro", label: "Otro" },
     ],
+    extraFor: "otro",
+    extraId: "interestsOther",
+    extraLabel: "¿Cuál? (una línea)",
     short: "Qué sigue",
   },
   {
@@ -140,13 +143,13 @@ export const STEPS: Step[] = [
   {
     id: "consent",
     kind: "single",
-    title: "¿Podemos usar tu comentario de la pregunta 2 en nuestras redes o en la web?",
+    title: "¿Podemos usar tus respuestas en nuestras redes o en la web?",
     choices: [
       { value: "con_nombre", label: "Sí, con mi nombre" },
       { value: "sin_nombre", label: "Sí, pero sin mi nombre" },
       { value: "no", label: "No" },
     ],
-    short: "Uso del comentario",
+    short: "Uso de tus respuestas",
   },
 ];
 
@@ -199,11 +202,13 @@ function csvCell(value: unknown) {
 
 export type ResponseRow = {
   _id: string;
+  token: string;
   email: string;
   name: string;
   nps: number;
   npsWhy?: string;
   channelOther?: string;
+  interestsOther?: string;
   assistant: string;
   pace: string;
   price: string;
@@ -231,6 +236,7 @@ export function responsesToCsv(rows: ResponseRow[]): string {
     "Red cercana",
     "¿A tu empresa?",
     "Qué sigue",
+    "Qué sigue (otro)",
     "Qué cambiarías",
     "Uso del comentario",
     "Respondió",
@@ -249,7 +255,11 @@ export function responsesToCsv(rows: ResponseRow[]): string {
         : labelFor(r.channel),
       labelFor(r.knewHosts),
       labelFor(r.b2b),
-      (r.interests ?? []).map(labelFor).join(" + "),
+      (r.interests ?? [])
+        .filter((i) => i !== "otro")
+        .map(labelFor)
+        .join(" + "),
+      r.interestsOther ?? "",
       r.changeOne ?? "",
       labelFor(r.consent),
       new Date(r.updatedAt).toLocaleString("es-CO"),

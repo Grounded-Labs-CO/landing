@@ -7,7 +7,8 @@
 
 const BRAND_COLOR = "#B4552B";
 
-/** La fila de `followup_sessions`, tal como se guarda. */
+/** La fila de `followup_sessions`, tal como se guarda. (El nombre de la tabla
+ * queda en inglés: cambiarlo es una migración y no aporta nada al usuario.) */
 export type SessionLike = {
   title?: string;
   /** ISO `YYYY-MM-DD`. */
@@ -239,7 +240,7 @@ export function googleCalendarUrl(session: SessionLike): string {
 
   const params = new URLSearchParams({
     action: "TEMPLATE",
-    text: session.title || "Sesión de follow-up",
+    text: session.title || "Sesión de seguimiento",
     dates: `${compact}/${compactEnd}`,
     ctz: "America/Bogota",
   });
@@ -262,12 +263,12 @@ export function googleCalendarUrl(session: SessionLike): string {
  * Ojo: esta frase ya trae su propio "Como agradecimiento", así que en el correo
  * NO se le pone una etiqueta encima (quedaba dicho dos veces).
  */
-function followupLine(session: SessionLike | null | undefined): string {
+function seguimientoLine(session: SessionLike | null | undefined): string {
   const para = esList(session?.agenda);
   const cuando = formatDayShort(session?.date);
   if (!para && !cuando) return "";
   const fecha = cuando ? ` el ${cuando}` : " pronto";
-  return `Como agradecimiento${fecha} vamos a hacer una sesión virtual de follow-up${
+  return `Como agradecimiento${fecha} vamos a hacer una sesión virtual de seguimiento${
     para ? ` para ${para}` : ""
   }. Cuando termines la encuesta te llega el link de entrada con la hora.`;
 }
@@ -299,7 +300,7 @@ export function inviteTemplate({
   session?: SessionLike | null;
 }): Rendered {
   const hola = name ? `Hola ${name},` : "Hola,";
-  const seguimiento = followupLine(session);
+  const seguimiento = seguimientoLine(session);
 
   const html = shellHtml(
     // Sin encabezado propio: el cuerpo ya arranca agradeciendo, y un "Gracias
@@ -309,10 +310,10 @@ export function inviteTemplate({
       body(
         'Son 3 minutos. Y te pedimos que seas honesto: <span style="color:#DDE2E0;">lo que no te gustó nos sirve más que un elogio</span>.',
       ) +
-      cta(url, "contarnos qué te pareció →") +
+      cta(url, "contanos qué te pareció →") +
       (seguimiento ? body(seguimiento) : "") +
       body(
-        `¿No tienes esos 3 minutos? Tranquilo, escríbenos por WhatsApp al <span style="color:#DDE2E0;">${WHATSAPP}</span> y te mandamos el link de todas formas.`,
+        `¿No tienes esos 3 minutos? Tranquilo, escríbenos por WhatsApp al <span style="color:#DDE2E0;">${WHATSAPP}</span> y te mandamos igual el link de la sesión de seguimiento.`,
       ) +
       footnote(`Si el botón no funciona, abre este enlace: ${url}`),
     { preheader: invitePreheader(session) },
@@ -325,11 +326,11 @@ export function inviteTemplate({
     "",
     "Son 3 minutos. Y te pedimos que seas honesto: lo que no te gustó nos sirve más que un elogio.",
     "",
-    `Contarnos qué te pareció: ${url}`,
+    `Contanos qué te pareció: ${url}`,
     "",
     seguimiento,
     "",
-    `¿No tienes esos 3 minutos? Tranquilo, escríbenos por WhatsApp al ${WHATSAPP} y te mandamos el link de todas formas.`,
+    `¿No tienes esos 3 minutos? Tranquilo, escríbenos por WhatsApp al ${WHATSAPP} y te mandamos igual el link de la sesión de seguimiento.`,
     "",
     `Si el botón no funciona, abre este enlace: ${url}`,
   ]

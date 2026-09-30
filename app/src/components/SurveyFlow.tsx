@@ -64,6 +64,10 @@ export function SurveyFlow({ token }: { token?: string }) {
   const [status, setStatus] = useState<"idle" | "sending" | "done" | "error">("idle");
   const [errorText, setErrorText] = useState("");
   const [emailed, setEmailed] = useState(true);
+  // ¿Llegamos a esta pregunta tocando "cambiar" en la revisión? Si sí, al
+  // terminar hay que volver a la revisión, no seguir hacia adelante: si no,
+  // corregir la pregunta 2 obliga a recorrer las 9 siguientes otra vez.
+  const [editando, setEditando] = useState(false);
 
   const email = (info?.email ?? "").trim();
   const name = (info?.name ?? "").trim();
@@ -119,6 +123,9 @@ export function SurveyFlow({ token }: { token?: string }) {
   // Nada sale sin las obligatorias contestadas, aunque se salte con las flechas.
   const canSubmit = contactOk && STEPS.every((s) => s.optional || answered(s));
 
+  // El índice del paso de revisión (está después de la última pregunta).
+  const reviewIndex = steps.length;
+
   const goTo = useCallback(
     (next: number) => {
       setIndex(Math.max(0, Math.min(next, total - 1)));
@@ -127,6 +134,12 @@ export function SurveyFlow({ token }: { token?: string }) {
     },
     [total],
   );
+
+  /** Termina de corregir y vuelve a la revisión. */
+  const volverARevision = useCallback(() => {
+    setEditando(false);
+    goTo(reviewIndex);
+  }, [goTo, reviewIndex]);
 
   const submitAll = async () => {
     setStatus("sending");
@@ -140,6 +153,7 @@ export function SurveyFlow({ token }: { token?: string }) {
         nps: Number(answers.nps ?? -1),
         npsWhy: String(answers.npsWhy ?? ""),
         channelOther: String(answers.channelOther ?? ""),
+        interestsOther: String(answers.interestsOther ?? ""),
         assistant: String(answers.assistant ?? ""),
         pace: String(answers.pace ?? ""),
         price: String(answers.price ?? ""),
@@ -201,7 +215,10 @@ export function SurveyFlow({ token }: { token?: string }) {
             <Review
               steps={steps}
               answers={answers}
-              onEdit={(i) => goTo(i)}
+              onEdit={(i) => {
+                setEditando(true);
+                goTo(i);
+              }}
             />
           ) : (
             <Question
@@ -213,8 +230,14 @@ export function SurveyFlow({ token }: { token?: string }) {
               onAnswer={(v) => {
                 setAnswer(step.id, v);
                 // Un toque y avanza: menos hunting del botón "siguiente".
-                if (step.kind === "single" || step.kind === "nps") {
-                  goTo(index + 1);
+                // Salvo si la opción elegida pide llenar algo ("Otro" → ¿cuál?):
+                // ahí hay que quedarse en la pregunta, si no el campo nunca
+                // aparece y la respuesta se pierde.
+                const pideLlenar = step.extraFor != null && v === step.extraFor;
+                if ((step.kind === "single" || step.kind === "nps") && !pideLlenar) {
+                  // Corrigiendo: se vuelve a la revisión. Flujo normal: siguiente.
+                  if (editando) volverARevision();
+                  else goTo(index + 1);
                 }
               }}
               onExtra={(v) => step.extraId && setAnswer(step.extraId, v)}
@@ -228,13 +251,30 @@ export function SurveyFlow({ token }: { token?: string }) {
           index={index}
           total={total}
           isReview={isReview}
-          showNext={step ? step.kind === "contact" || step.kind === "multi" || step.kind === "text" : false}
+          showNext={
+            step
+              ? step.kind === "contact" ||
+                step.kind === "multi" ||
+                step.kind === "text" ||
+                step.optional === true ||
+                // Si ya tiene respuesta, se puede pasar sin tocar nada: es el
+                // caso de volver a una pregunta desde la revisión.
+                answered(step) ||
+                // single/nps con "Otro" elegido: hay que darle un botón para
+                // seguir después de escribir.
+                (step.extraFor != null && answers[step.id] === step.extraFor)
+              : false
+          }
+          editando={editando}
           canContinue={canContinue && contactOk}
           canSubmit={canSubmit}
           busy={status === "sending"}
           errorText={errorText}
-          onBack={() => goTo(index - 1)}
-          onNext={() => goTo(index + 1)}
+          onBack={() => {
+            setEditando(false);
+            goTo(index - 1);
+          }}
+          onNext={() => (editando ? volverARevision() : goTo(index + 1))}
           onSubmit={submitAll}
         />
       </div>
@@ -250,7 +290,8 @@ const CONTACT_STEP: Step = {
   id: "contact",
   kind: "contact",
   title: "¿Quién eres?",
-  hint: "Solo para poder cruzar tu respuesta con la inscripción. No es anónimo a propósito.",
+  hint: "Así sabemos de quién es la respuesta.",
+
   short: "Contacto",
 };
 
@@ -381,7 +422,9 @@ function Question({
       </div>
 
       {/* Campo extra (ej. "¿cuál?" cuando el origen es "otro"). */}
-      {step.extraFor && value === step.extraFor && (
+      {step.extraFor &&
+        (value === step.extraFor ||
+          (Array.isArray(value) && value.includes(step.extraFor))) && (
         <div className="mt-4">
           <input
             value={typeof extraValue === "string" ? extraValue : ""}
@@ -599,6 +642,7 @@ function Nav({
   total,
   isReview,
   showNext,
+  editando,
   canContinue,
   canSubmit,
   busy,
@@ -611,6 +655,7 @@ function Nav({
   total: number;
   isReview: boolean;
   showNext: boolean;
+  editando: boolean;
   canContinue: boolean;
   canSubmit: boolean;
   busy: boolean;
@@ -657,16 +702,11 @@ function Nav({
             disabled={!showNext || !canContinue}
             className="flex-1 border border-[#262E31] bg-[#111719] px-6 py-4 font-mono text-[12px] tracking-[0.12em] uppercase text-[#9AA3A1] transition-colors hover:border-[#6C7573] hover:text-[#F1F3F2] disabled:cursor-not-allowed disabled:opacity-40"
           >
-            siguiente →
+            {editando ? "listo →" : "siguiente →"}
           </button>
         )}
       </div>
 
-      <p className="font-mono text-[10px] leading-[1.6] text-[#565F62]">
-        {isReview
-          ? "3 minutos. Lo que no te gustó nos sirve más que un elogio."
-          : "Tu nombre y tu correo ya vienen puestos — no hay nada que escribir mal."}
-      </p>
       <span className="sr-only">
         {index + 1} de {total}
       </span>

@@ -1,5 +1,48 @@
 # Changelog
 
+## 2026-09-30 — Ajustes de la encuesta, borrado y susto en producción
+
+### Encuesta (texto y comportamiento)
+- "¿Qué fue lo que más pesó en tu **calificación anterior**?" (antes: "en tu nota").
+- Fuera las frases que eran notas para nosotros: la justificación del analista en "¿conocías a
+  Eduardo?", la aclaración del paso de contacto y el pie "tu nombre y tu correo ya vienen puestos".
+- Etiquetas de la revisión en lenguaje normal: "NPS" → **Calificación general**, "Origen" → "Cómo
+  nos encontraste", "Red cercana" → "¿Nos conocías?".
+- Consentimiento más general: "¿Podemos usar **tus respuestas** en nuestras redes o en la web?".
+- "Qué te interesaría tomar después" suma **Otro** con campo para llenar (columna nueva
+  `interestsOther` en `survey_responses`).
+
+### Arreglos
+- **"Otro" se saltaba el "¿Cuál?"**: en las preguntas de un toque el auto-avance se disparaba antes
+  de mostrar el campo. Ahora, si la opción pide llenar algo, la pregunta espera.
+- **Corregir desde la revisión**: el botón "siguiente" está deshabilitado en las preguntas de un
+  toque (avanzan solas), así que corregir obligaba a volver a tocar una opción y, peor, mandaba a
+  la pregunta siguiente en vez de volver. Ahora entra en modo corrección: el botón dice
+  **"listo →"**, se habilita sin tocar nada y vuelve a la revisión.
+- El formulario no enviaba `interestsOther`: lo que escribían se perdía.
+
+### Admin
+- **Borrar la encuesta de alguien**, con doble confirmación (`survey:deleteResponse`). La invitación
+  queda viva a propósito, para poder reenviar el link y que la persona vuelva a responder.
+
+### Correos
+- "**Contanos** qué te pareció" (antes "Contarnos").
+- "follow-up" → "**seguimiento**" en todo el texto visible (la tabla `followup_sessions` se queda
+  en inglés: renombrarla es una migración y no aporta nada al usuario).
+- El WhatsApp de respaldo ahora aclara que el link que se manda es el de la sesión de seguimiento.
+
+### Producción
+- **`https://www.grounded-labs.com/` es el dominio real** (no `grounded-labs.vercel.app`, que es un
+  deploy viejo). Documentado en AGENTS.md.
+- **Incidente**: el push del frontend llegó a prod antes que las funciones de Convex. Como `useQuery`
+  lanza el error en render, `/estudiantes` cayó para todos los alumnos (`SurveyNudge` pedía
+  `survey:mySurveyStatus`). Se resolvió con `convex deploy`. Regla nueva: **Convex primero, frontend
+  después**.
+
+### Pendiente
+- El **título de la sesión** guardado sigue diciendo "Sesión virtual de follow-up" en dev y prod (es
+  el que va al evento de Google Calendar). Se cambia a mano en `/admin` → *encuesta* → *sesión*.
+
 ## 2026-09-30 — Encuesta de cierre y sesión de follow-up
 
 Mide lo que el piloto del 26-sep dejó sin medir: NPS, finalización, percepción de precio,
