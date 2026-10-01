@@ -115,6 +115,7 @@ function shapeSession(s: Doc<"followup_sessions"> | null) {
     date: s.date ?? "",
     startTime: s.startTime ?? "",
     joinUrl: s.joinUrl ?? "",
+    durationMinutes: s.durationMinutes ?? 60,
     agenda: s.agenda ?? [],
     // Derivados (nunca se guardan): lo que se lee, si hay fecha y si ya pasó.
     when: formatWhen(s),
@@ -615,6 +616,7 @@ export const saveSession = mutation({
     date: v.optional(v.string()),
     startTime: v.optional(v.string()),
     joinUrl: v.optional(v.string()),
+    durationMinutes: v.optional(v.number()),
     agenda: v.array(v.string()),
   },
   handler: async (ctx, args) => {
@@ -627,6 +629,8 @@ export const saveSession = mutation({
       date: args.date?.trim() || undefined,
       startTime: args.startTime?.trim() || undefined,
       joinUrl: args.joinUrl?.trim() || undefined,
+      durationMinutes:
+        args.durationMinutes && args.durationMinutes > 0 ? args.durationMinutes : undefined,
       agenda: (args.agenda ?? []).map((a) => a.trim()).filter(Boolean),
       updatedAt: Date.now(),
     };

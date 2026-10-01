@@ -15,6 +15,8 @@ export type SessionLike = {
   date?: string;
   /** `HH:MM` en 24h. */
   startTime?: string;
+  /** Duración en minutos, la del evento de Google Calendar. Default 60. */
+  durationMinutes?: number;
   joinUrl?: string;
   agenda?: string[];
 };
@@ -224,14 +226,16 @@ export function panel(rows: { label: string; value: string }[]) {
 
 /**
  * Se calcula desde fecha+hora en vez de guardarse, para que no se pueda quedar
- * viejo si el admin mueve la fecha. La duración es de 2 horas por defecto.
+ * viejo si el admin mueve la fecha. La duración sale de `durationMinutes`
+ * (editable en /admin) y si no está, se asume 1 hora.
  */
 export function googleCalendarUrl(session: SessionLike): string {
   if (!session?.date || !ISO_DATE.test(session.date)) return "";
   const start =
     session.startTime && /^\d{2}:\d{2}$/.test(session.startTime) ? session.startTime : "09:00";
   const [h, m] = start.split(":").map(Number);
-  const end = new Date(Date.UTC(2000, 0, 1, 0, 0, 0, (h * 60 + m + 120) * 60 * 1000));
+  const minutos = session.durationMinutes && session.durationMinutes > 0 ? session.durationMinutes : 60;
+  const end = new Date(Date.UTC(2000, 0, 1, 0, 0, 0, (h * 60 + m + minutos) * 60 * 1000));
 
   const compact = `${session.date.replace(/-/g, "")}T${start.replace(":", "")}00`;
   const compactEnd =

@@ -747,28 +747,16 @@ function Done({
 
         {session?.date && <SessionCard session={session} />}
 
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-          {session?.joinUrl && (
-            <a
-              href={session.joinUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="flex-1 bg-[#B4552B] px-6 py-4 text-center font-mono text-[12px] font-medium tracking-[0.12em] uppercase text-[#0E1214] transition-colors hover:bg-[#9A4A24]"
-            >
-              guardar mi lugar →
-            </a>
-          )}
-          {session?.calendarUrl && (
-            <a
-              href={session.calendarUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="flex-1 border border-[#2F3A3D] px-6 py-4 text-center font-mono text-[12px] tracking-[0.12em] uppercase text-[#9AA3A1] transition-colors hover:border-[#9AA3A1] hover:text-[#F1F3F2]"
-            >
-              agendar
-            </a>
-          )}
-        </div>
+        {session?.calendarUrl && (
+          <a
+            href={session.calendarUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-8 self-start bg-[#B4552B] px-6 py-4 font-mono text-[12px] font-medium tracking-[0.12em] uppercase text-[#0E1214] transition-colors hover:bg-[#9A4A24]"
+          >
+            agendar en mi calendario →
+          </a>
+        )}
 
         <div className="mt-5 flex flex-col gap-3">
           <a
@@ -805,7 +793,7 @@ function SessionCard({ session }: { session: NonNullable<SessionInfo> }) {
       )}
       <dl className="mt-4 flex flex-col gap-2">
         {session.when && <Row label="cuándo" value={session.when} />}
-        <Row label="dónde" value="Virtual — el botón de abajo tiene el enlace" />
+        <Row label="dónde" value="Virtual — el enlace te llega por correo" />
       </dl>
       {session.agenda.length > 0 && (
         <>

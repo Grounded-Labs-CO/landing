@@ -45,6 +45,7 @@ type SessionRow = {
   date?: string;
   startTime?: string;
   joinUrl?: string;
+  durationMinutes?: number;
   agenda: string[];
 };
 
@@ -81,6 +82,12 @@ const STATUS_RANK: Record<Attendee["status"], number> = {
  * Los tres estados, escritos como lo que son en vez de como se llaman por
  * dentro. Antes se llamaban draft/open/closed y no se entendían.
  */
+/**
+ * Duraciones ofrecidas en el admin. Es lo que dura el evento de Google
+ * Calendar; nació porque estaba fijo en 2 h en el código y el taller dura 1.
+ */
+const DURACIONES = [30, 45, 60, 90, 120, 180];
+
 const FILTERS = {
   faltan: "faltan",
   todos: "todos",
@@ -765,6 +772,7 @@ function SessionForm({
   const [startTime, setStartTime] = useState(session?.startTime ?? "");
   const [joinUrl, setJoinUrl] = useState(session?.joinUrl ?? "");
   const [agenda, setAgenda] = useState((session?.agenda ?? []).join("\n"));
+  const [duration, setDuration] = useState(session?.durationMinutes ?? 60);
   const [busy, setBusy] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
 
@@ -779,6 +787,7 @@ function SessionForm({
         date,
         startTime,
         joinUrl,
+        durationMinutes: duration,
         agenda: agenda.split("\n"),
       });
       onSaved();
@@ -802,6 +811,16 @@ function SessionForm({
           onChange={setJoinUrl}
           placeholder="https://meet.google.com/…"
           wide
+        />
+        <SelectField
+          label="cuánto dura"
+          value={duration}
+          onChange={setDuration}
+          options={DURACIONES.map((m) => ({
+            value: m,
+            label: m < 60 ? `${m} minutos` : m === 60 ? "1 hora" : m === 90 ? "1 hora y media" : `${m / 60} horas`,
+          }))}
+          hint="es lo que dura el evento al agendar"
         />
       </div>
 
@@ -875,6 +894,41 @@ function SessionForm({
         )}
       </div>
     </div>
+  );
+}
+
+/** Desplegable simple, al estilo del panel (sin el DropdownSelect con popover). */
+function SelectField({
+  label,
+  value,
+  onChange,
+  options,
+  hint,
+}: {
+  label: string;
+  value: number;
+  onChange: (v: number) => void;
+  options: { value: number; label: string }[];
+  hint?: string;
+}) {
+  return (
+    <label className="flex flex-col gap-1.5">
+      <span className="font-mono text-[10px] tracking-[0.12em] uppercase text-[#6C7573]">
+        {label}
+      </span>
+      <select
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        className="border border-[#262E31] bg-[#0E1214] px-3 py-2.5 font-mono text-[12px] text-[#F1F3F2] outline-none transition-colors focus:border-[#B4552B]"
+      >
+        {options.map((o) => (
+          <option key={o.value} value={o.value} className="bg-[#0E1214]">
+            {o.label}
+          </option>
+        ))}
+      </select>
+      {hint && <span className="font-mono text-[10px] text-[#565F62]">{hint}</span>}
+    </label>
   );
 }
 

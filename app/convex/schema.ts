@@ -82,6 +82,9 @@ export default defineSchema({
     date: v.optional(v.string()),
     startTime: v.optional(v.string()),
     joinUrl: v.optional(v.string()),
+    // Cuánto dura, en minutos. Es lo que usa el evento de Google Calendar
+    // (antes eran 2 h fijas en el código). Si falta, se asume 1 hora.
+    durationMinutes: v.optional(v.number()),
     agenda: v.array(v.string()),
     updatedAt: v.number(),
   }).index("by_course", ["courseSlug"]),

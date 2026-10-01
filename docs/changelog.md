@@ -1,5 +1,20 @@
 # Changelog
 
+## 2026-10-01 — Duración del evento y limpieza de la pantalla de gracias
+
+### Sesión de seguimiento
+- **La duración del evento de Google Calendar ya no está fija en el código**: estaba en 2 h y el
+  taller dura 1. Ahora se elige en `/admin` → *encuesta* → *sesión* ("cuánto dura": 30 min, 45 min,
+  1 hora, 1 h y media, 2 h, 3 h), con **1 hora por defecto**. Columna nueva `durationMinutes` en
+  `followup_sessions`.
+- Es solo para el evento del calendario: el texto del correo no menciona la duración.
+
+### Pantalla de gracias de la encuesta
+- Fuera el botón **"guardar mi lugar"**: el lugar ya es suyo por haber respondido, y el enlace de la
+  sesión va en el correo de confirmación. Queda **"agendar en mi calendario →"** como única acción.
+- La ficha decía "el botón de abajo tiene el enlace" (ya no era cierto): ahora dice que el enlace
+  llega por correo.
+
 ## 2026-09-30 — Ajustes de la encuesta, borrado y susto en producción
 
 ### Encuesta (texto y comportamiento)

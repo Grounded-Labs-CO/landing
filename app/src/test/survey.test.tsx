@@ -186,10 +186,21 @@ describe("googleCalendarUrl", () => {
     const q = new URL(url).searchParams;
     expect(url).toContain("calendar.google.com/calendar/render");
     expect(q.get("action")).toBe("TEMPLATE");
-    expect(q.get("dates")).toBe("20261008T190000/20261008T210000");
+    // 1 hora por defecto (antes eran 2 h fijas en el código y el taller dura 1).
+    expect(q.get("dates")).toBe("20261008T190000/20261008T200000");
     expect(q.get("ctz")).toBe("America/Bogota");
     expect(q.get("location")).toBe("https://meet.google.com/abc");
     expect(q.get("details")).toContain("Dudas");
+  });
+
+  it("respeta la duración que se elige en el panel", () => {
+    const url = googleCalendarUrl({
+      title: "x",
+      date: "2026-10-08",
+      startTime: "19:00",
+      durationMinutes: 180,
+    });
+    expect(new URL(url).searchParams.get("dates")).toBe("20261008T190000/20261008T220000");
   });
 
   it("no devuelve nada sin fecha: es lo que se esconde en el panel", () => {
@@ -378,7 +389,9 @@ describe("SurveyFlow", () => {
 
     // La pantalla de gracias muestra la sesión aunque el correo no salga.
     expect(screen.getByText("jueves, 8 de octubre de 2026 · 7:00 p. m.")).toBeTruthy();
-    expect(screen.getByText("guardar mi lugar →")).toBeTruthy();
+    expect(screen.getByText("agendar en mi calendario →")).toBeTruthy();
+    // "guardar mi lugar" sobraba: el lugar ya es suyo y el link viene por correo.
+    expect(screen.queryByText("guardar mi lugar →")).toBeNull();
     expect(screen.getByText(/Te escribimos a/)).toBeTruthy();
   });
 

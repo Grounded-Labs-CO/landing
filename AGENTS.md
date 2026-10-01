@@ -33,11 +33,13 @@ Todo se opera desde `/admin` → pestaña *encuesta*, que son **tres sub-tabs nu
 vez** (apilados había que hacer mucho scroll para llegar al botón de enviar):
 
 1. **Sesión** — **una sola por workshop**, no varias. Cambiar la fecha es editar la misma fila.
-   Campos: título, **fecha** (`<input type="date">`), **hora** (`<input type="time">`), link y
-   agenda. **La fecha es lo único obligatorio.** Fecha y hora son ISO / `HH:MM`, no texto libre:
-   nada de escribir "jueves 8 de octubre" a mano. Todo lo legible se formatea desde ahí
-   (`formatDate`/`formatTime`) y hay vista previa ("en el correo va a decir: …"). El link de
-   **agendar** en Google Calendar **se arma solo** desde fecha+hora (`googleCalendarUrl`).
+   Campos: título, **fecha** (`<input type="date">`), **hora** (`<input type="time">`), link,
+   **cuánto dura** (desplegable: 30 min … 3 h, por defecto 1 hora) y agenda. **La fecha es lo único
+   obligatorio.** Fecha y hora son ISO / `HH:MM`, no texto libre: nada de escribir "jueves 8 de
+   octubre" a mano. Todo lo legible se formatea desde ahí (`formatDate`/`formatTime`). El link de
+   **agendar** en Google Calendar **se arma solo** desde fecha+hora+duración (`googleCalendarUrl`):
+   así no se puede quedar viejo ni durar lo que no dura. `durationMinutes` es solo para el evento
+   del calendario, no sale en el texto del correo.
    Sin campo de estado: **si tiene `date`, la sesión existe**; si ya pasó la fecha, `isPast()` la
    da por terminada y se deja de invitar y de recordar.
 2. **Invitar** — la lista real de inscritos, con casillas. Cada persona recibe un **link con
@@ -72,8 +74,8 @@ login (`robots: noindex`). El `?t=` solo se acepta si es hex de 16–64 chars; c
 cae al modo anónimo (pide nombre y correo).
 
 **Recordatorio en "mis cursos"** (`SurveyNudge`, `survey.mySurveyStatus`): aparece **solo** si ya
-se le mandó el correo, sigue sin responder y la sesión está en `confirmada`. Es una línea, tiene
-"ahora no" y se esconde para siempre en `localStorage`. No modal, no bloquea, no insiste.
+se le mandó el correo, sigue sin responder y la fecha de la sesión no pasó. Es una línea, tiene
+"ahora no" (un **snooze de 7 días**, no un borrado) y no bloquea nada. No modal, no insiste.
 
 Tablas: `survey_invites` (token + email + `sentAt`), `survey_responses` (una por token, se
 actualiza si reenvían), `followup_sessions` (uno por curso).
