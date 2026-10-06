@@ -1,6 +1,16 @@
 // @ts-nocheck
-import { action, mutation, query } from "./_generated/server";
+import { action, internalMutation, internalQuery, mutation, query } from "./_generated/server";
 import { api } from "./_generated/api";
+import { anyApi } from "convex/server";
+import {
+  DELETE_COURSE_CONFIRM,
+  buildCourseDoc,
+  buildFollowupDoc,
+  collectStorageIds,
+  normalizeSlug,
+  remapStorage,
+  stripSystem,
+} from "./cloneCourse";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
 
@@ -946,5 +956,216 @@ export const clearUserByEmail = mutation({
       deleted++;
     }
     return { email, deleted };
+  },
+});
+
+// --- Clonar / eliminar curso (docs/clonar-curso.md) ---
+
+// Lee el curso con todo lo que cuelga de él.
+async function loadCourseTree(ctx, courseId) {
+  const course = await ctx.db.get(courseId);
+  if (!course) throw new Error("Curso no encontrado");
+  const sections = await ctx.db
+    .query("course_sections")
+    .withIndex("by_course", (q) => q.eq("courseId", courseId))
+    .collect();
+  const items = [];
+  for (const s of sections) {
+    items.push(
+      ...(await ctx.db
+        .query("course_items")
+        .withIndex("by_section", (q) => q.eq("sectionId", s._id))
+        .collect()),
+    );
+  }
+  const profiles = await ctx.db
+    .query("sample_profiles")
+    .withIndex("by_course", (q) => q.eq("courseId", courseId))
+    .collect();
+  const files = [];
+  for (const p of profiles) {
+    files.push(
+      ...(await ctx.db
+        .query("sample_files")
+        .withIndex("by_profile", (q) => q.eq("profileId", p._id))
+        .collect()),
+    );
+  }
+  const followup = await ctx.db
+    .query("followup_sessions")
+    .withIndex("by_course", (q) => q.eq("courseSlug", course.slug))
+    .unique();
+  return { course, sections, items, profiles, files, followup };
+}
+
+async function assertSlugFree(ctx, slug) {
+  const existing = await ctx.db
+    .query("courses")
+    .withIndex("by_slug", (q) => q.eq("slug", slug))
+    .unique();
+  if (existing) throw new Error(`Ya existe un curso con slug "${slug}"`);
+}
+
+// Paso 1 de la action: valida el slug (falla rápido, antes de copiar archivos)
+// y entrega el árbol del curso. Va como internalQuery; el admin lo valida la action.
+export const cloneSnapshot = internalQuery({
+  args: { courseId: v.id("courses"), slug: v.string() },
+  handler: async (ctx, args) => {
+    const slug = normalizeSlug(args.slug);
+    await assertSlugFree(ctx, slug);
+    return await loadCourseTree(ctx, args.courseId);
+  },
+});
+
+// Paso 3: inserta todo en UNA transacción (o queda todo o nada).
+export const cloneApply = internalMutation({
+  args: {
+    courseId: v.id("courses"),
+    slug: v.string(),
+    title: v.string(),
+    schedule: v.optional(v.string()),
+    price: v.optional(v.string()),
+    storageMap: v.array(v.object({ from: v.string(), to: v.string() })),
+  },
+  handler: async (ctx, args) => {
+    await requireActiveAdmin(ctx);
+    const slug = normalizeSlug(args.slug);
+    await assertSlugFree(ctx, slug); // otro admin pudo tomarlo mientras se copiaba
+    const map = new Map(args.storageMap.map((m) => [m.from, m.to]));
+    const tree = await loadCourseTree(ctx, args.courseId);
+
+    const newCourseId = await ctx.db.insert(
+      "courses",
+      buildCourseDoc(tree.course, { slug, title: args.title, schedule: args.schedule, price: args.price }, map) as any,
+    );
+
+    const sectionMap = new Map();
+    for (const s of tree.sections) {
+      sectionMap.set(s._id, await ctx.db.insert("course_sections", { ...stripSystem(s), courseId: newCourseId } as any));
+    }
+    for (const it of tree.items) {
+      await ctx.db.insert(
+        "course_items",
+        { ...remapStorage(stripSystem(it), map), sectionId: sectionMap.get(it.sectionId) } as any,
+      );
+    }
+    const profileMap = new Map();
+    for (const p of tree.profiles) {
+      profileMap.set(
+        p._id,
+        await ctx.db.insert("sample_profiles", { ...remapStorage(stripSystem(p), map), courseId: newCourseId } as any),
+      );
+    }
+    for (const f of tree.files) {
+      await ctx.db.insert(
+        "sample_files",
+        { ...remapStorage(stripSystem(f), map), profileId: profileMap.get(f.profileId) } as any,
+      );
+    }
+    if (tree.followup) {
+      await ctx.db.insert("followup_sessions", buildFollowupDoc(tree.followup, slug, Date.now()) as any);
+    }
+    return { courseId: newCourseId, slug };
+  },
+});
+
+// Clona el curso con todo su material. Los archivos de storage se COPIAN (no se
+// comparten): los borrados/reemplazos de hoy no miran referencias cruzadas.
+// Una mutación no puede subir blobs, por eso va como action.
+export const cloneCourse = action({
+  args: {
+    courseId: v.id("courses"),
+    slug: v.string(),
+    title: v.string(),
+    schedule: v.optional(v.string()),
+    price: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    await ctx.runMutation(anyApi.survey.assertAdminInternal, {});
+    const title = args.title.trim();
+    if (!title) throw new Error("El título es obligatorio");
+    const slug = normalizeSlug(args.slug);
+    const tree = await ctx.runQuery(anyApi.admin.cloneSnapshot, { courseId: args.courseId, slug });
+
+    const copies = [];
+    try {
+      for (const oldId of collectStorageIds(tree)) {
+        const blob = await ctx.storage.get(oldId);
+        if (!blob) throw new Error("No se pudo copiar un archivo");
+        copies.push({ from: oldId, to: await ctx.storage.store(blob) });
+      }
+      return await ctx.runMutation(anyApi.admin.cloneApply, {
+        courseId: args.courseId,
+        slug,
+        title,
+        schedule: args.schedule,
+        price: args.price,
+        storageMap: copies,
+      });
+    } catch (e) {
+      for (const c of copies) {
+        try {
+          await ctx.storage.delete(c.to);
+        } catch {}
+      }
+      throw e;
+    }
+  },
+});
+
+// Datos de personas que impiden borrar un curso (pagos, invitaciones, respuestas).
+async function courseBlockers(ctx, slug) {
+  const regs = await ctx.db.query("workshop_registrations").withIndex("by_workshop", (q) => q.eq("workshopSlug", slug)).collect();
+  const invites = await ctx.db.query("survey_invites").withIndex("by_course", (q) => q.eq("courseSlug", slug)).collect();
+  const responses = await ctx.db.query("survey_responses").withIndex("by_course", (q) => q.eq("courseSlug", slug)).collect();
+  return { registrations: regs.length, invites: invites.length, responses: responses.length };
+}
+
+// Alimenta el modal de eliminar: qué se borra y si está bloqueado.
+export const deleteCoursePreview = query({
+  args: { courseId: v.id("courses") },
+  handler: async (ctx, args) => {
+    if (!(await isActiveAdmin(ctx))) return null;
+    const tree = await loadCourseTree(ctx, args.courseId);
+    const blockers = await courseBlockers(ctx, tree.course.slug);
+    return {
+      sections: tree.sections.length,
+      items: tree.items.length,
+      profiles: tree.profiles.length,
+      files: tree.files.length,
+      blockers,
+      blocked: blockers.registrations + blockers.invites + blockers.responses > 0,
+    };
+  },
+});
+
+export const deleteCourse = mutation({
+  args: { courseId: v.id("courses"), confirm: v.string() },
+  handler: async (ctx, args) => {
+    await requireActiveAdmin(ctx);
+    if (args.confirm !== DELETE_COURSE_CONFIRM) throw new Error("Confirmación incorrecta");
+    const tree = await loadCourseTree(ctx, args.courseId);
+    const b = await courseBlockers(ctx, tree.course.slug);
+    if (b.registrations + b.invites + b.responses > 0) {
+      throw new Error("Este curso tiene inscritos o respuestas de encuesta; no se puede eliminar");
+    }
+    const storageIds = collectStorageIds(tree);
+    for (const f of tree.files) await ctx.db.delete(f._id);
+    for (const p of tree.profiles) await ctx.db.delete(p._id);
+    for (const i of tree.items) await ctx.db.delete(i._id);
+    for (const s of tree.sections) await ctx.db.delete(s._id);
+    if (tree.followup) await ctx.db.delete(tree.followup._id);
+    await ctx.db.delete(args.courseId);
+    for (const id of storageIds) {
+      try {
+        await ctx.storage.delete(id);
+      } catch {}
+    }
+    return {
+      sections: tree.sections.length,
+      items: tree.items.length,
+      profiles: tree.profiles.length,
+      files: tree.files.length,
+    };
   },
 });

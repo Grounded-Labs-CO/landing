@@ -127,6 +127,14 @@ npx convex env set X valor          # variables del deployment (JWT_PRIVATE_KEY 
 - **Cambiar contenido del curso**: la BD es la fuente de verdad. Título, tagline, slug, horario, precio, eventInfo, link de calendario, **estado** y **brochure** desde `/admin` → *cursos*; secciones, ítems, links y sample data desde el dashboard de Convex. El título alimenta además el hero de la landing del workshop (query en vivo) y el `<title>` SEO (ISR ~5 min).
 - **Publicar un artículo/doc real** (pasa de "próximamente" a descargable): hoy solo por dashboard (`course_items`: `storageId` + `status: published`). Falta UI en `/admin`.
 - **Cambiar sample data**: hoy por dashboard de Convex (tablas `sample_profiles`/`sample_files` + storage) — el flujo viejo de `sample-data` + re-sembrar ya no existe. Atajos admin: `admin:setSampleProfileZip` (ZIP del expediente), `admin:replaceSampleFiles` (reemplaza el set de archivos; se suben con `admin:generateSampleFileUploadUrls`) y `admin:purgeOrphanStorage` (limpieza de archivos sin referencia, acepta `dryRun`).
+- **Clonar un curso (nueva edición)**: `/admin` → *cursos* → `clonar`. Pide slug nuevo (único), título,
+  fecha y precio. Copia secciones, ítems, sample data y **copia** los archivos de storage (no los
+  comparte: los borrados/reemplazos no miran referencias cruzadas). El clon queda `disabled`, sin
+  `calendarUrl` y con la sesión de follow-up sin fecha ni link; no copia inscritos ni encuestas. Es una
+  action (`admin:cloneCourse`) porque copia blobs. No tiene landing propia (`workshops/` está atado al
+  slug de finanzas). Diseño: `docs/clonar-curso.md`.
+- **Eliminar un curso**: `/admin` → *cursos* → `eliminar` → escribir `eliminar-curso`. Borra el curso y
+  su contenido con sus archivos. **Se niega** si hay inscripciones, invitaciones o respuestas de encuesta.
 - **Invitar a la encuesta + abrir la sesión de follow-up**: `/admin` → *encuesta*. Orden: (1)
   *sesión* → poner la fecha (lo único obligatorio), hora, link y agenda, y guardar; (2) *invitar* →
   marcar a la gente y enviar. Cada fila muestra si ya se envió y si respondió, así que reenviar es

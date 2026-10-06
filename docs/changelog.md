@@ -1,5 +1,27 @@
 # Changelog
 
+## 2026-10-06 — Clonar y eliminar cursos
+
+### Clonar curso (nueva edición)
+- `/admin` → *cursos* → **clonar**: crea otra edición del mismo curso reutilizando todo el material.
+  Pide slug nuevo (único), título, fecha y precio.
+- Copia el curso, secciones, ítems, perfiles de sample data y sus archivos. Los archivos de storage se
+  **copian**, no se comparten: los borrados y reemplazos de hoy no miran referencias cruzadas y
+  romperían el original.
+- El clon queda **desactivado** y sin link de calendario; la sesión de follow-up conserva título,
+  agenda y duración, pero sin fecha ni link. No copia inscritos, pagos ni encuestas.
+- Es una action (`admin:cloneCourse`) porque copia blobs; inserta todo en una transacción y borra
+  las copias si algo falla. Lógica pura en `convex/cloneCourse.ts`.
+- Limitación: el clon no tiene landing pública propia (`workshops/` está atado al slug de finanzas).
+
+### Eliminar curso
+- `/admin` → *cursos* → **eliminar**: modal que exige escribir `eliminar-curso` (también se valida en
+  el servidor). Muestra cuántas secciones, ítems, perfiles y archivos se borran.
+- Borra el curso y su contenido con sus archivos de storage.
+- **Se niega** si el curso tiene inscripciones, invitaciones o respuestas de encuesta.
+
+Diseño completo: `docs/clonar-curso.md`.
+
 ## 2026-10-01 — Duración del evento y limpieza de la pantalla de gracias
 
 ### Sesión de seguimiento

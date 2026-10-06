@@ -7,6 +7,7 @@ import type { Id } from "../../../convex/_generated/dataModel";
 import { useState } from "react";
 import { DropdownSelect } from "@/components/DropdownSelect";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { DeleteCourseDialog } from "@/components/DeleteCourseDialog";
 import { SurveyTab } from "@/components/SurveyTab";
 import { ChevronDownIcon } from "lucide-react";
 
@@ -817,6 +818,16 @@ function AdminPanel() {
   const [editPrice, setEditPrice] = useState("");
   const [editEventInfo, setEditEventInfo] = useState("");
   const [editCalendarUrl, setEditCalendarUrl] = useState("");
+  // Clonar / eliminar curso
+  const cloneCourse = useAction(api.admin.cloneCourse);
+  const [cloneId, setCloneId] = useState<string | null>(null);
+  const [cloneSlug, setCloneSlug] = useState("");
+  const [cloneTitle, setCloneTitle] = useState("");
+  const [cloneSchedule, setCloneSchedule] = useState("");
+  const [clonePrice, setClonePrice] = useState("");
+  const [cloneBusy, setCloneBusy] = useState(false);
+  const [cloneError, setCloneError] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ _id: Id<"courses">; title: string; slug: string } | null>(null);
 
   // Invitar
   const [inviteEmail, setInviteEmail] = useState("");
@@ -1280,6 +1291,25 @@ function AdminPanel() {
                     >
                       editar
                     </button>
+                    <button
+                      onClick={() => {
+                        setCloneId(c._id);
+                        setCloneError(null);
+                        setCloneSlug(`${c.slug}-2`);
+                        setCloneTitle(`${c.title} (copia)`);
+                        setCloneSchedule(c.schedule);
+                        setClonePrice((c.price ?? "").replace(/[^0-9]/g, ""));
+                      }}
+                      className="border border-[#262E31] px-3 py-1.5 font-mono text-[11px] uppercase text-[#9AA3A1] hover:text-[#F1F3F2]"
+                    >
+                      clonar
+                    </button>
+                    <button
+                      onClick={() => setDeleteTarget({ _id: c._id, title: c.title, slug: c.slug })}
+                      className="border border-[#262E31] px-3 py-1.5 font-mono text-[11px] uppercase text-[#E2A084] hover:border-[#5D2F2F]"
+                    >
+                      eliminar
+                    </button>
                     <DropdownSelect
                       size="sm"
                       options={[
@@ -1291,6 +1321,69 @@ function AdminPanel() {
                       value={(c as any).status ?? "active"}
                       onChange={(v) => void setCourseStatus({ courseId: c._id, status: v as any })}
                     />
+                  </div>
+                )}
+                {cloneId === c._id && (
+                  <div className="mt-4 grid gap-3 border-t border-[#262E31] pt-4">
+                    <p className="font-mono text-[11px] text-[#6C7573]">
+                      // se copia el material; no se copian inscritos ni encuestas. Queda
+                      deshabilitado: revisa sede, fecha y links antes de activarlo.
+                    </p>
+                    {[
+                      ["slug nuevo", cloneSlug, setCloneSlug],
+                      ["título", cloneTitle, setCloneTitle],
+                      ["fecha / horario", cloneSchedule, setCloneSchedule],
+                      ["precio COP", clonePrice, setClonePrice],
+                    ].map(([label, value, set]: any) => (
+                      <label
+                        key={label}
+                        className="grid gap-1 font-mono text-[10px] tracking-[0.08em] uppercase text-[#6C7573]"
+                      >
+                        {label}
+                        <input
+                          value={value}
+                          onChange={(e) => set(e.target.value)}
+                          className="border border-[#262E31] bg-[#0E1214] px-3 py-2 font-mono text-[12px] normal-case tracking-normal text-[#F1F3F2] outline-none focus:border-[#B4552B]"
+                        />
+                      </label>
+                    ))}
+                    {cloneError && (
+                      <p className="border border-[#3A1C0C] bg-[#1C2427] px-3 py-2 font-mono text-[11px] text-[#E2A084]">
+                        {cloneError}
+                      </p>
+                    )}
+                    <div className="flex gap-2">
+                      <button
+                        disabled={cloneBusy || !cloneSlug.trim() || !cloneTitle.trim()}
+                        onClick={async () => {
+                          setCloneBusy(true);
+                          setCloneError(null);
+                          try {
+                            await cloneCourse({
+                              courseId: c._id,
+                              slug: cloneSlug,
+                              title: cloneTitle,
+                              schedule: cloneSchedule,
+                              price: clonePrice ? `$${Number(clonePrice).toLocaleString("es-CO")}` : undefined,
+                            });
+                            setCloneId(null);
+                          } catch (e: any) {
+                            setCloneError(e.message ?? "error");
+                          }
+                          setCloneBusy(false);
+                        }}
+                        className="bg-[#B4552B] px-4 py-2 font-mono text-[11px] uppercase text-[#0E1214] hover:bg-[#9A4A24] disabled:opacity-50"
+                      >
+                        {cloneBusy ? "clonando…" : "clonar curso"}
+                      </button>
+                      <button
+                        disabled={cloneBusy}
+                        onClick={() => setCloneId(null)}
+                        className="border border-[#262E31] px-4 py-2 font-mono text-[11px] uppercase text-[#9AA3A1] hover:text-[#F1F3F2]"
+                      >
+                        cancelar
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
@@ -1404,6 +1497,8 @@ function AdminPanel() {
           }[]}
         />
       )}
+
+      <DeleteCourseDialog key={deleteTarget?._id ?? "none"} course={deleteTarget} onClose={() => setDeleteTarget(null)} />
 
       <ConfirmDialog
         open={confirmTarget !== null}
