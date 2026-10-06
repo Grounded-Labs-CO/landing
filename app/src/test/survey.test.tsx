@@ -389,7 +389,7 @@ describe("SurveyFlow", () => {
 
     // La pantalla de gracias muestra la sesión aunque el correo no salga.
     expect(screen.getByText("jueves, 8 de octubre de 2026 · 7:00 p. m.")).toBeTruthy();
-    expect(screen.getByText("agendar en mi calendario →")).toBeTruthy();
+    expect(screen.getByText("guardar en mi calendario →")).toBeTruthy();
     // "guardar mi lugar" sobraba: el lugar ya es suyo y el link viene por correo.
     expect(screen.queryByText("guardar mi lugar →")).toBeNull();
     expect(screen.getByText(/Te escribimos a/)).toBeTruthy();

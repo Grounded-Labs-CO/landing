@@ -4,16 +4,37 @@ import Image from "next/image";
 import { FileTextIcon } from "lucide-react";
 import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
+import { WaitlistForm } from "@/components/WaitlistForm";
 
 // Mientras la query resuelve (y si no hay BD), el hero mantiene el fallback.
+// Fecha y precio viven en la BD (editables en /admin): acá solo quedan los
+// valores por defecto para el primer render.
 const FALLBACK_TITLE = "Aprende IA construyendo tu Financial Advisor";
+const FALLBACK_SCHEDULE = "Presencial · 4 horas";
+const FALLBACK_PRICE = "$400.000";
 
 export default function FinanzasPage() {
   const course = useQuery(api.courses.getBySlug, { slug: "finanzas-personales-ia" });
   const status = course?.status ?? "active";
   const canReserve = status === "active";
   const full = status === "full";
-  const closed = status === "completed" || status === "disabled";
+  const completed = status === "completed";
+  const disabled = status === "disabled";
+  const closed = completed || disabled;
+  const schedule = course?.schedule ?? FALLBACK_SCHEDULE;
+  const price = course?.price ?? FALLBACK_PRICE;
+  // En el hero "edición finalizada" se lee mejor que "curso no disponible".
+  const availability = full
+    ? "sin cupo"
+    : completed
+      ? "edición finalizada"
+      : disabled
+        ? "no disponible"
+        : "12 cupos";
+  const closedLabel = completed ? "curso ya dictado" : "curso no disponible";
+  // El horario de la BD (ej. "Presencial · sábado 26 de septiembre · 4 horas")
+  // se separa para mantener el énfasis en la modalidad.
+  const [venue, ...scheduleRest] = schedule.split(" · ");
   return (
     <div className="bg-[#0E1214] text-[#F1F3F2]">
       {/* HERO — 2A */}
@@ -23,8 +44,7 @@ export default function FinanzasPage() {
       >
         <div className="flex flex-col gap-[30px]">
           <span className="font-mono text-[11px] tracking-[0.16em] uppercase text-[#B4552B]">
-            [workshop · 26 sep · medellín ·{" "}
-            {full ? "sin cupo" : closed ? "curso no disponible" : "12 cupos"}]
+            [workshop · presencial · {availability}]
           </span>
 
           <h1
@@ -42,14 +62,15 @@ export default function FinanzasPage() {
           </p>
           <div className="font-mono text-[12px] tracking-[0.08em] uppercase text-[#6C7573]">
             <span className="text-[#DDE2E0] normal-case tracking-normal font-sans text-[14px] font-medium">
-              Presencial en Medellín
+              {venue}
             </span>{" "}
-            · Sábado 26 de septiembre · No necesitas saber programar
+            · {scheduleRest.length > 0 ? `${scheduleRest.join(" · ")} · ` : ""}No necesitas saber
+            programar
           </div>
           <div className="flex gap-[14px] flex-wrap pt-[6px]">
             {closed ? (
               <span className="border border-[#262E31] bg-[#1C2427] px-[30px] py-[16px] font-mono text-[12px] tracking-[0.12em] uppercase text-[#9AA3A1]">
-                {status === "completed" ? "curso ya dictado" : "curso no disponible"}
+                {closedLabel}
               </span>
             ) : full ? (
               <span className="border border-[#5D4A2F] bg-[#1C2427] px-[30px] py-[16px] font-mono text-[12px] tracking-[0.12em] uppercase text-[#E2C084]">
@@ -418,15 +439,29 @@ export default function FinanzasPage() {
             </span>
             <div className="flex flex-col gap-2">
               <span className="font-mono text-[11px] tracking-[0.14em] uppercase text-[#6C7573]">
-                workshop presencial · sábado 26 sep · 4 horas ·{" "}
-                {full ? "cupos llenos" : closed ? "curso ya dictado" : "12 cupos"}
+                {schedule} ·{" "}
+                {full
+                  ? "cupos llenos"
+                  : completed
+                    ? "curso ya dictado"
+                    : disabled
+                      ? "curso no disponible"
+                      : "12 cupos"}
               </span>
-              <span className="text-[72px] font-extralight leading-none tracking-[-0.04em] text-[#F1F3F2]">
-                $400k
-              </span>
-              <span className="font-mono text-[12px] tracking-[0.12em] uppercase text-[#B4552B]">
-                Precio de lanzamiento
-              </span>
+              {closed ? (
+                <span className="max-w-[24ch] text-[30px] font-light leading-[1.2] tracking-[-0.02em] text-[#F1F3F2]">
+                  Precio de la próxima edición: por anunciar
+                </span>
+              ) : (
+                <>
+                  <span className="text-[72px] font-extralight leading-none tracking-[-0.04em] text-[#F1F3F2]">
+                    {price}
+                  </span>
+                  <span className="font-mono text-[12px] tracking-[0.12em] uppercase text-[#B4552B]">
+                    precio de lanzamiento
+                  </span>
+                </>
+              )}
             </div>
             <div className="flex flex-col gap-3">
               <span className="font-mono text-[12px] leading-[1.7] text-[#DDE2E0]">
@@ -457,9 +492,17 @@ export default function FinanzasPage() {
                 sin cupo
               </span>
             ) : (
-              <span className="mt-2 border border-[#262E31] bg-[#0E1214] px-8 py-[16px] font-mono text-[12px] tracking-[0.12em] uppercase text-center text-[#9AA3A1]">
-                {status === "completed" ? "curso ya dictado" : "curso no disponible"}
-              </span>
+              <div className="mt-2 flex flex-col gap-3 border border-[#262E31] bg-[#0E1214] p-5">
+                <span className="font-mono text-[11px] tracking-[0.12em] uppercase text-[#B4552B]">
+                  {completed ? "próxima edición" : "curso no disponible"}
+                </span>
+                <p className="font-mono text-[11px] leading-[1.7] text-[#9AA3A1]">
+                  {completed
+                    ? "La edición pasada ya se dictó. Déjanos tu correo y te avisamos apenas abramos la próxima."
+                    : "Déjanos tu correo y te avisamos cuando vuelva."}
+                </p>
+                <WaitlistForm source="workshop-finanzas-precio" />
+              </div>
             )}
           </div>
           <div className="flex flex-col gap-6">

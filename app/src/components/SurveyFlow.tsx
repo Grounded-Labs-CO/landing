@@ -754,7 +754,7 @@ function Done({
             rel="noreferrer"
             className="mt-8 self-start bg-[#B4552B] px-6 py-4 font-mono text-[12px] font-medium tracking-[0.12em] uppercase text-[#0E1214] transition-colors hover:bg-[#9A4A24]"
           >
-            agendar en mi calendario →
+            guardar en mi calendario →
           </a>
         )}
 

@@ -3,9 +3,14 @@ import Link from "next/link";
 import Image from "next/image";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
+import { WaitlistForm } from "@/components/WaitlistForm";
 
 export default function CorporatePage() {
   const publicCourses = useQuery(api.courses.list);
+  // Ediciones ya dictadas: se listan como tarjeta cerrada que lleva a la lista
+  // de espera (en vez de desaparecer de la página).
+  const pastCourses = useQuery(api.courses.listPast);
+  const firstOpen = publicCourses?.[0] ?? null;
   return (
     <div className="bg-[#0E1214] text-[#F1F3F2]">
       {/* HERO — 1.25fr / 1fr */}
@@ -75,14 +80,14 @@ export default function CorporatePage() {
           <div className="relative aspect-[4/5] overflow-hidden border border-[#262E31] bg-[#1C2427]">
             <Image
               src="/assets/lobby.jpeg"
-              alt="Lobby del workshop — espacio de trabajo colaborativo en Medellín"
+              alt="Lobby del workshop — espacio de trabajo colaborativo"
               fill
               sizes="(max-width: 900px) 100vw, 40vw"
               className="object-cover"
               priority
             />
             <span className="absolute left-0 top-0 bg-[#0E1214]/75 px-3 py-1.5 font-mono text-[10px] tracking-[0.12em] uppercase text-[#9AA3A1] backdrop-blur-sm">
-              Medellín · presencial
+              100% presencial
             </span>
           </div>
           <span className="font-mono text-[10px] leading-[1.7] text-[#565F62]">
@@ -189,6 +194,35 @@ export default function CorporatePage() {
                 </span>
                 <span className="font-mono text-[12px] leading-[1.7] text-[#B4552B] group-hover:text-[#F1F3F2]">
                   {c.status === "full" ? "sin cupo — avísame" : "→ ver detalles"}
+                </span>
+              </div>
+            </Link>
+          ))}
+          {(pastCourses ?? []).map((c) => (
+            <Link
+              key={c.slug}
+              href={`/workshops/${c.slug}#precio`}
+              className="border border-[#262E31] bg-[#0E1214] p-[38px_34px] flex flex-col gap-[22px] min-h-[420px] hover:border-[#B4552B] transition-colors group"
+            >
+              <div className="flex items-center justify-between gap-3">
+                <span className="font-mono text-[10px] tracking-[0.16em] uppercase text-[#6C7573]">
+                  workshop · ya dictado
+                </span>
+                <span className="border border-dashed border-[#2F3A3D] px-2 py-1 font-mono text-[9px] tracking-[0.14em] uppercase text-[#6C7573]">
+                  sin cupo
+                </span>
+              </div>
+              <span className="text-[30px] font-light leading-[1.15] tracking-[-0.02em] text-[#F1F3F2] group-hover:text-white">
+                {c.title}
+              </span>
+              <span className="text-[16px] leading-[1.7] text-[#9AA3A1]">{c.tagline}</span>
+              <div className="flex flex-col gap-2.5 mt-auto">
+                <div className="h-[1px] bg-[#2F3A3D]"></div>
+                <span className="font-mono text-[12px] leading-[1.7] text-[#DDE2E0]">
+                  {c.schedule}
+                </span>
+                <span className="font-mono text-[12px] leading-[1.7] text-[#B4552B] group-hover:text-[#F1F3F2]">
+                  me interesa la próxima edición →
                 </span>
               </div>
             </Link>
@@ -302,7 +336,7 @@ export default function CorporatePage() {
         <div className="mx-auto max-w-[1240px] px-12 max-[900px]:px-6 py-16 flex items-center justify-between gap-12 flex-wrap">
           <div className="flex flex-col gap-4 max-w-[28ch]">
             <span className="font-mono text-[11px] tracking-[0.16em] uppercase text-[#3A1C0C]">
-              [cupos · 12 máx · Medellín]
+              {firstOpen ? "[presencial · cupos 12 máx]" : "[próxima edición · presencial]"}
             </span>
             <span className="text-[40px] md:text-[44px] font-extralight leading-[1.05] tracking-[-0.03em]">
               Finanzas personales con IA.
@@ -310,16 +344,27 @@ export default function CorporatePage() {
               Con tus datos.
             </span>
           </div>
-          <div className="flex flex-col gap-4 items-start">
-            <span className="font-mono text-[12px] leading-[1.7] text-[#3A1C0C]/80 max-w-[32ch]">
-              {"// 4 horas · Presencial · Sales con 2–3 cosas aplicables mañana"}
-            </span>
-            <Link
-              href="#workshops"
-              className="bg-[#0E1214] text-[#F1F3F2] px-[30px] py-[16px] font-mono text-[12px] font-medium tracking-[0.12em] uppercase self-start hover:bg-[#1C2427] transition-colors"
-            >
-              reservar cupo — $400k
-            </Link>
+          <div className="flex w-full max-w-[420px] flex-col gap-4 items-start">
+            {firstOpen ? (
+              <>
+                <span className="font-mono text-[12px] leading-[1.7] text-[#3A1C0C]/80 max-w-[32ch]">
+                  {"// 4 horas · Presencial · Sales con 2–3 cosas aplicables mañana"}
+                </span>
+                <Link
+                  href="#workshops"
+                  className="bg-[#0E1214] text-[#F1F3F2] px-[30px] py-[16px] font-mono text-[12px] font-medium tracking-[0.12em] uppercase self-start hover:bg-[#1C2427] transition-colors"
+                >
+                  reservar cupo — {firstOpen.price}
+                </Link>
+              </>
+            ) : (
+              <>
+                <span className="font-mono text-[12px] leading-[1.7] text-[#3A1C0C]/80 max-w-[36ch]">
+                  {"// la edición pasada ya se dictó — te avisamos de la próxima"}
+                </span>
+                <WaitlistForm source="landing-cta-final" tone="terracota" className="w-full" />
+              </>
+            )}
           </div>
         </div>
       </section>

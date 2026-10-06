@@ -119,6 +119,7 @@ function DashboardTab({
   courses: { slug: string; title: string }[];
 }) {
   const [courseFilter, setCourseFilter] = useState<string>("todos");
+  const leads = useQuery(api.queries.listLeads);
   const cohort = students.filter(
     (s) => s.workshopSlug != null && (courseFilter === "todos" || s.workshopSlug === courseFilter),
   );
@@ -185,6 +186,33 @@ function DashboardTab({
         )}
       </div>
 
+      {/* Lista de espera post-workshop: correos capturados en la landing */}
+      <div className="border border-[#262E31] bg-[#111719] p-5">
+        <span className="font-mono text-[10px] tracking-[0.14em] uppercase text-[#6C7573]">
+          lista de espera · {leads?.length ?? 0}
+        </span>
+        {(leads ?? []).length === 0 ? (
+          <p className="mt-3 font-mono text-[11px] text-[#565F62]">
+            {"// sin correos todavía — se capturan desde la landing cerrada"}
+          </p>
+        ) : (
+          <ul className="mt-4 flex flex-col gap-2">
+            {[...(leads ?? [])]
+              .sort((a, b) => b.createdAt - a.createdAt)
+              .map((lead) => (
+                <li key={lead._id} className="flex items-center justify-between gap-3">
+                  <span className="min-w-0 truncate font-mono text-[12px] text-[#DDE2E0]">
+                    {lead.email}
+                  </span>
+                  <span className="shrink-0 font-mono text-[10px] text-[#6C7573]">
+                    {lead.source ?? "—"} ·{" "}
+                    {new Date(lead.createdAt).toLocaleDateString("es-CO")}
+                  </span>
+                </li>
+              ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }

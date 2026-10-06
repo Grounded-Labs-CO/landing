@@ -183,14 +183,6 @@ export function cta(url: string, label: string, { full = false }: { full?: boole
   </td></tr>`;
 }
 
-export function ctaGhost(url: string, label: string, { full = false }: { full?: boolean } = {}) {
-  return `<tr><td style="padding:12px 32px 0 32px;">
-    <a href="${url}" target="_blank" style="display:${full ? "block" : "inline-block"};${
-      full ? "text-align:center;" : ""
-    }border:1px solid #2F3A3D;color:#9AA3A1;text-decoration:none;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;padding:13px 26px;">${label}</a>
-  </td></tr>`;
-}
-
 export function footnote(text: string) {
   return `<tr><td style="padding:24px 32px 0 32px;font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:1.6;color:#6C7573;">${text}</td></tr>`;
 }
@@ -391,8 +383,7 @@ export function confirmationTemplate({
       panel(filas) +
       // La agenda va directa, sin el rótulo "Qué vamos a ver".
       (session?.agenda?.length ? bullets(session.agenda) : "") +
-      (session?.joinUrl ? cta(session.joinUrl, "entrar a la sesión →", { full: true }) : "") +
-      (calendarUrl ? ctaGhost(calendarUrl, "agendar", { full: true }) : "") +
+      (calendarUrl ? cta(calendarUrl, "guardar en mi calendario →", { full: true }) : "") +
       body(
         `Si se te complica conectarte ese día, no te preocupes: escríbenos al <span style="color:#DDE2E0;">${WHATSAPP}</span> y lo resolvemos por WhatsApp.`,
       ),
@@ -405,7 +396,8 @@ export function confirmationTemplate({
     "Gracias por tu respuesta: nos sirve mucho para mejorar. Te dejamos la información de la sesión:",
     "",
     cuando || null,
-    session?.joinUrl ? `Enlace: ${session.joinUrl}` : null,
+    session?.joinUrl ? `Enlace para entrar: ${session.joinUrl}` : null,
+    calendarUrl ? `Guardar en mi calendario: ${calendarUrl}` : null,
     session?.agenda?.length ? "" : null,
     ...(session?.agenda ?? []).map((a) => `· ${a}`),
     "",

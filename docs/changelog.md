@@ -105,6 +105,18 @@ origen de la venta, señal B2B y demanda de lo que sigue.
 - El flujo no se ha verificado en navegador: se probó por CLI contra el deployment, más tests,
   tipos y build.
 
+## 2026-09-26 — Cierre del workshop de finanzas (post-sesión)
+
+### Landing
+- Curso `finanzas-personales-ia` marcado `completed` en dev (`flippant-dog-457`) y prod (`careful-spaniel-774`): sale de "próximos eventos" y los estudiantes conservan el material (solo `disabled` bloquea).
+- Home y landing del workshop en modo cierre: copy "edición finalizada"/"curso ya dictado" en vez de "no disponible".
+- Fecha, horario y precio se leen de la BD (`schedule`/`price`), sin hardcodes de "26 sep"/"$400k".
+- Sin ciudad en la landing: "Medellín" → "presencial" (horario actualizado en la BD de dev y prod). El precio solo se muestra con edición abierta; en modo cerrado dice "Precio de la próxima edición: por anunciar".
+- **Lista de espera** para la próxima edición: `WaitlistForm` (correo → `leads` + fallback WhatsApp) en el CTA final del home y el bloque de precio del workshop.
+- Las ediciones ya dictadas se listan en "próximos eventos" como tarjeta con sello `ya dictado` y CTA "me interesa la próxima edición →" que lleva al bloque de precio del workshop (nueva query pública `courses.listPast`).
+- Dashboard de `/admin`: tarjeta "lista de espera" con los correos capturados (`api.queries.listLeads`).
+- SEO sin fecha fija (`layout.tsx`).
+
 ## 2026-09-08 — Landing y marca visual
 
 ### Landing corporativa

@@ -25,6 +25,26 @@ export const list = query({
   },
 });
 
+// Cursos ya dictados: se muestran en "próximos eventos" como tarjeta cerrada
+// (sello "ya dictado") para llevar a la lista de espera de la próxima edición.
+export const listPast = query({
+  args: {},
+  handler: async (ctx) => {
+    const courses = await ctx.db.query("courses").collect();
+    return courses
+      .filter((c) => ((c as any).status ?? "active") === "completed")
+      .sort((a, b) => b._creationTime - a._creationTime)
+      .map((course) => ({
+        slug: course.slug,
+        title: course.title,
+        tagline: course.tagline,
+        schedule: course.schedule,
+        price: course.price,
+        status: "completed" as const,
+      }));
+  },
+});
+
 export const getBySlug = query({
   args: { slug: v.string() },
   handler: async (ctx, args) => {

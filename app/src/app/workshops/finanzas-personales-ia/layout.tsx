@@ -4,7 +4,7 @@ import { api } from "../../../../convex/_generated/api";
 
 // Fallback si Convex no responde en build/ISR.
 const FALLBACK_TITLE =
-  "GROUNDED Labs | Aprende IA construyendo tu Financial Advisor — Workshop en Medellín";
+  "GROUNDED Labs | Aprende IA construyendo tu Financial Advisor — Workshop presencial";
 
 // El título del curso vive en la BD (editable en /admin). Con ISR corto, un
 // renombre se refleja en el <title> sin redeploy del Next.
@@ -17,7 +17,7 @@ export async function generateMetadata(): Promise<Metadata> {
       slug: "finanzas-personales-ia",
     });
     if (course?.title) {
-      return { title: `GROUNDED Labs | ${course.title} — Workshop en Medellín` };
+      return { title: `GROUNDED Labs | ${course.title} — Workshop presencial` };
     }
   } catch {
     // Sin conexión: cae al título fijo.

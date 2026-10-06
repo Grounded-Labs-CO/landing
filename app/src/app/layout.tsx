@@ -20,9 +20,9 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "GROUNDED Labs | Aprende IA construyendo tu Financial Advisor — Workshop en Medellín",
+  title: "GROUNDED Labs | Aprende IA construyendo tu Financial Advisor — Workshops presenciales",
   description:
-    "Workshop presencial de IA aplicada para profesionales que dependen de su conocimiento. Aprende a trabajar con tu información financiera y a usar IA en tu día a día. Medellín, 26 de septiembre.",
+    "Workshops presenciales de IA aplicada para profesionales que dependen de su conocimiento. Aprende a trabajar con tu información financiera y a usar IA en tu día a día. Nuevas ediciones, cupos limitados.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
