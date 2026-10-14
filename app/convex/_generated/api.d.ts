@@ -10,7 +10,6 @@
 
 import type * as admin from "../admin.js";
 import type * as auth from "../auth.js";
-import type * as cloneCourse from "../cloneCourse.js";
 import type * as courses from "../courses.js";
 import type * as email from "../email.js";
 import type * as http from "../http.js";
@@ -31,7 +30,6 @@ import type {
 declare const fullApi: ApiFromModules<{
   admin: typeof admin;
   auth: typeof auth;
-  cloneCourse: typeof cloneCourse;
   courses: typeof courses;
   email: typeof email;
   http: typeof http;
